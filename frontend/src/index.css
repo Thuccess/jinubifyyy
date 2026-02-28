@@ -1,0 +1,467 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design theme: minimal, high-contrast, typography-led.
+ * - Monochrome palette (black / white / neutrals); accent used sparingly (e.g. one CTA or highlight).
+ * - No decorative blurs, glows, or glassmorphism; flat panels with borders only.
+ * - Clean sans-serif, clear hierarchy (eyebrow → heading → body), structured sections.
+ * - Light and dark modes via semantic tokens below; no change to layout or structure.
+ */
+
+/* Base neutral scale (underlying values, used to derive semantic tokens) */
+:root {
+  /* Pure neutral grays from light to dark (no color tint) – single scale 50–900 */
+  --color-slate-50: #fafafa;
+  --color-slate-100: #f5f5f5;
+  --color-slate-200: #e5e5e5;
+  --color-slate-300: #d4d4d4;
+  --color-slate-400: #a3a3a3;
+  --color-slate-500: #737373;
+  --color-slate-600: #525252;
+  --color-slate-700: #404040;
+  --color-slate-800: #262626;
+  --color-slate-900: #171717;
+  --color-slate-950: #0a0a0a;
+  --color-black: #050505;
+
+  /* Background pattern tokens (used for dotted grid backgrounds) */
+  --bg-dot-color: var(--color-slate-300);
+
+  /* Light mode semantic tokens (monochrome: black / white / neutrals) */
+  --bg-primary: #ffffff; /* page background */
+  --bg-secondary: var(--color-slate-50);
+  --bg-elevated: var(--color-slate-100); /* distinct from primary for hierarchy */
+
+  --surface-card: #ffffff;
+  --surface-muted: var(--color-slate-100);
+
+  --text-primary: var(--color-slate-800); /* dark gray */
+  --text-secondary: var(--color-slate-600); /* 4.5:1+ on white */
+  --text-muted: var(--color-slate-500);
+  --text-inverted: var(--color-slate-50); /* for dark/solid surfaces */
+
+  /* Neutral accent (no chroma, used for emphasis & rings) */
+  --accent-primary: var(--color-slate-900); /* dark neutral */
+  --accent-soft: rgba(17, 17, 17, 0.08);
+  --accent-ring: rgba(17, 17, 17, 0.45);
+
+  --border-subtle: var(--color-slate-200);
+  --border-strong: var(--color-slate-300);
+  --border-accent: var(--color-slate-900);
+
+  /* Glassmorphism tokens (light mode) */
+  --glass-bg: color-mix(in_oklab, var(--surface-card) 80%, transparent);
+  --glass-border: color-mix(in_oklab, var(--border-subtle) 55%, transparent);
+  --glass-shadow-soft: 0 18px 45px color-mix(in_oklab, var(--accent-soft) 70%, var(--bg-primary));
+  --glass-shadow-strong: 0 24px 60px color-mix(in_oklab, var(--accent-soft) 90%, var(--bg-primary));
+  --glass-blur: 10px;
+
+  /* Footer CTA (light mode: dark panel, light text – from neutral scale) */
+  --cta-bg: var(--color-slate-900);
+  --cta-heading: var(--color-slate-50);
+  --cta-body: rgba(250, 250, 250, 0.88);
+  --cta-eyebrow: rgba(250, 250, 250, 0.72);
+  --cta-btn-bg: var(--color-slate-50);
+  --cta-btn-text: var(--color-slate-900);
+  --cta-btn-hover: var(--color-slate-200);
+  --cta-ring: rgba(0, 0, 0, 0.08);
+  --cta-glow: rgba(17, 17, 17, 0.12);
+
+  /* Button hover: smooth transparent transition */
+  --btn-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --btn-duration: 0.28s;
+}
+
+/* Dark mode semantic tokens (monochrome: from same neutral scale) */
+html.dark {
+  --bg-primary: var(--color-slate-950); /* soft dark (was near-black) */
+  --bg-secondary: var(--color-slate-900); /* subtle step for sections */
+  --bg-elevated: var(--color-slate-800); /* cards/panels */
+
+  --surface-card: var(--color-slate-900);
+  --surface-muted: var(--color-slate-800);
+
+  --text-primary: var(--color-slate-100); /* high contrast on dark */
+  --text-secondary: var(--color-slate-200);
+  --text-muted: var(--color-slate-300); /* readable labels and secondary copy */
+  --text-inverted: #050505; /* for light surfaces in dark mode */
+
+  /* Neutral accent in dark mode (from same neutral scale) */
+  --accent-primary: var(--color-slate-50);
+  --accent-soft: rgba(250, 250, 250, 0.16);
+  --accent-ring: rgba(250, 250, 250, 0.6);
+
+  --border-subtle: var(--color-slate-700); /* visible borders and dividers */
+  --border-strong: var(--color-slate-600);
+  --border-accent: var(--color-slate-200);
+
+  /* Background pattern tokens (dark mode) – subtle so text stays primary */
+  --bg-dot-color: color-mix(in_oklab, var(--color-slate-200) 38%, transparent);
+
+  /* Glassmorphism tokens (dark mode) */
+  --glass-bg: color-mix(in_oklab, var(--surface-card) 65%, transparent);
+  --glass-border: color-mix(in_oklab, var(--border-subtle) 65%, transparent);
+  --glass-shadow-soft: 0 18px 45px color-mix(in_oklab, var(--accent-soft) 65%, var(--bg-primary));
+  --glass-shadow-strong: 0 24px 60px color-mix(in_oklab, var(--accent-soft) 85%, var(--bg-primary));
+  --glass-blur: 14px;
+
+  /* Footer CTA (dark mode: light panel, dark text – from neutral scale) */
+  --cta-bg: var(--color-slate-100);
+  --cta-heading: var(--color-slate-900);
+  --cta-body: rgba(23, 23, 23, 0.82);
+  --cta-eyebrow: rgba(23, 23, 23, 0.65);
+  --cta-btn-bg: var(--color-slate-900);
+  --cta-btn-text: var(--color-slate-50);
+  --cta-btn-hover: var(--color-slate-800);
+  --cta-ring: rgba(255, 255, 255, 0.15);
+  --cta-glow: rgba(250, 250, 250, 0.2);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  transition: background-color 0.5s ease, color 0.5s ease;
+  overflow-x: hidden;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-zoom-in {
+  animation: zoomIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes zoomOut {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.95); }
+}
+
+.animate-zoom-out {
+  animation: zoomOut 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes contentFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-content-fade {
+  animation: contentFade 0.5s ease-in-out forwards;
+}
+
+/* Team page: staggered card reveal when section is in view */
+.team-card-reveal {
+  opacity: 0;
+  transform: translateY(16px);
+}
+.team-cards-visible .team-card-reveal {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .team-card-reveal {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
+/* Team modal: skip zoom/parallax when user prefers reduced motion */
+.team-modal.reduce-motion .team-modal-content {
+  animation: none !important;
+  opacity: 1;
+  transform: none;
+}
+
+.animate-spin-slow {
+  animation: spin 20s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes aurora {
+  from {
+    transform: translate(5vw, -5vh) scale(1);
+  }
+  to {
+    transform: translate(-10vw, 10vh) scale(1.2);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 1000px 100%;
+  animation: shimmer 3s infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(17, 24, 39, 0.35); }
+  50% { box-shadow: 0 0 40px rgba(17, 24, 39, 0.6); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.bg-gradient-animated {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+.btn-shine::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -200%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(110deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0) 60%);
+  transform: skewX(-25deg);
+  transition: left 1s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.btn-shine:hover::after {
+  left: 200%;
+}
+
+/* Marquee animation */
+.marquee {
+  overflow: hidden;
+  position: relative;
+  -webkit-mask-image: linear-gradient(to right, transparent, white 10%, white 90%, transparent);
+  mask-image: linear-gradient(to right, transparent, white 10%, white 90%, transparent);
+}
+
+.marquee-content {
+  display: flex;
+  animation: marquee 30s linear infinite;
+}
+
+.marquee:hover .marquee-content {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.marquee-content-reverse {
+  display: flex;
+  animation: marquee-reverse 40s linear infinite;
+}
+
+.marquee:hover .marquee-content-reverse {
+  animation-play-state: paused;
+}
+
+@keyframes marquee-reverse {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+/* Glassmorphism utilities
+   NOTE: Only use on cards, modals, dropdowns/popovers, sidebars, and small floating panels.
+*/
+
+.glass-surface {
+  position: relative;
+  background-color: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow-soft);
+}
+
+html.dark .glass-surface {
+  background-color: var(--glass-bg);
+  border-color: var(--glass-border);
+  box-shadow: var(--glass-shadow-soft);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .glass-surface {
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+  }
+}
+
+.glass-surface--card {
+  border-radius: 1.25rem;
+}
+
+.glass-surface--modal {
+  border-radius: 1.5rem;
+  box-shadow: var(--glass-shadow-strong);
+}
+
+.glass-surface--popover {
+  border-radius: 0.9rem;
+}
+
+.glass-surface--sidebar {
+  border-radius: 1.5rem;
+}
+
+.glass-surface--bar {
+  border-radius: 0;
+}
+
+/* Sticky header: stays at top when scrolling; fallback to fixed in older browsers */
+.header-sticky {
+  position: sticky;
+  top: 0;
+}
+@supports not (position: sticky) {
+  .header-sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+  /* When fixed fallback is used, reserve space so content doesn't jump */
+  .header-sticky + main {
+    padding-top: 4rem; /* 64px, approximate mobile header height */
+  }
+  @media (min-width: 768px) {
+    .header-sticky + main {
+      padding-top: 5rem; /* 80px, md header height */
+    }
+  }
+}
+
+/* Fixed header: always stays at top of viewport when scrolling */
+.header-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+/* Base smooth transition for all buttons */
+button,
+[class*="btn-primary"],
+[class*="btn-secondary"],
+[class*="btn-ghost"] {
+  transition-duration: var(--btn-duration);
+  transition-timing-function: var(--btn-ease);
+  transition-property: background-color, color, box-shadow, border-color, opacity, transform;
+}
+
+/* Reusable button styles – semantic tokens for dark/light mode */
+.btn-primary {
+  background-color: var(--accent-primary);
+  color: var(--text-inverted);
+  transition: background-color var(--btn-duration) var(--btn-ease), color var(--btn-duration) var(--btn-ease), box-shadow var(--btn-duration) var(--btn-ease), opacity var(--btn-duration) var(--btn-ease), transform var(--btn-duration) var(--btn-ease);
+  outline: none;
+}
+.btn-primary:hover {
+  background-color: color-mix(in_oklab, var(--accent-primary) 92%, transparent);
+}
+.btn-primary:focus-visible {
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent-ring);
+}
+
+.btn-secondary {
+  background-color: var(--surface-muted);
+  color: var(--text-primary);
+  transition: background-color var(--btn-duration) var(--btn-ease), color var(--btn-duration) var(--btn-ease), box-shadow var(--btn-duration) var(--btn-ease), opacity var(--btn-duration) var(--btn-ease), transform var(--btn-duration) var(--btn-ease);
+  outline: none;
+}
+.btn-secondary:hover {
+  background-color: color-mix(in_oklab, var(--border-subtle) 88%, transparent);
+}
+.btn-secondary:focus-visible {
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent-ring);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--accent-primary);
+  transition: background-color var(--btn-duration) var(--btn-ease), color var(--btn-duration) var(--btn-ease), box-shadow var(--btn-duration) var(--btn-ease), opacity var(--btn-duration) var(--btn-ease), transform var(--btn-duration) var(--btn-ease);
+  outline: none;
+}
+.btn-ghost:hover {
+  background-color: color-mix(in_oklab, var(--surface-muted) 75%, transparent);
+  color: var(--text-primary);
+}
+.btn-ghost:focus-visible {
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent-ring);
+}
+
+.glass-interactive {
+  transition:
+    background-color 200ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 200ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 200ms cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.glass-interactive:hover {
+  background-color: color-mix(in_oklab, var(--glass-bg) 90%, transparent);
+  box-shadow: var(--glass-shadow-strong);
+  transform: translateY(-2px);
+}
+
+.glass-interactive:active {
+  transform: translateY(0);
+  box-shadow: var(--glass-shadow-soft);
+}
+
+.glass-interactive:focus-visible {
+  outline: 2px solid var(--accent-ring);
+  outline-offset: 2px;
+}

@@ -1,0 +1,47 @@
+{
+  "name": "jinubify-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Jinubify MERN full-stack application",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "create-admin": "node scripts/createAdmin.js admin@jinubify.com admin1234 Admin",
+    "promote-admin": "node scripts/promoteAdmin.js",
+    "seed-cms": "node scripts/seedCms.js",
+    "seed-services": "node scripts/seedServices.js",
+    "seed-pricing": "node scripts/seedPricing.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "mongo-ui": "node scripts/runMongoExpress.js"
+  },
+  "keywords": [
+    "express",
+    "mongodb",
+    "mern",
+    "api"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.2.1",
+    "express-validator": "^7.0.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.3",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
+    "nodemailer": "^6.9.7",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
