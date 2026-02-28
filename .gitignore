@@ -6,10 +6,15 @@ node_modules/
 .env.local
 .env.*.local
 
-# OS
-.DS_Store
-
-# Logs and build
+# Logs and debug
 *.log
+npm-debug.log*
+
+# OS and editors
+.DS_Store
+.idea
+.vscode/
+
+# Build outputs
 dist/
 build/
