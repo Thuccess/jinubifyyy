@@ -1,6 +1,8 @@
 
+'use client';
+
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import AnimatedSection from '../AnimatedSection';
 import { 
     ShieldCheckIcon, 
@@ -314,7 +316,7 @@ const PrivacyPolicyPage: React.FC = () => {
                                         If you have any questions about this Privacy Policy, you can contact us.
                                     </p>
                                     <Link
-                                        to="/contact"
+                                        href="/contact"
                                         className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 text-text-inverted bg-brand-primary hover:opacity-90 text-sm sm:text-base font-semibold rounded-md"
                                     >
                                         <EnvelopeIcon className="w-4 h-4 sm:w-5 sm:h-5" />

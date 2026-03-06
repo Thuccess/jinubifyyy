@@ -1,4 +1,7 @@
+'use client';
+
 import React, { useState, useEffect, useMemo } from 'react';
+import Image from 'next/image';
 import AnimatedSection from '../AnimatedSection';
 import { ChevronLeftIcon, ChevronRightIcon, XMarkIcon } from '../icons/Icons';
 
@@ -85,8 +88,14 @@ const ProjectCard: React.FC<{ project: typeof allProjects[0]; onClick: () => voi
         onClick={onClick}
         className="group relative block w-full text-left rounded-lg overflow-hidden border border-border-subtle bg-[color:var(--surface-card)] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
     >
-        <div className="aspect-[4/3] overflow-hidden">
-            <img loading="lazy" src={project.imageUrl} alt="" className="w-full h-full object-cover" />
+        <div className="aspect-[4/3] overflow-hidden relative">
+            <Image
+              src={project.imageUrl}
+              alt=""
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
+              className="object-cover"
+            />
         </div>
         <div className="p-4 sm:p-5">
             <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">{project.category}</p>
@@ -125,11 +134,13 @@ const Lightbox: React.FC<{
             <XMarkIcon className="w-7 h-7" />
         </button>
         
-        <div className="relative w-full">
-            <img 
-                src={project.imageUrl} 
-                alt={project.title} 
-                className="w-full max-h-[75vh] object-contain rounded-xl shadow-2xl ring-2 ring-white/10" 
+        <div className="relative w-full aspect-video max-h-[75vh]">
+            <Image
+              src={project.imageUrl}
+              alt={project.title}
+              fill
+              sizes="(max-width: 1280px) 100vw, 1280px"
+              className="object-contain rounded-xl shadow-2xl ring-2 ring-white/10"
             />
         </div>
         <div className="mt-4 max-w-3xl mx-auto rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-6 text-left">

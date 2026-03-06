@@ -15,14 +15,27 @@ const pageSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
-    metaDescription: {
+    type: {
       type: String,
       trim: true,
-      default: '',
+      default: 'landing',
+      index: true,
     },
-    content: {
-      type: mongoose.Schema.Types.Mixed,
-      default: {},
+    seo: {
+      metaTitle: {
+        type: String,
+        trim: true,
+        default: '',
+      },
+      metaDescription: {
+        type: String,
+        trim: true,
+        default: '',
+      },
+      keywords: {
+        type: [String],
+        default: [],
+      },
     },
     isVisible: {
       type: Boolean,
@@ -36,7 +49,7 @@ const pageSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['draft', 'published', 'archived'],
+      enum: ['draft', 'review', 'published', 'archived'],
       default: 'published',
       index: true,
     },
@@ -45,11 +58,23 @@ const pageSchema = new mongoose.Schema(
       default: 0,
       index: true,
     },
+    version: {
+      type: Number,
+      default: 1,
+    },
+    lastPublishedAt: {
+      type: Date,
+    },
+    lastPublishedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
   },
   { timestamps: true }
 );
 
 pageSchema.index({ isDeleted: 1, status: 1, isVisible: 1, order: 1 });
+pageSchema.index({ slug: 1, status: 1, isDeleted: 1 });
 
 const Page = mongoose.model('Page', pageSchema);
 export default Page;

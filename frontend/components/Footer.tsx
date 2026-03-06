@@ -1,5 +1,7 @@
+ 'use client';
+
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { TwitterIcon, InstagramIcon, YouTubeIcon, FacebookIcon, WhatsAppIcon } from './icons/Socials';
 import { PaperAirplaneIcon, CogIcon } from './icons/Icons';
 import { useTheme } from '../contexts/ThemeContext';
@@ -47,19 +49,39 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
             { name: 'Home', path: '/' },
             { name: 'About', path: '/about' },
             { name: 'Services', path: '/services' },
-            { name: 'Demos', path: '/demos' },
-            { name: 'Blog', path: '/blog' },
-            { name: 'Team', path: '/team' },
+            { name: 'Demos & Case Studies', path: '/demos' },
+            { name: 'Portfolio', path: '/portfolio' },
+            { name: 'Industries We Serve', path: '/industries' },
+            { name: 'Technologies We Use', path: '/technologies' },
+            { name: 'Success Stories', path: '/success-stories' },
         ],
         Company: [
+            { name: 'Our Team', path: '/team' },
+            { name: 'Mission & Vision', path: '/mission-vision' },
+            { name: 'Partners', path: '/partners' },
+            { name: 'Career', path: '/career' },
+            { name: 'Investment', path: '/investment' },
+            { name: 'Company Profile', path: '/company-profile' },
+            { name: 'Press / Media', path: '/press-media' },
             { name: 'Contact', path: '/contact' },
-            { name: 'FAQ', path: '/#faq' },
+            { name: 'FAQ', path: '/faq' },
             ...(currentUser ? [{ name: 'Dashboard', path: '/dashboard' }] : []),
             { name: 'Admin', path: '/admin' },
         ],
+        Resources: [
+            { name: 'Blog', path: '/blog' },
+            { name: 'Resources', path: '/resources' },
+            { name: 'Guides / Knowledge Base', path: '/guides' },
+            { name: 'Webinars & Events', path: '/events' },
+            { name: 'Free Tools', path: '/tools' },
+            { name: 'Newsletter', path: '/newsletter' },
+        ],
         Legal: [
             { name: 'Privacy Policy', path: '/privacy-policy' },
-            { name: 'Terms of Service', path: '/terms-of-service' },
+            { name: 'Terms & Conditions', path: '/terms-of-service' },
+            { name: 'Cookie Policy', path: '/cookie-policy' },
+            { name: 'Refund Policy', path: '/refund-policy' },
+            { name: 'Disclaimer', path: '/disclaimer' },
         ],
     };
 
@@ -69,7 +91,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
                 {/* CTA Section – uses --cta-* vars for tuned light/dark mode */}
                 <div
                     className="relative rounded-3xl overflow-hidden shadow-2xl ring-1 ring-inset bg-[color:var(--cta-bg)] transition-colors duration-300"
-                    style={{ minHeight: '12rem', boxShadow: '0 25px 50px -12px color-mix(in_oklab, var(--cta-glow) 80%, transparent)' }}
+                    style={{ minHeight: '12rem', boxShadow: '0 25px 50px -12px var(--cta-glow)' }}
                 >
                     <div className="absolute inset-0 ring-1 ring-inset ring-[color:var(--cta-ring)] pointer-events-none rounded-3xl" aria-hidden="true" />
                     {/* Decorative background */}
@@ -91,7 +113,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
                             </p>
                         </div>
                         <Link
-                            to="/contact"
+                            href="/contact"
                             className="flex-shrink-0 group inline-flex items-center justify-center px-8 py-4 text-base font-semibold rounded-xl shadow-lg transition-all duration-300 ease-out hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-[color:var(--cta-bg)] bg-[color:var(--cta-btn-bg)] hover:bg-[color:var(--cta-btn-hover)]"
                             style={{ color: 'var(--cta-btn-text)' }}
                         >
@@ -105,7 +127,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
                 <div className="mt-20 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-10">
                     {/* Brand block */}
                     <div className="lg:col-span-5 flex flex-col">
-                        <Link to="/" className="inline-block" aria-label="Jinubify Home">
+                        <Link href="/" className="inline-block" aria-label="Jinubify Home">
                             <Logo theme={theme} />
                         </Link>
                         <p className="mt-5 text-text-secondary text-base leading-relaxed max-w-sm">
@@ -136,7 +158,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
                                     {links.map((item: { name: string; path: string }) => (
                                         <li key={item.name}>
                                             <Link
-                                                to={item.path}
+                                                href={item.path}
                                                 className="text-sm text-text-secondary hover:text-brand-primary transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg-primary)] rounded"
                                             >
                                                 {item.name}
@@ -156,7 +178,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
                     </p>
                     <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6 order-1 sm:order-2">
                         <Link
-                            to="/admin"
+                            href="/admin"
                             className="inline-flex items-center gap-2 text-sm font-medium text-text-muted hover:text-brand-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 rounded"
                         >
                             <CogIcon className="h-4 w-4" aria-hidden />

@@ -1,10 +1,12 @@
+ 'use client';
+
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import AnimatedSection from '../../AnimatedSection';
 import { PaintBrushIcon, CheckIcon, ArrowRightIcon } from '../../icons/Icons';
 
 const GraphicDesignDemo: React.FC = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <div className="animate-fade-in">
@@ -156,14 +158,14 @@ const GraphicDesignDemo: React.FC = () => {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <button
-                    onClick={() => navigate('/contact')}
+                    onClick={() => router.push('/contact')}
                     className="group inline-flex items-center justify-center px-6 py-3.5 text-base font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
                   >
                     Request a Quote
                     <ArrowRightIcon className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
                   </button>
                   <button
-                    onClick={() => navigate('/contact')}
+                    onClick={() => router.push('/contact')}
                     className="inline-flex items-center justify-center px-6 py-3.5 text-base font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-all duration-200"
                   >
                     Contact Us

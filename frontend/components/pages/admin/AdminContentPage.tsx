@@ -1,8 +1,11 @@
+ 'use client';
+
 import React, { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '../../layout/admin/AdminLayout';
 import { PostsIcon, CodeBracketIcon, MegaphoneIcon, LinkIcon, CogIcon, PencilSquareIcon, DeleteIcon, PlusIcon } from '../../icons/Icons';
 import { adminCmsAPI } from '../../../services/api';
 import { useCms } from '../../../contexts/CmsContext';
+import { useAuth } from '../../../contexts/AuthContext';
 
 type NavItemRecord = {
   _id: string;
@@ -22,6 +25,196 @@ type SiteSettingRecord = {
   isVisible?: boolean;
 };
 
+const SECTION_TYPE_OPTIONS: Array<{ id: string; label: string; description: string }> = [
+  { id: 'hero', label: 'Hero', description: 'Large hero banner with headline and CTA.' },
+  { id: 'text', label: 'Text', description: 'Simple text block with heading and body.' },
+  { id: 'grid', label: 'Grid', description: 'Multi-column grid of items or features.' },
+  { id: 'faq', label: 'FAQ', description: 'Questions and answers in an accordion.' },
+  { id: 'gallery', label: 'Gallery', description: 'Image gallery or logo strip.' },
+  { id: 'stats', label: 'Stats', description: 'Numeric stats or KPI highlights.' },
+  { id: 'cta', label: 'Call to action', description: 'Prominent CTA banner with button.' },
+  { id: 'form', label: 'Form', description: 'Configurable form section.' },
+];
+
+type PageMetaEditorProps = {
+  page: Record<string, unknown>;
+  saving: string | null;
+  role?: string;
+  onChange: (page: Record<string, unknown>) => void;
+  onSave: (payload: Record<string, unknown>) => Promise<void>;
+};
+
+const PageMetaEditor: React.FC<PageMetaEditorProps> = ({ page, saving, role, onChange, onSave }) => {
+  const id = String(page._id ?? '');
+  const status = String(page.status ?? 'draft');
+  const seo = (page.seo as { metaTitle?: string; metaDescription?: string; keywords?: string[] }) || {};
+  const handleFieldChange = (key: string, value: unknown) => {
+    onChange({ ...page, [key]: value });
+  };
+  const handleSeoChange = (key: 'metaTitle' | 'metaDescription' | 'keywords', value: unknown) => {
+    const nextSeo = {
+      metaTitle: seo.metaTitle || '',
+      metaDescription: seo.metaDescription || '',
+      keywords: Array.isArray(seo.keywords) ? seo.keywords : [],
+      [key]: key === 'keywords' && typeof value === 'string' ? value.split(',').map((k) => k.trim()).filter(Boolean) : value,
+    };
+    onChange({ ...page, seo: nextSeo });
+  };
+
+  const isSaving = saving === id;
+  const isEditorOnly = role === 'editor';
+
+  return (
+    <form
+      className="space-y-3"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        await onSave({
+          slug: page.slug,
+          title: page.title,
+          type: page.type,
+          isVisible: page.isVisible,
+          status: page.status,
+          seo: {
+            metaTitle: seo.metaTitle,
+            metaDescription: seo.metaDescription,
+            keywords: seo.keywords,
+          },
+        });
+      }}
+    >
+      <div className="space-y-1">
+        <label className="block text-xs font-medium text-slate-600 dark:text-slate-300">Slug</label>
+        <input
+          type="text"
+          value={String(page.slug ?? '')}
+          onChange={(e) => handleFieldChange('slug', e.target.value)}
+          className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+          placeholder="/about"
+        />
+      </div>
+      <div className="space-y-1">
+        <label className="block text-xs font-medium text-slate-600 dark:text-slate-300">Title</label>
+        <input
+          type="text"
+          value={String(page.title ?? '')}
+          onChange={(e) => handleFieldChange('title', e.target.value)}
+          className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-1">
+          <label className="block text-xs font-medium text-slate-600 dark:text-slate-300">Type</label>
+          <select
+            value={String(page.type ?? 'landing')}
+            onChange={(e) => handleFieldChange('type', e.target.value)}
+            className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+          >
+            <option value="home">Home</option>
+            <option value="about">About</option>
+            <option value="service">Service</option>
+            <option value="blog">Blog</option>
+            <option value="legal">Legal</option>
+            <option value="landing">Landing</option>
+          </select>
+        </div>
+        <div className="space-y-1">
+          <label className="block text-xs font-medium text-slate-600 dark:text-slate-300">Status</label>
+          <select
+            value={status}
+            onChange={(e) => handleFieldChange('status', e.target.value)}
+            className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+          >
+            <option value="draft">Draft</option>
+            <option value="review">In review</option>
+            {!isEditorOnly && <option value="published">Published</option>}
+            <option value="archived">Archived</option>
+          </select>
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+          <input
+            type="checkbox"
+            checked={page.isVisible !== false}
+            onChange={(e) => handleFieldChange('isVisible', e.target.checked)}
+            className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-brand-primary"
+          />
+          Visible on site
+        </label>
+        {page.version && (
+          <span className="text-[11px] text-slate-500 dark:text-slate-400">v{String(page.version)}</span>
+        )}
+      </div>
+
+      <div className="pt-2 border-t border-slate-200 dark:border-slate-700 space-y-2">
+        <p className="text-xs font-medium text-slate-700 dark:text-slate-200">SEO</p>
+        <div className="space-y-1">
+          <label className="block text-xs font-medium text-slate-600 dark:text-slate-300">Meta title</label>
+          <input
+            type="text"
+            value={seo.metaTitle || ''}
+            onChange={(e) => handleSeoChange('metaTitle', e.target.value)}
+            className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="block text-xs font-medium text-slate-600 dark:text-slate-300">Meta description</label>
+          <textarea
+            value={seo.metaDescription || ''}
+            onChange={(e) => handleSeoChange('metaDescription', e.target.value)}
+            className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+            rows={3}
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="block text-xs font-medium text-slate-600 dark:text-slate-300">Keywords</label>
+          <input
+            type="text"
+            value={Array.isArray(seo.keywords) ? seo.keywords.join(', ') : ''}
+            onChange={(e) => handleSeoChange('keywords', e.target.value)}
+            className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+            placeholder="seo, keywords, here"
+          />
+        </div>
+      </div>
+
+      <div className="flex gap-2 pt-2">
+        <button
+          type="submit"
+          disabled={isSaving}
+          className="flex-1 inline-flex justify-center px-3 py-2 rounded-lg btn-primary text-sm disabled:opacity-60"
+        >
+          {isSaving ? 'Saving…' : status === 'published' ? 'Save & republish' : isEditorOnly && status === 'review' ? 'Save review' : 'Save draft'}
+        </button>
+        {isEditorOnly && status !== 'review' && (
+          <button
+            type="button"
+            disabled={isSaving}
+            onClick={async () => {
+              await onSave({
+                slug: page.slug,
+                title: page.title,
+                type: page.type,
+                isVisible: page.isVisible,
+                status: 'review',
+                seo: {
+                  metaTitle: seo.metaTitle,
+                  metaDescription: seo.metaDescription,
+                  keywords: seo.keywords,
+                },
+              });
+            }}
+            className="inline-flex px-3 py-2 rounded-lg border border-amber-500 text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40"
+          >
+            Submit for review
+          </button>
+        )}
+      </div>
+    </form>
+  );
+};
+
 const AdminContentPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState<'site' | 'pages' | 'sections' | 'media'>('site');
   const [navItems, setNavItems] = useState<NavItemRecord[]>([]);
@@ -33,10 +226,32 @@ const AdminContentPage: React.FC = () => {
   const [navEditHref, setNavEditHref] = useState('');
   const [newNavLabel, setNewNavLabel] = useState('');
   const [newNavHref, setNewNavHref] = useState('');
-  const [pages, setPages] = useState<Array<{ _id: string; slug: string; title: string; isVisible?: boolean; status?: string; order?: number }>>([]);
+  const [pages, setPages] = useState<
+    Array<{
+      _id: string;
+      slug: string;
+      title: string;
+      type?: string;
+      isVisible?: boolean;
+      status?: string;
+      order?: number;
+      seo?: { metaTitle?: string; metaDescription?: string; keywords?: string[] };
+      version?: number;
+    }>
+  >([]);
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [pageDetail, setPageDetail] = useState<{ page: Record<string, unknown>; sections: Array<Record<string, unknown>> } | null>(null);
+  const [pageFilters, setPageFilters] = useState<{ type: string; status: string; search: string }>({
+    type: 'all',
+    status: 'all',
+    search: '',
+  });
+  const [editingPage, setEditingPage] = useState<Record<string, unknown> | null>(null);
+  const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
+  const [draggingSectionId, setDraggingSectionId] = useState<string | null>(null);
+  const [dragOverSectionId, setDragOverSectionId] = useState<string | null>(null);
   const { refetch: refetchCms } = useCms();
+  const { currentUser } = useAuth();
 
   const contentSections = [
     { id: 'site', label: 'Site & Navigation', icon: <LinkIcon className="h-5 w-5" /> },
@@ -154,8 +369,12 @@ const AdminContentPage: React.FC = () => {
   const loadPages = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await adminCmsAPI.getPages();
-      const data = (res.data || []) as Array<{ _id: string; slug: string; title: string; isVisible?: boolean; status?: string; order?: number }>;
+      const params: { type?: string; status?: string; search?: string } = {};
+      if (pageFilters.type !== 'all') params.type = pageFilters.type;
+      if (pageFilters.status !== 'all') params.status = pageFilters.status;
+      if (pageFilters.search.trim()) params.search = pageFilters.search.trim();
+      const res = await adminCmsAPI.getPages(params);
+      const data = (res.data || []) as Array<{ _id: string; slug: string; title: string }>;
       setPages(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error('Load pages error:', e);
@@ -163,7 +382,7 @@ const AdminContentPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [pageFilters]);
 
   const loadPageDetail = useCallback(async (pageId: string) => {
     setSelectedPageId(pageId);
@@ -204,6 +423,54 @@ const AdminContentPage: React.FC = () => {
       console.error('Delete section error:', e);
     } finally {
       setSaving(null);
+    }
+  };
+
+  const handleDuplicateSection = async (pageId: string, section: { _id: string; sectionKey: string; type?: string; content?: Record<string, unknown>; isVisible?: boolean }) => {
+    setSaving(section._id);
+    try {
+      await adminCmsAPI.createSection(pageId, {
+        sectionKey: section.sectionKey,
+        type: section.type || section.sectionKey,
+        content: (section.content as Record<string, unknown>) || {},
+        isVisible: section.isVisible !== false,
+        status: 'draft',
+      });
+      if (selectedPageId === pageId) await loadPageDetail(pageId);
+      refetchCms();
+    } catch (e) {
+      console.error('Duplicate section error:', e);
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const handleReorderSections = async (pageId: string, fromId: string, toId: string) => {
+    if (!pageDetail) return;
+    const sections = (pageDetail.sections as Array<{ _id: string; order?: number }>).slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const fromIndex = sections.findIndex((s) => s._id === fromId);
+    const toIndex = sections.findIndex((s) => s._id === toId);
+    if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return;
+    const updated = sections.slice();
+    const [moved] = updated.splice(fromIndex, 1);
+    updated.splice(toIndex, 0, moved);
+    try {
+      setSaving('reorder');
+      await Promise.all(
+        updated.map((sec, index) =>
+          adminCmsAPI.updateSection(pageId, sec._id, {
+            order: index,
+          })
+        )
+      );
+      if (selectedPageId === pageId) await loadPageDetail(pageId);
+      refetchCms();
+    } catch (e) {
+      console.error('Reorder sections error:', e);
+    } finally {
+      setSaving(null);
+      setDraggingSectionId(null);
+      setDragOverSectionId(null);
     }
   };
 
@@ -397,70 +664,275 @@ const AdminContentPage: React.FC = () => {
 
         {activeSection === 'pages' && (
           <div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Pages & Sections</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-              Manage CMS pages and their sections. Click a page to edit its sections (visibility, content, order). Changes apply to the public site when published.
-            </p>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Pages</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Manage CMS pages, SEO, and sections. Use filters to find pages quickly, then edit details on the right.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingPage({
+                    slug: '',
+                    title: '',
+                    type: 'landing',
+                    status: 'draft',
+                    isVisible: true,
+                    seo: { metaTitle: '', metaDescription: '', keywords: [] },
+                  });
+                  setSelectedPageId(null);
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg btn-primary text-sm"
+              >
+                <PlusIcon className="h-4 w-4" />
+                New page
+              </button>
+            </div>
+
             {loading && pages.length === 0 ? (
               <p className="text-sm text-slate-500">Loading pages…</p>
             ) : (
               <div className="space-y-4">
-                <div className="flex flex-wrap gap-2">
-                  {pages.map((p) => (
-                    <button
-                      key={p._id}
-                      onClick={() => loadPageDetail(p._id)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                        selectedPageId === p._id
-                          ? 'border-brand-primary bg-brand-soft text-brand-primary'
-                          : 'border-slate-200 dark:border-slate-700 hover:border-brand-primary text-slate-700 dark:text-slate-300'
-                      }`}
-                    >
-                      {p.slug}
-                    </button>
-                  ))}
+                <div className="flex flex-wrap gap-3 items-center">
+                  <input
+                    type="text"
+                    value={pageFilters.search}
+                    onChange={(e) => setPageFilters((prev) => ({ ...prev, search: e.target.value }))}
+                    placeholder="Search by slug or title…"
+                    className="px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white flex-1 min-w-[160px]"
+                  />
+                  <select
+                    value={pageFilters.type}
+                    onChange={(e) => setPageFilters((prev) => ({ ...prev, type: e.target.value }))}
+                    className="px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                  >
+                    <option value="all">All types</option>
+                    <option value="home">Home</option>
+                    <option value="about">About</option>
+                    <option value="service">Service</option>
+                    <option value="blog">Blog</option>
+                    <option value="legal">Legal</option>
+                    <option value="landing">Landing</option>
+                  </select>
+                  <select
+                    value={pageFilters.status}
+                    onChange={(e) => setPageFilters((prev) => ({ ...prev, status: e.target.value }))}
+                    className="px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                  >
+                    <option value="all">All statuses</option>
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                    <option value="archived">Archived</option>
+                  </select>
                 </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <div className="lg:col-span-2 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+                    <table className="min-w-full text-sm">
+                      <thead className="bg-slate-50 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-700">
+                        <tr>
+                          <th className="px-3 py-2 text-left font-medium text-slate-600 dark:text-slate-300">Slug</th>
+                          <th className="px-3 py-2 text-left font-medium text-slate-600 dark:text-slate-300">Title</th>
+                          <th className="px-3 py-2 text-left font-medium text-slate-600 dark:text-slate-300">Type</th>
+                          <th className="px-3 py-2 text-left font-medium text-slate-600 dark:text-slate-300">Status</th>
+                          <th className="px-3 py-2 text-right font-medium text-slate-600 dark:text-slate-300">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                        {pages.map((p) => (
+                          <tr key={p._id} className={selectedPageId === p._id ? 'bg-brand-soft/40 dark:bg-brand-soft/10' : ''}>
+                            <td className="px-3 py-2 font-mono text-xs text-slate-700 dark:text-slate-300">{p.slug}</td>
+                            <td className="px-3 py-2 text-slate-900 dark:text-white">{p.title || '—'}</td>
+                            <td className="px-3 py-2 text-xs text-slate-600 dark:text-slate-300">{p.type || '—'}</td>
+                            <td className="px-3 py-2 text-xs">
+                              <span
+                                className={`inline-flex px-2 py-0.5 rounded-full ${
+                                  p.status === 'published'
+                                    ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200'
+                                    : p.status === 'draft'
+                                    ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200'
+                                    : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200'
+                                }`}
+                              >
+                                {p.status}
+                              </span>
+                            </td>
+                            <td className="px-3 py-2 text-right space-x-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  loadPageDetail(p._id);
+                                  setEditingPage(p as any);
+                                }}
+                                className="text-xs px-2 py-1 rounded border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800"
+                              >
+                                Edit
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
+                    <h4 className="font-medium text-slate-900 dark:text-white text-sm">Page details</h4>
+                    {editingPage ? (
+                      <PageMetaEditor
+                        page={editingPage}
+                        saving={saving}
+                        role={currentUser?.role}
+                        onChange={setEditingPage}
+                        onSave={async (payload) => {
+                          const id = String(editingPage?._id);
+                          setSaving(id);
+                          try {
+                            await adminCmsAPI.updatePage(id, payload);
+                            await loadPages();
+                            await loadPageDetail(id);
+                            refetchCms();
+                          } catch (e) {
+                            console.error('Update page meta error:', e);
+                          } finally {
+                            setSaving(null);
+                          }
+                        }}
+                      />
+                    ) : (
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Select a page from the table to edit its meta and SEO.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
                 {selectedPageId && pageDetail && (
                   <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
                     <h4 className="font-medium text-slate-900 dark:text-white">
-                      Page: {String(pageDetail.page?.slug ?? '')} — {String(pageDetail.page?.title ?? '')}
+                      Sections for: {String(pageDetail.page?.slug ?? '')}
                     </h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
                       Status: {String(pageDetail.page?.status ?? '')} · Visible: {String(pageDetail.page?.isVisible ?? true)}
                     </p>
                     <div>
-                      <h5 className="text-sm font-medium text-slate-800 dark:text-slate-200 mb-2">Sections</h5>
+                      <div className="flex items-center justify-between mb-2">
+                        <h5 className="text-sm font-medium text-slate-800 dark:text-slate-200">Sections</h5>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400">Drag rows to reorder</span>
+                        </div>
+                      </div>
                       <ul className="space-y-2">
-                        {(pageDetail.sections as Array<{ _id: string; sectionKey: string; order?: number; isVisible?: boolean; content?: Record<string, unknown> }>)
+                        {(pageDetail.sections as Array<{ _id: string; sectionKey: string; type?: string; order?: number; isVisible?: boolean; content?: Record<string, unknown> }>)
                           .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-                          .map((sec) => (
-                            <li
-                              key={sec._id}
-                              className="flex flex-wrap items-center gap-2 p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50"
-                            >
-                              <span className="font-mono text-sm text-slate-700 dark:text-slate-300">{sec.sectionKey}</span>
-                              <span className="text-xs text-slate-500">order {sec.order ?? 0}</span>
-                              <span className={`text-xs px-2 py-0.5 rounded ${sec.isVisible !== false ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200'}`}>
-                                {sec.isVisible !== false ? 'Visible' : 'Hidden'}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => handleUpdateSection(selectedPageId, sec._id, { isVisible: !(sec.isVisible !== false) })}
-                                disabled={saving === sec._id}
-                                className="text-xs px-2 py-1 rounded border border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50"
+                          .map((sec) => {
+                            const isDragging = draggingSectionId === sec._id;
+                            const isDragOver = dragOverSectionId === sec._id && draggingSectionId !== sec._id;
+                            const typeLabel = sec.type || sec.sectionKey;
+                            return (
+                              <li
+                                key={sec._id}
+                                draggable
+                                onDragStart={() => setDraggingSectionId(sec._id)}
+                                onDragOver={(e) => {
+                                  e.preventDefault();
+                                  if (draggingSectionId && draggingSectionId !== sec._id) {
+                                    setDragOverSectionId(sec._id);
+                                  }
+                                }}
+                                onDrop={(e) => {
+                                  e.preventDefault();
+                                  if (draggingSectionId && draggingSectionId !== sec._id) {
+                                    void handleReorderSections(selectedPageId, draggingSectionId, sec._id);
+                                  }
+                                }}
+                                onDragEnd={() => {
+                                  setDraggingSectionId(null);
+                                  setDragOverSectionId(null);
+                                }}
+                                className={`flex flex-col gap-2 p-2 rounded-lg border bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 ${
+                                  isDragging ? 'opacity-60' : ''
+                                } ${isDragOver ? 'ring-2 ring-brand-primary/60' : ''}`}
                               >
-                                {sec.isVisible !== false ? 'Hide' : 'Show'}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteSection(selectedPageId, sec._id)}
-                                disabled={saving === sec._id}
-                                className="text-xs px-2 py-1 rounded border border-red-200 dark:border-red-800 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50"
-                              >
-                                Remove
-                              </button>
-                            </li>
-                          ))}
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="cursor-move text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+                                    Drag
+                                  </span>
+                                  <span className="font-mono text-sm text-slate-700 dark:text-slate-300">{sec.sectionKey}</span>
+                                  <span className="text-[11px] px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-900/40 text-slate-600 dark:text-slate-300">
+                                    {typeLabel}
+                                  </span>
+                                  <span className="text-xs text-slate-500">order {sec.order ?? 0}</span>
+                                  <span
+                                    className={`text-xs px-2 py-0.5 rounded ${
+                                      sec.isVisible !== false
+                                        ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
+                                        : 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200'
+                                    }`}
+                                  >
+                                    {sec.isVisible !== false ? 'Visible' : 'Hidden'}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateSection(selectedPageId, sec._id, { isVisible: !(sec.isVisible !== false) })}
+                                    disabled={saving === sec._id}
+                                    className="text-xs px-2 py-1 rounded border border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50"
+                                  >
+                                    {sec.isVisible !== false ? 'Hide' : 'Show'}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDuplicateSection(selectedPageId, sec)}
+                                    disabled={saving === sec._id}
+                                    className="text-xs px-2 py-1 rounded border border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50"
+                                  >
+                                    Duplicate
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingSectionId((prev) => (prev === sec._id ? null : sec._id))}
+                                    className="text-xs px-2 py-1 rounded border border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteSection(selectedPageId, sec._id)}
+                                    disabled={saving === sec._id}
+                                    className="ml-auto text-xs px-2 py-1 rounded border border-red-200 dark:border-red-800 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50"
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                                {editingSectionId === sec._id && (
+                                  <div className="mt-1 border-t border-slate-200 dark:border-slate-700 pt-2 space-y-2">
+                                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-300">
+                                      Section type
+                                      <select
+                                        value={sec.type || sec.sectionKey}
+                                        onChange={(e) =>
+                                          handleUpdateSection(selectedPageId, sec._id, {
+                                            type: e.target.value,
+                                          })
+                                        }
+                                        className="mt-1 w-full px-2 py-1.5 text-xs border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                                      >
+                                        {SECTION_TYPE_OPTIONS.map((opt) => (
+                                          <option key={opt.id} value={opt.id}>
+                                            {opt.label}
+                                          </option>
+                                        ))}
+                                      </select>
+                                    </label>
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                                      Detailed per-type editors (hero, grid, FAQ, etc.) will use this type to decide which fields to show.
+                                    </p>
+                                  </div>
+                                )}
+                              </li>
+                            );
+                          })}
                       </ul>
                     </div>
                   </div>

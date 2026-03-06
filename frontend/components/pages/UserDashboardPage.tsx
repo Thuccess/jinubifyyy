@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import type { User } from '../../types';
 import { ShoppingBagIcon, SparklesIcon, WalletIcon, CheckIcon, PaperAirplaneIcon, CogIcon } from '../icons/Icons';

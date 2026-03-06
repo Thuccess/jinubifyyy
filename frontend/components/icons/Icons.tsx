@@ -245,6 +245,18 @@ export const SearchIcon: React.FC<IconProps> = ({ className }) => (
     </svg>
 );
 
+export const FilterIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 5.25h16.5M6.75 9.75h10.5M9.75 14.25h4.5M11.25 18.75h1.5" />
+    </svg>
+);
+
+export const TrashIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75v7.5M14.25 9.75v7.5M4.5 6.75h15M9 3.75h6a1.5 1.5 0 011.5 1.5v1.5H7.5V5.25A1.5 1.5 0 019 3.75zm10.125 3v12A1.875 1.875 0 0117.25 21.75H6.75A1.875 1.875 0 014.875 19.5v-12" />
+    </svg>
+);
+
 export const QuoteIcon: React.FC<IconProps> = ({ className }) => (
     <svg className={className} width="45" height="34" viewBox="0 0 45 34" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
         <path d="M14.43 34H0L9.62 14.122V0H24.05V20.244L14.43 34ZM39.62 34H25.19L34.81 14.122V0H45V20.244L39.62 34Z" />

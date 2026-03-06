@@ -5,7 +5,6 @@
 import mongoose from 'mongoose';
 import User from '../models/User.js';
 import dotenv from 'dotenv';
-import bcrypt from 'bcryptjs';
 
 dotenv.config();
 
@@ -48,20 +47,19 @@ const createAdmin = async () => {
     let user = await User.findOne({ email: email.toLowerCase() });
 
     if (user) {
-      // Update existing user to admin
+      // Update existing user to admin (set plain password so User pre-save hashes it once)
       user.role = 'admin';
       if (password) {
-        user.password = await bcrypt.hash(password, 12);
+        user.password = password;
       }
       await user.save();
       console.log(`✅ User ${email} has been promoted to admin`);
     } else {
-      // Create new admin user
-      const hashedPassword = await bcrypt.hash(password, 12);
+      // Create new admin user (pass plain password; User pre-save will hash it)
       user = new User({
         name,
         email: email.toLowerCase(),
-        password: hashedPassword,
+        password,
         role: 'admin',
       });
       await user.save();

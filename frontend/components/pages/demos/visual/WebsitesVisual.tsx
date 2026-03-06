@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { ArrowRightIcon } from '../../../icons/Icons';
 import type { DemoVisualProps } from './types';
 import { labelToSlug } from './slugify';
@@ -59,7 +59,7 @@ const WebsitesVisual: React.FC<DemoVisualProps> = ({ slug, demoUrl, serviceName 
         {WEBSITE_SUB_ITEMS.map((label, i) => (
           <Link
             key={i}
-            to={`/demos/${slug}/${labelToSlug(label)}`}
+            href={`/demos/${slug}`}
             className="group glass-surface rounded-xl p-3 border border-border-subtle text-center flex flex-col transition-all duration-200 hover:border-border-accent hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
           >
             <div className="aspect-video rounded-lg mb-2 flex-shrink-0 overflow-hidden bg-surface-muted">

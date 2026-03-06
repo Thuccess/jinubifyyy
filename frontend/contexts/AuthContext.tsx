@@ -1,3 +1,5 @@
+ 'use client';
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authAPI, getStoredUser, clearAuth } from '../services/api';
 import type { User } from '../types';
@@ -26,7 +28,7 @@ interface AuthProviderProps {
 
 function normalizeStoredUser(raw: User | null): User | null {
   if (!raw) return null;
-  const role = raw.role && String(raw.role).toLowerCase() === 'admin' ? 'admin' : 'user';
+  const role = (raw.role as User['role']) ?? 'user';
   return { ...raw, role };
 }
 
@@ -43,16 +45,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (storedUser) {
         try {
           const response = await authAPI.getCurrentUser();
-          const user = response.user;
-          const role = user.role && String(user.role).toLowerCase() === 'admin' ? 'admin' : 'user';
-          setCurrentUser({
-            name: user.name,
-            photoURL: user.photoURL,
-            role,
-            _id: user._id,
-            email: user.email,
-            balance: user.balance,
-          });
+          const user = response.user as User;
+          const role = (user.role as User['role']) ?? 'user';
+          setCurrentUser({ ...user, role });
         } catch (error) {
           // Token invalid, clear auth
           clearAuth();
@@ -76,16 +71,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const refreshUser = async () => {
     try {
       const response = await authAPI.getCurrentUser();
-      const user = response.user;
-      const role = user.role && String(user.role).toLowerCase() === 'admin' ? 'admin' : 'user';
-      setCurrentUser({
-        name: user.name,
-        photoURL: user.photoURL,
-        role,
-        _id: user._id,
-        email: user.email,
-        balance: user.balance,
-      });
+      const user = response.user as User;
+      const role = (user.role as User['role']) ?? 'user';
+      setCurrentUser({ ...user, role });
     } catch (error) {
       clearAuth();
       setCurrentUser(null);

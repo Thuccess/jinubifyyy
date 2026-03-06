@@ -3,6 +3,7 @@ import { adminAPI } from '../../../../services/api';
 import { useNotification } from '../../../admin/useNotification';
 import ConfirmDialog from '../../../admin/ConfirmDialog';
 import Modal from '../../../admin/Modal';
+import { AdminBulkToolbar } from '../../../admin/AdminBulkToolbar';
 import { SearchIcon, UserCircleIcon, ShieldCheckIcon, PlusIcon, DeleteIcon } from '../../../icons/Icons';
 
 interface User {
@@ -34,6 +35,8 @@ const UserManagement: React.FC = () => {
     email: '',
     role: 'user',
   });
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkSubmitting, setBulkSubmitting] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -92,6 +95,35 @@ const UserManagement: React.FC = () => {
       role: 'user',
     });
     setIsFormOpen(true);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size >= users.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(users.map((u) => u._id)));
+  };
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+  const handleBulkAction = async (action: 'changeRole' | 'delete', role?: 'user' | 'admin') => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    if (action === 'changeRole' && !role) return;
+    setBulkSubmitting(true);
+    try {
+      await adminAPI.bulkUsers(action, ids, role);
+      showNotification(action === 'delete' ? 'Users deleted' : `Role updated to ${role}`, 'success');
+      setSelectedIds(new Set());
+      fetchUsers();
+    } catch (err: unknown) {
+      showNotification('Bulk action failed', 'error');
+    } finally {
+      setBulkSubmitting(false);
+    }
   };
 
   // For now this is purely client-side create/edit/delete. When admin user
@@ -164,7 +196,7 @@ const UserManagement: React.FC = () => {
 
   return (
     <>
-      {NotificationComponent}
+      <NotificationComponent />
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -225,9 +257,15 @@ const UserManagement: React.FC = () => {
           ) : (
             <>
               <div className="overflow-x-auto">
+                <AdminBulkToolbar selectedCount={selectedIds.size} onClearSelection={() => setSelectedIds(new Set())}>
+                <button type="button" disabled={bulkSubmitting} onClick={() => handleBulkAction('changeRole', 'admin')} className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50">Change to Admin</button>
+                <button type="button" disabled={bulkSubmitting} onClick={() => handleBulkAction('changeRole', 'user')} className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50">Change to User</button>
+                <button type="button" disabled={bulkSubmitting} onClick={() => handleBulkAction('delete')} className="px-3 py-1.5 text-sm font-medium rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50">Delete</button>
+              </AdminBulkToolbar>
                 <table className="w-full">
                   <thead className="bg-surface-muted border-b border-border-subtle">
                     <tr>
+                      <th className="px-3 py-3 w-10"><input type="checkbox" checked={users.length > 0 && selectedIds.size === users.length} onChange={toggleSelectAll} className="rounded border-border-subtle text-brand-primary" aria-label="Select all" /></th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">User</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Email</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Role</th>
@@ -239,6 +277,7 @@ const UserManagement: React.FC = () => {
                   <tbody className="divide-y divide-border-subtle">
                     {users.map((user) => (
                       <tr key={user._id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                        <td className="px-3 py-4 w-10"><input type="checkbox" checked={selectedIds.has(user._id)} onChange={() => toggleSelectOne(user._id)} className="rounded border-border-subtle text-brand-primary" aria-label={`Select ${user.name}`} /></td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
                             <img

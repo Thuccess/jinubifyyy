@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { PaperAirplaneIcon } from './icons/Icons';
 import type { GrowthContent } from './cms/sectionTypes';
 
@@ -12,7 +12,7 @@ const Growth: React.FC<{ content?: GrowthContent }> = ({ content: c }) => {
   return (
     <div className="py-16 sm:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative glass-surface glass-surface--card glass-interactive rounded-3xl p-8 lg:p-16 overflow-hidden border border-border-subtle shadow-xl shadow-[0_0_30px_color-mix(in_oklab,var(--accent-soft)_0.3,var(--bg-primary))]">
+        <div className="relative glass-surface glass-surface--card glass-interactive rounded-3xl p-8 lg:p-16 overflow-hidden border border-border-subtle shadow-xl">
 
             <img loading="lazy" src="https://picsum.photos/seed/face1/48/48" alt="Happy customer SovaRiver" className="absolute top-12 left-8 w-12 h-12 rounded-full shadow-lg border-2 border-surface-card" />
             <img loading="lazy" src="https://picsum.photos/seed/face2/48/48" alt="Happy customer Sidanbrook" className="absolute top-20 right-8 w-12 h-12 rounded-full shadow-lg border-2 border-surface-card" />
@@ -36,8 +36,8 @@ const Growth: React.FC<{ content?: GrowthContent }> = ({ content: c }) => {
                     {subtitle}
                 </p>
                 <Link
-                    to={ctaHref}
-                    className="mt-8 group inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-text-inverted bg-brand-primary hover:bg-[color-mix(in_oklab,var(--accent-primary)_0.9,var(--bg-primary))] rounded-xl shadow-md hover:shadow-lg shadow-[0_0_25px_color-mix(in_oklab,var(--accent-soft)_0.5,var(--bg-primary))] transition-all transform hover:scale-105"
+                    href={ctaHref}
+                    className="mt-8 group inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-text-inverted bg-brand-primary hover:bg-[color-mix(in_oklab,var(--accent-primary)_0.9,var(--bg-primary))] rounded-xl shadow-md hover:shadow-lg transition-all transform hover:scale-105"
                 >
                     {ctaText} <PaperAirplaneIcon className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>

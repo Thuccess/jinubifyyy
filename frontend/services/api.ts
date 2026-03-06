@@ -195,6 +195,43 @@ export const contactAPI = {
   },
 };
 
+// Career applications (public)
+export const careerAPI = {
+  apply: async (data: {
+    name: string;
+    email: string;
+    phone?: string;
+    position?: string;
+    coverLetter?: string;
+    resumeUrl?: string;
+  }) => {
+    const response = await api.post('/career/apply', data);
+    return response.data as {
+      message: string;
+      application: { _id: string; status: string; createdAt: string };
+    };
+  },
+};
+
+// Investment inquiries (public)
+export const investmentAPI = {
+  inquire: async (data: {
+    name: string;
+    email: string;
+    phone?: string;
+    country?: string;
+    interestLevel?: string;
+    investmentRange?: string;
+    message?: string;
+  }) => {
+    const response = await api.post('/investment/inquire', data);
+    return response.data as {
+      message: string;
+      inquiry: { _id: string; stage: string; createdAt: string };
+    };
+  },
+};
+
 // Dashboard API
 export const dashboardAPI = {
   getOverview: async () => {
@@ -324,6 +361,244 @@ export const adminAPI = {
   },
   deleteOrder: async (id: string) => {
     const response = await api.delete(`/orders/${id}`);
+    return response.data;
+  },
+  getTestimonials: async () => {
+    const response = await api.get('/admin/testimonials');
+    return response.data;
+  },
+  createTestimonial: async (data: { name: string; title: string; avatar?: string; text: string; stars?: number; order?: number; isActive?: boolean }) => {
+    const response = await api.post('/admin/testimonials', data);
+    return response.data;
+  },
+  updateTestimonial: async (id: string, data: Partial<{ name: string; title: string; avatar: string; text: string; stars: number; order: number; isActive: boolean }>) => {
+    const response = await api.put(`/admin/testimonials/${id}`, data);
+    return response.data;
+  },
+  deleteTestimonial: async (id: string) => {
+    const response = await api.delete(`/admin/testimonials/${id}`);
+    return response.data;
+  },
+  getAbout: async () => {
+    const response = await api.get('/admin/about');
+    return response.data;
+  },
+  updateAbout: async (data: AboutPagePayload) => {
+    const response = await api.put('/admin/about', data);
+    return response.data;
+  },
+  getTeam: async () => {
+    const response = await api.get('/admin/team');
+    return response.data;
+  },
+  updateTeam: async (data: TeamPagePayload) => {
+    const response = await api.put('/admin/team', data);
+    return response.data;
+  },
+  getApplications: async (params?: { page?: number; limit?: number; status?: string; search?: string }) => {
+    const response = await api.get('/admin/applications', { params });
+    return response.data as {
+      applications: any[];
+      pagination?: { page: number; limit: number; total: number; pages: number };
+    };
+  },
+  updateApplicationStatus: async (id: string, payload: { status: string; adminNotes?: string }) => {
+    const response = await api.patch(`/admin/applications/${id}/status`, payload);
+    return response.data;
+  },
+  deleteApplication: async (id: string) => {
+    const response = await api.delete(`/admin/applications/${id}`);
+    return response.data;
+  },
+  getInvestors: async (params?: { page?: number; limit?: number; stage?: string; search?: string }) => {
+    const response = await api.get('/admin/investors', { params });
+    return response.data as {
+      investors: any[];
+      pagination?: { page: number; limit: number; total: number; pages: number };
+    };
+  },
+  updateInvestorStage: async (id: string, payload: { stage: string; adminNotes?: string }) => {
+    const response = await api.patch(`/admin/investors/${id}/stage`, payload);
+    return response.data;
+  },
+  deleteInvestor: async (id: string) => {
+    const response = await api.delete(`/admin/investors/${id}`);
+    return response.data;
+  },
+  getActivity: async (params?: {
+    page?: number;
+    limit?: number;
+    user?: string;
+    entityType?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) => {
+    const response = await api.get('/admin/activity', { params });
+    return response.data as {
+      activities: Array<{
+        _id: string;
+        user: { name: string; email: string } | null;
+        action: string;
+        entityType: string | null;
+        entityId: string | null;
+        description: string;
+        timestamp: string;
+      }>;
+      pagination: { page: number; limit: number; total: number; pages: number };
+    };
+  },
+  search: async (q: string, limit?: number) => {
+    const response = await api.get('/admin/search', { params: { q, limit } });
+    return response.data as {
+      users: Array<{ _id: string; name: string; email: string; role?: string }>;
+      orders: Array<{ _id: string; serviceName: string; status: string; createdAt: string; customer?: { name?: string; email?: string } }>;
+      services: Array<{ _id: string; title: string; slug: string }>;
+      blogPosts: Array<{ _id: string; title: string; slug: string; status?: string; published?: boolean }>;
+      cmsPages: Array<{ _id: string; slug: string; title: string; type?: string }>;
+    };
+  },
+  bulkBlog: async (action: 'publish' | 'unpublish' | 'delete', ids: string[]) => {
+    const response = await api.post('/admin/blog/bulk', { action, ids });
+    return response.data as { message: string; count: number };
+  },
+  bulkServices: async (action: 'activate' | 'deactivate' | 'delete', ids: string[]) => {
+    const response = await api.post('/admin/services/bulk', { action, ids });
+    return response.data as { message: string; count: number };
+  },
+  bulkPricing: async (action: 'activate' | 'deactivate' | 'delete', ids: string[]) => {
+    const response = await api.post('/admin/pricing/bulk', { action, ids });
+    return response.data as { message: string; count: number };
+  },
+  bulkOrders: async (status: string, ids: string[]) => {
+    const response = await api.post('/admin/orders/bulk', { action: 'updateStatus', status, ids });
+    return response.data as { message: string; count: number };
+  },
+  bulkUsers: async (action: 'changeRole' | 'delete', ids: string[], role?: 'user' | 'admin') => {
+    const response = await api.post('/admin/users/bulk', { action, ids, ...(action === 'changeRole' && role ? { role } : {}) });
+    return response.data as { message: string; count: number };
+  },
+  getMedia: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    tag?: string;
+    sort?: 'createdAt-asc' | 'createdAt-desc';
+  }) => {
+    const response = await api.get('/admin/media', { params });
+    return response.data as {
+      media: Array<{
+        _id: string;
+        filename: string;
+        url: string;
+        tags: string[];
+        usedBy: Array<{ entityType: string; entityId: string }>;
+        usageCount: number;
+        createdAt: string;
+      }>;
+      pagination: { page: number; limit: number; total: number; pages: number };
+    };
+  },
+  updateMediaTags: async (id: string, tags: string[]) => {
+    const response = await api.patch(`/admin/media/${id}/tags`, { tags });
+    return response.data as { message: string; media: any };
+  },
+  deleteMedia: async (id: string) => {
+    const response = await api.delete(`/admin/media/${id}`);
+    return response.data as { message: string; usageCount?: number };
+  },
+};
+
+// Image upload (admin): multipart/form-data, field name "image"
+export const uploadAPI = {
+  uploadImage: async (file: File): Promise<{ url: string; filename: string; image?: string }> => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const response = await api.post<{ url: string; filename: string; image?: string }>('/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+};
+
+// About page content (public + admin)
+export interface AboutPagePayload {
+  hero?: {
+    eyebrow?: string;
+    heading?: string;
+    subtitle?: string;
+    primaryCtaText?: string;
+    primaryCtaLink?: string;
+    secondaryCtaText?: string;
+    secondaryCtaLink?: string;
+  };
+  ourStory?: {
+    heading?: string;
+    imageUrl?: string;
+    paragraph1?: string;
+    paragraph2?: string;
+  };
+  stats?: {
+    heading?: string;
+    subtext?: string;
+    items?: { value: number; label: string }[];
+  };
+  whyJinubify?: {
+    heading?: string;
+    intro?: string;
+    tagline?: string;
+    differentiators?: { iconKey: string; title: string; description: string }[];
+    coreValues?: { iconKey: string; title: string; description: string }[];
+  };
+}
+
+export const aboutAPI = {
+  get: async (): Promise<AboutPagePayload & { _id?: string }> => {
+    const response = await api.get<AboutPagePayload & { _id?: string }>('/about');
+    return response.data;
+  },
+};
+
+// Team page content (public + admin)
+export interface TeamMemberPayload {
+  _id?: string;
+  name: string;
+  role: string;
+  imageUrl?: string;
+  bio?: string;
+  detailedBio?: string;
+  department?: string;
+  social?: { linkedin?: string; twitter?: string; website?: string };
+  order?: number;
+}
+
+export interface TeamPagePayload {
+  hero?: { eyebrow?: string; heading?: string; subtitle?: string };
+  stripHeading?: string;
+  members?: TeamMemberPayload[];
+}
+
+export const teamAPI = {
+  get: async (): Promise<TeamPagePayload & { _id?: string }> => {
+    const response = await api.get<TeamPagePayload & { _id?: string }>('/team');
+    return response.data;
+  },
+};
+
+// Public Testimonials (home page)
+export interface TestimonialItem {
+  _id?: string;
+  name: string;
+  title: string;
+  avatar: string;
+  text: string;
+  stars: number;
+  order?: number;
+  isActive?: boolean;
+}
+
+export const testimonialsAPI = {
+  getList: async (): Promise<{ testimonials: TestimonialItem[] }> => {
+    const response = await api.get<{ testimonials: TestimonialItem[] }>('/testimonials');
     return response.data;
   },
 };
@@ -598,15 +873,25 @@ export const adminCmsAPI = {
     const response = await api.delete<{ data: Record<string, unknown> }>(`/admin/cms/nav/${id}`);
     return response.data;
   },
-  getPages: async () => {
-    const response = await api.get<{ data: Array<Record<string, unknown>> }>('/admin/cms/pages');
+  getPages: async (params?: { type?: string; status?: string; search?: string }) => {
+    const response = await api.get<{ data: Array<Record<string, unknown>> }>('/admin/cms/pages', {
+      params,
+    });
     return response.data;
   },
   getPage: async (id: string) => {
     const response = await api.get<{ data: Record<string, unknown> }>(`/admin/cms/pages/${id}`);
     return response.data;
   },
-  createPage: async (payload: { slug: string; title?: string; metaDescription?: string; content?: Record<string, unknown>; isVisible?: boolean; status?: string; order?: number }) => {
+  createPage: async (payload: {
+    slug: string;
+    title?: string;
+    type?: string;
+    seo?: { metaTitle?: string; metaDescription?: string; keywords?: string[] };
+    isVisible?: boolean;
+    status?: string;
+    order?: number;
+  }) => {
     const response = await api.post<{ data: Record<string, unknown> }>('/admin/cms/pages', payload);
     return response.data;
   },
@@ -622,7 +907,7 @@ export const adminCmsAPI = {
     const response = await api.get<{ data: Array<Record<string, unknown>> }>(`/admin/cms/pages/${pageId}/sections`);
     return response.data;
   },
-  createSection: async (pageId: string, payload: { sectionKey: string; content?: Record<string, unknown>; isVisible?: boolean; status?: string; order?: number }) => {
+  createSection: async (pageId: string, payload: { sectionKey: string; type?: string; content?: Record<string, unknown>; isVisible?: boolean; status?: string; order?: number }) => {
     const response = await api.post<{ data: Record<string, unknown> }>(`/admin/cms/pages/${pageId}/sections`, payload);
     return response.data;
   },

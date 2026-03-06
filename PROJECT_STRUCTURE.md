@@ -8,17 +8,21 @@ This is a complete MERN (MongoDB, Express, React, Node.js) full-stack applicatio
 
 ```
 jinubify/
-├── frontend/                 # React frontend application
-│   ├── components/           # React components
-│   │   ├── pages/           # Page components
+├── frontend/                 # Next.js frontend application
+│   ├── app/                 # Next.js App Router (public/admin routes)
+│   ├── components/          # Shared React components
+│   │   ├── pages/           # Page-level components used by app routes
 │   │   ├── layout/          # Layout components
-│   │   ├── data/            # Static data files
-│   │   └── ...
+│   │   ├── icons/           # Icon components
+│   │   ├── ui/              # UI primitives
+│   │   └── data/            # Static data files
+│   ├── config/              # Frontend configuration (env, etc.)
+│   ├── contexts/            # React context providers
+│   ├── services/            # API layer (axios)
+│   ├── utils/               # Utilities and helpers
+│   ├── src/index.css        # Global Tailwind/CSS
 │   ├── public/              # Static assets
-│   ├── App.tsx              # Main app component
-│   ├── index.tsx            # Entry point
-│   ├── package.json         # Frontend dependencies
-│   └── vite.config.ts       # Vite configuration
+│   └── package.json         # Frontend dependencies
 │
 └── backend/                 # Express.js backend API
     ├── models/              # MongoDB models
@@ -46,10 +50,9 @@ jinubify/
 ## Frontend (React)
 
 ### Technology Stack
+- **Next.js 16 (App Router)** - React framework & routing
 - **React 19** - UI library
 - **TypeScript** - Type safety
-- **Vite** - Build tool
-- **React Router** - Routing
 - **Tailwind CSS** - Styling (via classes)
 
 ### Key Features
@@ -217,7 +220,7 @@ jinubify/
 ## Development Tips
 
 - Backend runs on `http://localhost:5000`
-- Frontend runs on `http://localhost:5173` (Vite default)
+- Frontend (Next.js) runs on `http://localhost:3000` by default
 - Use Postman or Thunder Client to test API endpoints
 - Check browser console and network tab for API calls
 - MongoDB Compass is helpful for database management

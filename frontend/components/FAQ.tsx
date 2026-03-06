@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { PlusIcon, MinusIcon } from './icons/Icons';
 import Icon from './ui/Icon';

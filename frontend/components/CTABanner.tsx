@@ -1,5 +1,7 @@
+ 'use client';
+
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { PaperAirplaneIcon } from './icons/Icons';
 import AnimatedSection from './AnimatedSection';
 
@@ -16,7 +18,7 @@ const CTABanner: React.FC<CTABannerProps> = ({
   primaryButtonText = "Contact Us",
   primaryButtonPath = "/contact",
 }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <AnimatedSection>
@@ -31,7 +33,7 @@ const CTABanner: React.FC<CTABannerProps> = ({
               <p className="mt-2 text-text-inverted/80 max-w-2xl mx-auto leading-relaxed">{subtitle}</p>
               <div className="mt-8 flex justify-center">
                 <button
-                  onClick={() => navigate(primaryButtonPath)}
+                  onClick={() => router.push(primaryButtonPath)}
                   className="group inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-brand-primary bg-surface-card rounded-xl shadow-xl hover:bg-surface-muted/90 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-2xl ring-2 ring-[color:var(--accent-soft)] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-[color:var(--accent-primary)]"
                 >
                   {primaryButtonText} <PaperAirplaneIcon className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />

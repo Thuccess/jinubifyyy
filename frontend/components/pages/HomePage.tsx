@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Hero from '../Hero';
 import Partners from '../Partners';
@@ -8,9 +10,8 @@ import Services from '../Services';
 import Testimonials from '../Testimonials';
 import FAQ from '../FAQ';
 import PageSection from '../layout/PageSection';
-import { DynamicSectionRenderer, SECTION_IDS } from '../cms/sectionRegistry';
 import { useCms } from '../../contexts/CmsContext';
-import type { CmsSection } from '../cms/sectionTypes';
+import { CmsPageSectionRenderer } from '../cms/CmsPageSectionRenderer';
 
 const FALLBACK_SECTIONS = (
   <>
@@ -44,26 +45,13 @@ const FALLBACK_SECTIONS = (
 const HomePage: React.FC = () => {
   const { site } = useCms();
   const homePage = site?.pages?.find((p) => p.slug === 'home');
-  const sections = (homePage?.sections ?? []) as CmsSection[];
-  const sortedSections = sections.length > 0 ? [...sections].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) : [];
+  const hasSections = Array.isArray(homePage?.sections) && homePage.sections.length > 0;
 
-  if (sortedSections.length === 0) {
+  if (!hasSections) {
     return <>{FALLBACK_SECTIONS}</>;
   }
 
-  return (
-    <>
-      {sortedSections.map((section) => {
-        const id = SECTION_IDS[section.sectionKey] ?? section.sectionKey;
-        const className = section.sectionKey === 'hero' ? 'pt-8 lg:pt-12' : section.sectionKey === 'faq' ? 'pb-20' : undefined;
-        return (
-          <PageSection key={section._id} id={id} className={className}>
-            <DynamicSectionRenderer section={section} />
-          </PageSection>
-        );
-      })}
-    </>
-  );
+  return <CmsPageSectionRenderer slug="home" fallback={FALLBACK_SECTIONS} />;
 };
 
 export default HomePage;

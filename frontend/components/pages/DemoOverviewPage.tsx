@@ -1,13 +1,15 @@
+ 'use client';
+
 import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import AnimatedSection from '../AnimatedSection';
 import { useServiceBySlug, useDemosByServiceSlug } from '../../hooks/useServices';
-import { visualDemoBySlug } from './demos/visual';
-import DefaultVisualPlaceholder from './demos/DefaultVisualPlaceholder';
 
 const DemoOverviewPage: React.FC = () => {
-  const { serviceSlug } = useParams<{ serviceSlug: string }>();
-  const navigate = useNavigate();
+  const params = useParams();
+  const serviceSlug = params?.serviceSlug as string | undefined;
+  const router = useRouter();
   const { data: serviceData, isLoading: serviceLoading, isError: serviceError } = useServiceBySlug(serviceSlug);
   const { data: demosData, isLoading: demosLoading, isError: demosError } = useDemosByServiceSlug(serviceSlug);
 
@@ -27,13 +29,13 @@ const DemoOverviewPage: React.FC = () => {
   useEffect(() => {
     if (service?.title) {
       document.title = `See it in action – ${service.title} | Demos`;
-    } else if (staticItem?.title) {
-      document.title = `See it in action – ${staticItem.title} | Demos`;
+    } else {
+      document.title = 'Demos | Jinubify';
     }
     return () => {
       document.title = 'Jinubify';
     };
-  }, [service?.title, staticItem?.title]);
+  }, [service?.title]);
 
   if (!isLoading && !service) {
     return (
@@ -41,7 +43,7 @@ const DemoOverviewPage: React.FC = () => {
         <h1 className="text-2xl font-bold text-text-primary mb-2">Not found</h1>
         <p className="text-text-secondary mb-6">This service or its demos could not be found.</p>
         <button
-          onClick={() => navigate('/demos')}
+          onClick={() => router.push('/demos')}
           className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-text-inverted bg-brand-primary rounded-lg hover:brightness-110"
         >
           Back to Demos
@@ -92,15 +94,17 @@ const DemoOverviewPage: React.FC = () => {
                   <AnimatedSection key={demo._id}>
                     <button
                       type="button"
-                      onClick={() => navigate(`/demos/${serviceSlug}/${demo.slug}`)}
+                      onClick={() => router.push(`/demos/${serviceSlug}`)}
                       className="w-full text-left glass-surface glass-surface--card rounded-2xl border border-border-subtle overflow-hidden flex flex-col h-full transition-all duration-200 hover:border-border-accent hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
                     >
-                      <div className="aspect-[4/3] min-h-[160px] bg-surface-muted overflow-hidden">
+                      <div className="aspect-[4/3] min-h-[160px] bg-surface-muted overflow-hidden relative">
                         {coverUrl ? (
-                          <img
+                          <Image
                             src={coverUrl}
                             alt=""
-                            className="w-full h-full object-cover"
+                            fill
+                            sizes="(max-width: 768px) 100vw, 400px"
+                            className="object-cover"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-text-secondary text-sm">

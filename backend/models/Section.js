@@ -14,6 +14,11 @@ const sectionSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
+    type: {
+      type: String,
+      trim: true,
+      index: true,
+    },
     content: {
       type: mongoose.Schema.Types.Mixed,
       default: {},
@@ -30,7 +35,7 @@ const sectionSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['draft', 'published', 'archived'],
+      enum: ['draft', 'review', 'published', 'archived'],
       default: 'published',
       index: true,
     },

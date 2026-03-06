@@ -1,5 +1,7 @@
+ 'use client';
+
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import AnimatedSection from '../AnimatedSection';
 import {
   ArrowRightIcon,
@@ -63,8 +65,8 @@ const DemosHero: React.FC = () => (
 );
 
 const DemoCard: React.FC<{ item: DemoDisplayItem }> = ({ item }) => {
-  const navigate = useNavigate();
-  const handleViewDemo = () => navigate(`/demos/${item.slug}`);
+  const router = useRouter();
+  const handleViewDemo = () => router.push(`/demos/${item.slug}`);
   const tagline = getTagline(item.intro);
   const icon = slugToIcon[item.slug] ?? null;
 
@@ -93,14 +95,14 @@ const DemoCard: React.FC<{ item: DemoDisplayItem }> = ({ item }) => {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/pricing')}
+              onClick={() => router.push('/pricing')}
               className="inline-flex items-center px-4 py-2.5 text-sm font-medium text-brand-primary bg-brand-soft hover:bg-surface-muted/90 rounded-md transition-colors duration-300 ease-out min-h-[40px]"
             >
               View Packages
             </button>
             <button
               type="button"
-              onClick={() => navigate('/contact')}
+              onClick={() => router.push('/contact')}
               className="inline-flex items-center px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary rounded-md transition-colors min-h-[40px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
             >
               Contact us
@@ -133,7 +135,7 @@ const WhyChooseSection: React.FC = () => (
 );
 
 const PricingLinkSection: React.FC = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   return (
     <section className="py-16 sm:py-20 lg:py-24" aria-labelledby="demos-pricing-heading">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -149,10 +151,10 @@ const PricingLinkSection: React.FC = () => {
               All our services come with flexible pricing options for startups, SMEs, and growing organizations.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <button onClick={() => navigate('/pricing')} className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-text-inverted bg-brand-primary hover:opacity-90 rounded-md">
+              <button onClick={() => router.push('/pricing')} className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-text-inverted bg-brand-primary hover:opacity-90 rounded-md">
                 View All Packages <ArrowRightIcon className="h-4 w-4" aria-hidden />
               </button>
-              <button onClick={() => navigate('/contact')} className="inline-flex items-center px-5 py-2.5 text-sm font-medium text-brand-primary bg-brand-soft hover:bg-surface-muted/90 rounded-md transition-colors duration-300 ease-out">
+              <button onClick={() => router.push('/contact')} className="inline-flex items-center px-5 py-2.5 text-sm font-medium text-brand-primary bg-brand-soft hover:bg-surface-muted/90 rounded-md transition-colors duration-300 ease-out">
                 Request Custom Quote
               </button>
             </div>

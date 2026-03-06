@@ -1,8 +1,11 @@
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { useAuth } from '../../../contexts/AuthContext';
 import { UserCircleIcon, LogoutIcon, SunIcon, MoonIcon, CogIcon } from '../../icons/Icons';
 import { useTheme } from '../../../contexts/ThemeContext';
+import AdminGlobalSearch from '../../admin/AdminGlobalSearch';
 
 interface AdminTopbarProps {
   title: string;
@@ -55,7 +58,7 @@ const AdminTopbar: React.FC<AdminTopbarProps> = ({ title, subtitle, actions, onM
           </button>
         )}
         <Link
-          to="/admin"
+          href="/admin"
           className="hidden sm:flex items-center flex-shrink-0 mr-1"
           aria-label="Jinubify Admin"
         >
@@ -76,6 +79,9 @@ const AdminTopbar: React.FC<AdminTopbarProps> = ({ title, subtitle, actions, onM
           )}
         </div>
       </div>
+
+      {/* Center: Global Search */}
+      <AdminGlobalSearch />
 
       {/* Right: Actions & User Menu */}
       <div className="flex items-center gap-3">
@@ -128,7 +134,7 @@ const AdminTopbar: React.FC<AdminTopbarProps> = ({ title, subtitle, actions, onM
               {/* Menu Items */}
               <div className="py-1">
                 <Link
-                  to="/admin/settings"
+                  href="/admin/settings"
                   onClick={() => setIsUserMenuOpen(false)}
                   className="flex items-center gap-3 px-4 py-2 text-sm text-text-secondary hover:bg-surface-muted/90 transition-colors duration-300 ease-out"
                 >
@@ -136,7 +142,7 @@ const AdminTopbar: React.FC<AdminTopbarProps> = ({ title, subtitle, actions, onM
                   Settings
                 </Link>
                 <Link
-                  to="/"
+                  href="/"
                   onClick={() => setIsUserMenuOpen(false)}
                   className="flex items-center gap-3 px-4 py-2 text-sm text-text-secondary hover:bg-surface-muted/90 transition-colors duration-300 ease-out"
                 >

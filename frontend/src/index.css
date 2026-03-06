@@ -465,3 +465,8 @@ button,
   outline: 2px solid var(--accent-ring);
   outline-offset: 2px;
 }
+
+/* Safe shadow glow utility (replaces unsupported color-mix shadow variants) */
+.shadow-glow {
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.25);
+}

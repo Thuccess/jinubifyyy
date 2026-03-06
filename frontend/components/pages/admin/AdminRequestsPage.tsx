@@ -108,7 +108,7 @@ const AdminRequestsPage: React.FC = () => {
 
   return (
     <>
-      {NotificationComponent}
+      <NotificationComponent />
       <AdminLayout
         title="Requests / Leads"
         subtitle="Manage customer inquiries and leads"

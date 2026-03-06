@@ -1,6 +1,9 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -15,10 +18,17 @@ import serviceRoutes from './routes/services.js';
 import pricingRoutes from './routes/pricing.js';
 import orderRoutes from './routes/orders.js';
 import demoRoutes from './routes/demos.js';
+import testimonialRoutes from './routes/testimonials.js';
+import aboutRoutes from './routes/about.js';
+import teamRoutes from './routes/team.js';
 import cmsRoutes from './routes/cms.js';
 import adminCmsRoutes from './routes/adminCms.js';
 import briefRoutes from './routes/briefs.js';
 import assetRoutes from './routes/assets.js';
+import careerRoutes from './routes/career.js';
+import investmentRoutes from './routes/investment.js';
+import pagesPublicRoutes from './routes/pagesPublic.js';
+import uploadRoutes from './routes/upload.js';
 import { mongoSanitizeMiddleware } from './middleware/sanitize.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
@@ -34,6 +44,7 @@ dotenv.config();
 // Validate environment variables
 validateEnv();
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 5000;
 let server;
@@ -49,6 +60,9 @@ app.use(helmet({
     },
   },
   crossOriginEmbedderPolicy: false,
+  // Allow resources (including /uploads images) to be embedded cross-origin
+  // while still sending an explicit Cross-Origin-Resource-Policy header.
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 
 // CORS configuration
@@ -75,6 +89,12 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(requestLogger);
 }
 
+// Static files for uploaded images
+const uploadsDir = path.join(__dirname, 'uploads');
+console.log('STATIC SERVING FROM:', uploadsDir);
+console.log('UPLOAD DIR EXISTS:', fs.existsSync(uploadsDir));
+app.use('/uploads', express.static(uploadsDir));
+
 // General API rate limiting
 app.use('/api', apiLimiter);
 
@@ -95,11 +115,18 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/pricing', pricingRoutes);
 app.use('/api/demos', demoRoutes);
+app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/about', aboutRoutes);
+app.use('/api/team', teamRoutes);
 app.use('/api/cms', cmsRoutes);
 app.use('/api/admin/cms', adminCmsRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/briefs', briefRoutes);
 app.use('/api/assets', assetRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/career', careerRoutes);
+app.use('/api/investment', investmentRoutes);
+app.use('/api/pages', pagesPublicRoutes);
 
 // Enhanced health check endpoint
 app.get('/api/health', async (req, res) => {

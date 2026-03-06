@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { blogAdminAPI } from '../../../../services/api';
+import { blogAdminAPI, adminAPI } from '../../../../services/api';
 import { useNotification } from '../../../admin/useNotification';
 import Modal from '../../../admin/Modal';
 import ConfirmDialog from '../../../admin/ConfirmDialog';
+import { AdminBulkToolbar } from '../../../admin/AdminBulkToolbar';
+import { ImageUrlWithUpload } from '../../../ui/ImageUrlWithUpload';
 import { PlusIcon, EditIcon, DeleteIcon, SearchIcon } from '../../../icons/Icons';
+import { getImageUrl } from '../../../../utils/getImageUrl';
 
 type BlogStatus = 'draft' | 'review' | 'published' | 'archived';
 
@@ -14,7 +17,7 @@ interface BlogPost {
   excerpt: string;
   content: string;
   imageUrl: string;
-  author: string;
+  author: string | { name: string } | null;
   category: string;
   date?: string | Date;
   published: boolean;
@@ -23,6 +26,12 @@ interface BlogPost {
   views?: number;
   tags?: string[];
   seo?: { title?: string; description?: string; keywords?: string[] };
+}
+
+function getAuthorDisplayName(author: BlogPost['author']): string {
+  if (author == null) return '';
+  if (typeof author === 'object' && 'name' in author) return author.name;
+  return String(author);
 }
 
 const inputBase =
@@ -55,6 +64,8 @@ const BlogManagement: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkSubmitting, setBulkSubmitting] = useState(false);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -93,12 +104,9 @@ const BlogManagement: React.FC = () => {
 
   const handleEdit = (post: BlogPost) => {
     setSelectedPost(post);
-    const authorName = typeof post.author === 'object' && post.author !== null && 'name' in post.author
-      ? (post.author as { name: string }).name
-      : String(post.author ?? '');
     setFormData({
       title: post.title, slug: post.slug, excerpt: post.excerpt, content: post.content,
-      imageUrl: post.imageUrl, author: authorName, category: post.category,
+      imageUrl: post.imageUrl, author: getAuthorDisplayName(post.author), category: post.category,
       published: post.published,
       status: (post.status as BlogStatus) || (post.published ? 'published' : 'draft'),
       featured: post.featured ?? false
@@ -110,6 +118,46 @@ const BlogManagement: React.FC = () => {
   const handleDelete = (post: BlogPost) => {
     setSelectedPost(post);
     setIsDeleteDialogOpen(true);
+  };
+
+  const toggleSelectAll = () => {
+    const ids = posts.map((p) => p._id).filter(Boolean) as string[];
+    if (ids.length === 0) return;
+    if (selectedIds.size >= ids.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(ids));
+    }
+  };
+
+  const toggleSelectOne = (id: string | undefined) => {
+    if (!id) return;
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleBulkAction = async (action: 'publish' | 'unpublish' | 'delete') => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    setBulkSubmitting(true);
+    try {
+      await adminAPI.bulkBlog(action, ids);
+      showNotification(
+        action === 'delete' ? 'Posts deleted' : action === 'publish' ? 'Posts published' : 'Posts unpublished',
+        'success'
+      );
+      setSelectedIds(new Set());
+      fetchPosts();
+    } catch (err: unknown) {
+      console.error('Bulk action error:', err);
+      showNotification('Bulk action failed', 'error');
+    } finally {
+      setBulkSubmitting(false);
+    }
   };
 
   const confirmDelete = async () => {
@@ -133,7 +181,7 @@ const BlogManagement: React.FC = () => {
     if (!formData.excerpt?.trim()) errors.excerpt = 'Excerpt is required';
     if (!formData.content?.trim()) errors.content = 'Content is required';
     if (!formData.imageUrl?.trim()) errors.imageUrl = 'Image URL is required';
-    if (!formData.author?.trim()) errors.author = 'Author is required';
+    if (!(typeof formData.author === 'string' ? formData.author : '').trim()) errors.author = 'Author is required';
     if (!formData.category?.trim()) errors.category = 'Category is required';
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -192,7 +240,7 @@ const BlogManagement: React.FC = () => {
 
   return (
     <>
-      {NotificationComponent}
+      <NotificationComponent />
       <div className="space-y-6">
         {/* Page header */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
@@ -268,10 +316,48 @@ const BlogManagement: React.FC = () => {
             </div>
           ) : (
             <>
+              <AdminBulkToolbar
+                selectedCount={selectedIds.size}
+                onClearSelection={() => setSelectedIds(new Set())}
+              >
+                <button
+                  type="button"
+                  disabled={bulkSubmitting}
+                  onClick={() => handleBulkAction('publish')}
+                  className="px-3 py-1.5 text-sm font-medium rounded-lg bg-brand-primary text-text-inverted hover:opacity-90 disabled:opacity-50"
+                >
+                  Bulk publish
+                </button>
+                <button
+                  type="button"
+                  disabled={bulkSubmitting}
+                  onClick={() => handleBulkAction('unpublish')}
+                  className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50"
+                >
+                  Bulk unpublish
+                </button>
+                <button
+                  type="button"
+                  disabled={bulkSubmitting}
+                  onClick={() => handleBulkAction('delete')}
+                  className="px-3 py-1.5 text-sm font-medium rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50"
+                >
+                  Bulk delete
+                </button>
+              </AdminBulkToolbar>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-border-subtle bg-[color:var(--surface-muted)]/60">
+                      <th className="px-3 py-3 w-10">
+                        <input
+                          type="checkbox"
+                          checked={posts.length > 0 && selectedIds.size === posts.filter((p) => p._id).length}
+                          onChange={toggleSelectAll}
+                          className="rounded border-border-subtle text-brand-primary focus:ring-[color:var(--accent-ring)]"
+                          aria-label="Select all"
+                        />
+                      </th>
                       <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Post</th>
                       <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted hidden md:table-cell">Author</th>
                       <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted hidden lg:table-cell">Category</th>
@@ -284,11 +370,20 @@ const BlogManagement: React.FC = () => {
                   <tbody className="divide-y divide-border-subtle">
                     {posts.map((post) => (
                       <tr key={post.slug} className="hover:bg-[color:var(--surface-muted)]/40 transition-colors">
+                        <td className="px-3 py-3.5 w-10">
+                          <input
+                            type="checkbox"
+                            checked={post._id ? selectedIds.has(post._id) : false}
+                            onChange={() => toggleSelectOne(post._id)}
+                            className="rounded border-border-subtle text-brand-primary focus:ring-[color:var(--accent-ring)]"
+                            aria-label={`Select ${post.title}`}
+                          />
+                        </td>
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
                             {post.imageUrl ? (
                               <img
-                                src={post.imageUrl}
+                                src={getImageUrl(post.imageUrl)}
                                 alt=""
                                 className="h-11 w-11 shrink-0 rounded-lg object-cover bg-[color:var(--surface-muted)]"
                               />
@@ -304,9 +399,7 @@ const BlogManagement: React.FC = () => {
                           </div>
                         </td>
                         <td className="px-5 py-3.5 text-sm text-text-secondary hidden md:table-cell">
-                          {typeof post.author === 'object' && post.author !== null && 'name' in post.author
-                            ? (post.author as { name: string }).name
-                            : String(post.author ?? '')}
+                          {getAuthorDisplayName(post.author)}
                         </td>
                         <td className="px-5 py-3.5 hidden lg:table-cell">
                           <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-[color:var(--accent-soft)] text-text-primary">
@@ -451,14 +544,11 @@ const BlogManagement: React.FC = () => {
               <h3 className="text-sm font-semibold text-text-primary mb-4 pb-2 border-b border-border-subtle">Media & publishing</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <label className={labelBase}>Cover image URL</label>
-                  <input
-                    type="text"
+                  <ImageUrlWithUpload
+                    label="Cover image URL"
                     value={formData.imageUrl}
-                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    className={inputBase}
-                    placeholder="https://example.com/image.jpg or /images/cover.jpg"
-                    required
+                    onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                    placeholder="https://example.com/image.jpg or upload a file"
                   />
                   {formErrors.imageUrl && <p className="mt-1 text-xs text-red-500">{formErrors.imageUrl}</p>}
                 </div>
@@ -478,7 +568,7 @@ const BlogManagement: React.FC = () => {
                   <label className={labelBase}>Author</label>
                   <input
                     type="text"
-                    value={formData.author}
+                    value={typeof formData.author === 'string' ? formData.author : ''}
                     onChange={(e) => setFormData({ ...formData, author: e.target.value })}
                     className={inputBase}
                     placeholder="Author name"

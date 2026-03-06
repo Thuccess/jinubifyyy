@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { PaperAirplaneIcon, WandIcon, ChartBarIcon, CogIcon, ChatBubbleLeftRightIcon } from './icons/Icons';
 import type { FeaturePanelContent } from './cms/sectionTypes';
 
@@ -50,7 +50,7 @@ const FeaturePanel: React.FC<{ content?: FeaturePanelContent }> = ({ content: c 
                         {subtitle}
                     </p>
                     <Link
-                        to={ctaHref}
+                        href={ctaHref}
                         className="mt-8 inline-flex items-center px-5 py-2.5 text-sm font-semibold text-text-inverted bg-brand-primary hover:opacity-90 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
                     >
                         {ctaText} <PaperAirplaneIcon className="ml-2 h-4 w-4" aria-hidden />

@@ -1,5 +1,9 @@
+ 'use client';
+
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 
 function useDocumentTitle(title: string | null) {
   useEffect(() => {
@@ -9,7 +13,8 @@ function useDocumentTitle(title: string | null) {
 }
 import AnimatedSection from '../AnimatedSection';
 import { ChevronLeftIcon, ChevronRightIcon, XMarkIcon } from '../icons/Icons';
-import { useDemoByServiceAndSlug } from '../../hooks/useServices';
+import { useDemosByServiceSlug } from '../../hooks/useServices';
+import { normalizeImageUrl } from '../../utils/image';
 
 const Lightbox: React.FC<{
   isOpen: boolean;
@@ -43,11 +48,13 @@ const Lightbox: React.FC<{
           <XMarkIcon className="w-7 h-7" />
         </button>
 
-        <div className="relative w-full">
-          <img
-            src={imageUrl}
+        <div className="relative w-full aspect-video max-h-[75vh]">
+          <Image
+            src={normalizeImageUrl(imageUrl) || '/logo/logo-light.png'}
             alt={imageAlt}
-            className="w-full max-h-[75vh] object-contain rounded-xl shadow-2xl ring-2 ring-white/10"
+            fill
+            sizes="(max-width: 1280px) 100vw, 1280px"
+            className="object-contain rounded-xl shadow-2xl ring-2 ring-white/10"
           />
         </div>
       </div>
@@ -75,22 +82,31 @@ const Lightbox: React.FC<{
 };
 
 const DemoGalleryPage: React.FC = () => {
-  const { serviceSlug, demoSlug } = useParams<{ serviceSlug: string; demoSlug: string }>();
-  const navigate = useNavigate();
-  const { data, isLoading, isError } = useDemoByServiceAndSlug(serviceSlug, demoSlug);
+  const params = useParams();
+  const serviceSlug = params?.serviceSlug as string | undefined;
+  const router = useRouter();
+  const { data, isLoading, isError } = useDemosByServiceSlug(serviceSlug);
 
   const [lightboxIndex, setLightboxIndex] = useState(-1);
 
-  const apiDemo = data?.data as {
+  const demos = (data?.data || []) as Array<{
     _id: string;
     title: string;
     slug: string;
     description?: string;
     images?: { url: string; order: number }[];
     service?: { title: string; slug: string };
-  } | undefined;
+  }>;
 
-  const demo = apiDemo ?? null;
+  // Prefer a demo whose slug matches the serviceSlug; otherwise use the first one.
+  const primaryDemo =
+    demos.length === 0
+      ? null
+      : demos.length === 1
+      ? demos[0]
+      : demos.find((d) => d.slug === serviceSlug) || demos[0];
+
+  const demo = primaryDemo;
   const images = demo?.images ? [...demo.images].sort((a, b) => a.order - b.order) : [];
   const currentImage = lightboxIndex >= 0 && lightboxIndex < images.length ? images[lightboxIndex] : null;
 
@@ -117,7 +133,7 @@ const DemoGalleryPage: React.FC = () => {
         <h1 className="text-2xl font-bold text-text-primary mb-2">Demo not found</h1>
         <p className="text-text-secondary mb-6">This demo could not be found or is no longer available.</p>
         <button
-          onClick={() => navigate(serviceSlug ? `/demos/${serviceSlug}` : '/demos')}
+          onClick={() => router.push('/demos')}
           className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-text-inverted bg-brand-primary rounded-md hover:opacity-90"
         >
           Back to Demos
@@ -142,9 +158,9 @@ const DemoGalleryPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="mb-6 text-sm" aria-label="Breadcrumb">
             <ol className="flex flex-wrap items-center gap-2 text-text-secondary">
-              <li><Link to="/demos" className="hover:text-brand-primary rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)]">Demos</Link></li>
+              <li><Link href="/demos" className="hover:text-brand-primary rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)]">Demos</Link></li>
               <li aria-hidden="true">/</li>
-              <li><Link to={`/demos/${serviceSlug}`} className="hover:text-brand-primary rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)]">{serviceName}</Link></li>
+              <li><Link href={`/demos/${serviceSlug}`} className="hover:text-brand-primary rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)]">{serviceName}</Link></li>
             </ol>
           </nav>
           <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Demo gallery</p>
@@ -165,13 +181,14 @@ const DemoGalleryPage: React.FC = () => {
                     key={`${img.url}-${index}`}
                     type="button"
                     onClick={() => setLightboxIndex(index)}
-                    className="aspect-square rounded-xl overflow-hidden bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
+                    className="aspect-square rounded-xl overflow-hidden bg-surface-muted relative focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
                   >
-                    <img
-                      src={img.url}
+                    <Image
+                      src={normalizeImageUrl(img.url) || '/logo/logo-light.png'}
                       alt={`${demo.title} – demo image ${index + 1}`}
-                      loading="lazy"
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover"
                     />
                   </button>
                 ))}

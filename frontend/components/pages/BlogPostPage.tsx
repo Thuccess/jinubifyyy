@@ -1,13 +1,17 @@
+ 'use client';
+
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { blogsPublicAPI } from '../../services/api';
 import AnimatedSection from '../AnimatedSection';
 import Comments from '../Comments';
 import type { BlogPost } from '../../types/blog';
-import { Theme } from '../../App';
+import { useTheme } from '../../contexts/ThemeContext';
+import { normalizeImageUrl } from '../../utils/image';
 
 interface BlogPostPageProps {
-  theme: Theme;
+  theme?: never; // theme is read from useTheme() inside the component
 }
 
 const shareUrl = (slug: string) =>
@@ -55,8 +59,10 @@ const ShareButtons: React.FC<{ slug: string; title: string; excerpt: string }> =
   );
 };
 
-const BlogPostPage: React.FC<BlogPostPageProps> = ({ theme }) => {
-  const { slug } = useParams<{ slug: string }>();
+const BlogPostPage: React.FC<BlogPostPageProps> = (props) => {
+  const { theme } = useTheme();
+  const params = useParams();
+  const slug = params?.slug as string | undefined;
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
@@ -114,7 +120,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ theme }) => {
           {error || "Sorry, we couldn't find the article you're looking for."}
         </p>
         <Link
-          to="/blog"
+          href="/blog"
           className="mt-6 inline-block text-sm font-semibold text-text-inverted bg-brand-primary hover:opacity-90 px-5 py-2.5 rounded-md"
         >
           Back to Blog
@@ -128,7 +134,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ theme }) => {
     return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
-  const imageUrl = post.imageUrl || post.coverImage || '';
+  const imageUrl = normalizeImageUrl(post.imageUrl || post.coverImage || '');
   const lazyLoadedContent = (post.content || '').replace(/<img /g, '<img loading="lazy" ');
 
   return (
@@ -138,7 +144,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ theme }) => {
           <AnimatedSection>
             <div className="mb-8">
               <Link
-                to="/blog"
+                href="/blog"
                 className="font-medium text-brand-primary hover:underline rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)]"
               >
                 &larr; Back to all articles

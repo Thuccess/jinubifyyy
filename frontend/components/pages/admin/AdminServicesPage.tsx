@@ -4,6 +4,7 @@ import { PlusIcon, EditIcon, DeleteIcon, SearchIcon, ChevronUpIcon, ChevronDownI
 import Modal from '../../admin/Modal';
 import ConfirmDialog from '../../admin/ConfirmDialog';
 import { useNotification } from '../../admin/useNotification';
+import { ImageUrlWithUpload } from '../../ui/ImageUrlWithUpload';
 import { useServices, useServiceMutations } from '../../../hooks/useServices';
 
 interface ServiceFormState {
@@ -16,6 +17,7 @@ interface ServiceFormState {
   bullets: string[];
   category: string;
   icon: string;
+  imageUrl: string;
   startingPrice: string;
   isActive: boolean;
   isFeatured: boolean;
@@ -40,6 +42,7 @@ const AdminServicesPage: React.FC = () => {
     bullets: [],
     category: '',
     icon: '',
+    imageUrl: '',
     startingPrice: '',
     isActive: true,
     isFeatured: false,
@@ -85,6 +88,7 @@ const AdminServicesPage: React.FC = () => {
       bullets: [],
       category: '',
       icon: '',
+      imageUrl: '',
       startingPrice: '',
       isActive: true,
       isFeatured: false,
@@ -107,6 +111,7 @@ const AdminServicesPage: React.FC = () => {
       bullets: Array.isArray(service.bullets) ? [...service.bullets] : [],
       category: service.category || '',
       icon: service.icon || '',
+      imageUrl: service.imageUrl || '',
       startingPrice: service.startingPrice || '',
       isActive: service.isActive ?? true,
       isFeatured: service.isFeatured ?? false,
@@ -173,7 +178,7 @@ const AdminServicesPage: React.FC = () => {
       hasDemo: formData.hasDemo,
       category: formData.category.trim(),
       icon: formData.icon.trim(),
-      imageUrl: '',
+      imageUrl: formData.imageUrl.trim(),
       startingPrice: formData.startingPrice.trim(),
       isActive: formData.isActive,
       isFeatured: formData.isFeatured,
@@ -216,7 +221,7 @@ const AdminServicesPage: React.FC = () => {
 
   return (
     <>
-      {NotificationComponent}
+      <NotificationComponent />
       <AdminLayout
         title="Services Management"
         subtitle="Manage your service offerings"
@@ -409,6 +414,7 @@ const AdminServicesPage: React.FC = () => {
             bullets: [],
             category: '',
             icon: '',
+            imageUrl: '',
             startingPrice: '',
             isActive: true,
             isFeatured: false,
@@ -494,6 +500,14 @@ const AdminServicesPage: React.FC = () => {
               onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
               className="w-full px-3 py-2 border border-border-subtle rounded-lg bg-surface-card text-text-primary focus:ring-2 focus:ring-[color:var(--accent-ring)] focus:border-border-accent"
               placeholder="e.g. icon name or URL"
+            />
+          </div>
+          <div>
+            <ImageUrlWithUpload
+              label="Image URL (optional)"
+              value={formData.imageUrl}
+              onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+              placeholder="https://… or upload a file"
             />
           </div>
           <div>
@@ -660,6 +674,7 @@ const AdminServicesPage: React.FC = () => {
                   bullets: [],
                   category: '',
                   icon: '',
+                  imageUrl: '',
                   startingPrice: '',
                   isActive: true,
                   isFeatured: false,

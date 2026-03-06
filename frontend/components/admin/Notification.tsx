@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect } from 'react';
 import { CheckIcon, XMarkIcon, ExclamationTriangleIcon, InformationCircleIcon } from '../icons/Icons';
 

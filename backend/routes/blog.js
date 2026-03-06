@@ -4,6 +4,7 @@ import BlogPost from '../models/BlogPost.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { blogWriteLimiter } from '../middleware/rateLimiter.js';
 import { requireAdmin } from '../middleware/admin.js';
+import { addMediaUsage, removeMediaUsage } from '../utils/mediaUsage.js';
 
 const router = express.Router();
 
@@ -153,6 +154,11 @@ router.post(
       const post = new BlogPost(postData);
       await post.save();
 
+      // Track media usage for the primary image, if present.
+      if (post.imageUrl) {
+        await addMediaUsage(post.imageUrl, 'BlogPost', String(post._id));
+      }
+
       res.status(201).json({
         message: 'Blog post created successfully',
         post,
@@ -180,6 +186,8 @@ router.put('/:slug', blogWriteLimiter, requireAdmin, async (req, res) => {
       update.published = false;
     }
 
+    const existing = await BlogPost.findOne({ slug: req.params.slug.trim() }).lean();
+
     const post = await BlogPost.findOneAndUpdate(
       { slug: req.params.slug.trim() },
       { $set: update },
@@ -187,6 +195,12 @@ router.put('/:slug', blogWriteLimiter, requireAdmin, async (req, res) => {
     );
 
     if (!post) return res.status(404).json({ message: 'Blog post not found' });
+
+    // Update media usage if the image has changed.
+    if (update.imageUrl && existing && existing.imageUrl !== update.imageUrl) {
+      await removeMediaUsage(existing.imageUrl, 'BlogPost', String(post._id));
+      await addMediaUsage(update.imageUrl, 'BlogPost', String(post._id));
+    }
 
     res.json({ message: 'Blog post updated successfully', post });
   } catch (error) {

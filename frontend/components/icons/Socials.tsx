@@ -8,8 +8,8 @@ import {
   SiYoutube,
   SiTiktok,
   SiWhatsapp,
-  SiLinkedin,
 } from 'react-icons/si';
+import { FaLinkedin } from 'react-icons/fa';
 
 type SocialIconProps = {
   className?: string;
@@ -40,7 +40,7 @@ export const WhatsAppIcon: React.FC<SocialIconProps> = ({ className }) => (
 );
 
 export const LinkedInIcon: React.FC<SocialIconProps> = ({ className }) => (
-  <SiLinkedin className={className} />
+  <FaLinkedin className={className} />
 );
 
 // Generic globe (kept as inline SVG since it's not a brand logo)

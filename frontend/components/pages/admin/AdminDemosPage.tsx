@@ -4,8 +4,9 @@ import { PlusIcon, EditIcon, DeleteIcon, SearchIcon, EyeIcon, ChevronUpIcon, Che
 import Modal from '../../admin/Modal';
 import ConfirmDialog from '../../admin/ConfirmDialog';
 import { useNotification } from '../../admin/useNotification';
+import { ImageUrlWithUpload } from '../../ui/ImageUrlWithUpload';
 import { useServices, useDemos, useDemoMutations } from '../../../hooks/useServices';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 interface ImageEntry {
   url: string;
@@ -328,7 +329,7 @@ const AdminDemosPage: React.FC = () => {
                           <div className="flex items-center justify-end gap-2">
                             <span className="text-xs text-text-muted mr-2 select-none">#{index + 1}</span>
                             <Link
-                              to={demo.service?.slug ? `/demos/${demo.service.slug}/${demo.slug}` : '/demos'}
+                              href={demo.service?.slug ? `/demos/${demo.service.slug}` : '/demos'}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="p-2 text-blue-600 dark:text-blue-400 hover:bg-surface-muted/90 rounded-lg transition-colors duration-300 ease-out"
@@ -492,14 +493,15 @@ const AdminDemosPage: React.FC = () => {
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Add at least one image. Order determines gallery display.</p>
             {formData.images.map((img, index) => (
               <div key={index} className="flex gap-2 items-center mb-2">
-                <input
-                  type="url"
-                  value={img.url}
-                  onChange={(e) => updateImageUrl(index, e.target.value)}
-                  placeholder="https://..."
-                  className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-ring focus:border-transparent text-sm"
-                />
-                <span className="text-xs text-slate-500 w-6">#{index + 1}</span>
+                <div className="flex-1 min-w-0">
+                  <ImageUrlWithUpload
+                    compact
+                    value={img.url}
+                    onChange={(url) => updateImageUrl(index, url)}
+                    placeholder="https://… or upload"
+                  />
+                </div>
+                <span className="text-xs text-slate-500 w-6 shrink-0">#{index + 1}</span>
                 <button
                   type="button"
                   onClick={() => moveImage(index, 'up')}
@@ -665,8 +667,13 @@ const AdminDemosPage: React.FC = () => {
                   title: '',
                   slug: '',
                   description: '',
+                  category: '',
                   demoUrl: '',
+                  repoUrl: '',
+                  techStack: '',
+                  tags: '',
                   isActive: true,
+                  isFeatured: false,
                   images: [],
                   coverImageUrl: '',
                 });

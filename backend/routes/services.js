@@ -3,6 +3,7 @@ import { body, validationResult } from 'express-validator';
 import Service from '../models/Service.js';
 import Demo from '../models/Demo.js';
 import { requireAdmin } from '../middleware/admin.js';
+import { addMediaUsage, removeMediaUsage } from '../utils/mediaUsage.js';
 
 const router = express.Router();
 
@@ -208,6 +209,10 @@ router.post('/', serviceValidators, async (req, res) => {
     const payload = { ...req.body, createdBy: req.user?._id, updatedBy: req.user?._id };
     const service = await Service.create(payload);
 
+    if (service.imageUrl) {
+      await addMediaUsage(service.imageUrl, 'Service', String(service._id));
+    }
+
     res.status(201).json({
       message: 'Service created successfully',
       data: service,
@@ -242,6 +247,8 @@ router.put('/:id', serviceValidators, async (req, res) => {
       }
     }
 
+    const existing = await Service.findById(id).lean();
+
     const service = await Service.findByIdAndUpdate(id, update, {
       new: true,
       runValidators: true,
@@ -249,6 +256,11 @@ router.put('/:id', serviceValidators, async (req, res) => {
 
     if (!service) {
       return res.status(404).json({ message: 'Service not found' });
+    }
+
+    if (update.imageUrl && existing && existing.imageUrl !== update.imageUrl) {
+      await removeMediaUsage(existing.imageUrl, 'Service', String(service._id));
+      await addMediaUsage(update.imageUrl, 'Service', String(service._id));
     }
 
     res.json({

@@ -1,5 +1,7 @@
+ 'use client';
+
 import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import AnimatedSection from '../AnimatedSection';
 import { 
     ChatBubbleLeftRightIcon,
@@ -119,7 +121,7 @@ const PackageCard: React.FC<PackageCardProps> = ({
     pricingCategory,
     onOrderNow,
 }) => {
-    const navigate = useNavigate();
+    const router = useRouter();
     const currency = inferCurrency(price);
     return (
         <div className={`relative flex flex-col p-6 sm:p-8 rounded-lg border bg-[color:var(--surface-card)] ${
@@ -169,14 +171,14 @@ const PackageCard: React.FC<PackageCardProps> = ({
                 <div className="flex gap-2">
                     <button
                         type="button"
-                        onClick={() => navigate('/demos')}
+                        onClick={() => router.push('/demos')}
                         className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-brand-primary bg-brand-soft hover:bg-surface-muted/90 rounded-md min-h-[40px]"
                     >
                         View Demo <ArrowRightIcon className="h-4 w-4" aria-hidden />
                     </button>
                     <button
                         type="button"
-                        onClick={() => navigate('/contact')}
+                        onClick={() => router.push('/contact')}
                         className="flex-1 px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-brand-primary rounded-md min-h-[40px]"
                     >
                         Contact for Quote
@@ -225,7 +227,7 @@ const PricingCategorySection: React.FC<
 );
 
 const FreeConsultationSection: React.FC = () => {
-    const navigate = useNavigate();
+    const router = useRouter();
     return (
         <section className="py-16 sm:py-20 lg:py-24 bg-[color:var(--bg-secondary)]" aria-labelledby="free-consultation-heading">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -238,7 +240,7 @@ const FreeConsultationSection: React.FC = () => {
                             Not sure which package fits? Contact us for a free consultation. We'll help you choose based on your goals, timeline, and budget.
                         </p>
                         <button
-                            onClick={() => navigate('/contact')}
+                            onClick={() => router.push('/contact')}
                             className="mt-8 inline-flex items-center px-5 py-2.5 text-sm font-semibold text-brand-primary bg-[color:var(--text-inverted)] hover:opacity-90 rounded-md"
                         >
                             Get Free Consultation

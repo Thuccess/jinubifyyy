@@ -5,7 +5,7 @@ export interface User {
   name: string;
   email?: string;
   photoURL: string;
-  role?: 'user' | 'admin';
+  role?: 'user' | 'editor' | 'admin' | 'super_admin';
   balance?: number;
   createdAt?: Date | string;
   updatedAt?: Date | string;

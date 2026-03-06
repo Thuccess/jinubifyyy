@@ -128,7 +128,7 @@ const ContactManagement: React.FC = () => {
 
   return (
     <>
-      {NotificationComponent}
+      <NotificationComponent />
       <div className="space-y-6">
         {/* Header */}
         <div>

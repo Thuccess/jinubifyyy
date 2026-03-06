@@ -1,4 +1,6 @@
 
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
 
 const AnimatedSection: React.FC<{children: React.ReactNode}> = ({ children }) => {

@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin'],
+    enum: ['user', 'editor', 'admin', 'super_admin'],
     default: 'user',
   },
   // Optional profile / brand fields

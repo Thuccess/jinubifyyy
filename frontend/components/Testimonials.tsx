@@ -1,15 +1,17 @@
+ 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StarIcon, QuoteIcon, ChevronLeftIcon, ChevronRightIcon } from './icons/Icons';
 import Icon from './ui/Icon';
+import { testimonialsAPI, type TestimonialItem } from '../services/api';
+import { normalizeImageUrl } from '../utils/image';
 
-// Optional content prop for CMS-driven pages; content not used yet.
-export const testimonials = [
+const FALLBACK_TESTIMONIALS: TestimonialItem[] = [
   {
     name: 'Sanblu Ajiech',
     title: 'Director, Luxorld (Kampala)',
     avatar: 'https://images.unsplash.com/photo-1531123414780-f74242c2b052?q=80&w=400&auto=format&fit=crop',
-    text: 'Their commitment to quality and proactive communication made them a standout partner. Jinubify didn\'t just deliver a product; they delivered a solution that exceeded our expectations and drove real business results.',
+    text: "Their commitment to quality and proactive communication made them a standout partner. Jinubify didn't just deliver a product; they delivered a solution that exceeded our expectations and drove real business results.",
     stars: 5,
   },
   {
@@ -19,31 +21,32 @@ export const testimonials = [
     text: 'Working with the Jinubify team has been a game-changer. Their strategic counseling and expertise in digital marketing led to a 200% increase in our online engagement. Highly recommended!',
     stars: 5,
   },
-  {
-    name: 'James Rodriguez',
-    title: 'CEO, Tech Innovators',
-    avatar: 'https://picsum.photos/seed/testimonial3/100/100',
-    text: 'The mobile app they developed for us is flawless. It\'s intuitive, fast, and has received overwhelmingly positive feedback from our users. Their development process was transparent and efficient from start to finish.',
-    stars: 5,
-  },
-  {
-    name: 'Emily Chen',
-    title: 'Founder, The Style Hub',
-    avatar: 'https://picsum.photos/seed/testimonial4/100/100',
-    text: 'Jinubify\'s branding and design work gave our startup the professional and compelling identity we needed to stand out. Their creative vision and attention to detail were exceptional.',
-    stars: 5,
-  },
-  {
-    name: 'Michael Thompson',
-    title: 'Operations Manager, Global Logistics',
-    avatar: 'https://picsum.photos/seed/testimonial5/100/100',
-    text: 'The cloud migration project they handled for us was executed with precision and professionalism. We experienced zero downtime, and our systems are now more scalable and secure than ever before.',
-    stars: 5,
-  },
 ];
 
 const Testimonials: React.FC<{ content?: Record<string, unknown> }> = () => {
+  const [testimonials, setTestimonials] = useState<TestimonialItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await testimonialsAPI.getList();
+        if (!cancelled && res.testimonials?.length) {
+          setTestimonials(res.testimonials);
+        } else if (!cancelled) {
+          setTestimonials(FALLBACK_TESTIMONIALS);
+        }
+      } catch {
+        if (!cancelled) setTestimonials(FALLBACK_TESTIMONIALS);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const current = testimonials[currentIndex];
 
   const goPrev = () => {
@@ -53,6 +56,18 @@ const Testimonials: React.FC<{ content?: Record<string, unknown> }> = () => {
   const goNext = () => {
     setCurrentIndex((prev) => (prev + 1) % testimonials.length);
   };
+
+  if (loading || testimonials.length === 0) {
+    return (
+      <div className="py-16 sm:py-24" id="testimonials">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center min-h-[280px]">
+            <div className="h-9 w-9 rounded-full border-2 border-border-subtle border-t-text-primary animate-spin" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-16 sm:py-24" id="testimonials">
@@ -100,7 +115,7 @@ const Testimonials: React.FC<{ content?: Record<string, unknown> }> = () => {
           </div>
 
           {/* Right column: active testimonial */}
-          <div className="relative glass-surface glass-surface--card rounded-3xl border border-border-subtle shadow-[0_0_40px_color-mix(in_oklab,var(--accent-soft)_0.4,var(--bg-primary))] overflow-hidden">
+          <div className="relative glass-surface glass-surface--card rounded-3xl border border-border-subtle shadow-xl overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,var(--accent-soft)/14,transparent_60%)] pointer-events-none" />
             <div className="relative z-10 p-8 sm:p-10 lg:p-12 flex flex-col gap-8">
               <Icon icon={QuoteIcon} size="lg" tone="muted" />
@@ -110,7 +125,7 @@ const Testimonials: React.FC<{ content?: Record<string, unknown> }> = () => {
               <div className="flex items-center gap-4 pt-2">
                 <img
                   loading="lazy"
-                  src={current.avatar}
+                  src={normalizeImageUrl(current.avatar || '')}
                   alt={current.name}
                   className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border border-surface-card shadow"
                 />

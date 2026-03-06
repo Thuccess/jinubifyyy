@@ -1,5 +1,8 @@
+ 'use client';
+
 import React, { useState, useEffect, useRef, Fragment } from 'react';
-import { NavLink as RouterNavLink, Link, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
 import { Menu, Transition } from '@headlessui/react';
 import { SunIcon, MoonIcon, UserCircleIcon, LogoutIcon, DashboardIcon, CogIcon } from './icons/Icons';
 import { TwitterIcon, InstagramIcon, YouTubeIcon, FacebookIcon, WhatsAppIcon } from './icons/Socials';
@@ -10,7 +13,7 @@ import type { User, Theme } from '../types';
 import AuthModal from './AuthModal';
 
 const Logo: React.FC<{ theme: Theme }> = ({ theme }) => (
-  <Link to="/" className="flex items-center" aria-label="Jinubify Home">
+  <Link href="/" className="flex items-center" aria-label="Jinubify Home">
     <img 
       src={theme === 'dark' ? '/logo/logo-light.png' : '/logo/logo-dark.png'}
       alt="Jinubify Logo" 
@@ -32,28 +35,31 @@ const NavLink: React.FC<{
   children: React.ReactNode;
   onClick?: () => void;
 }> = ({ to, children, onClick }) => {
+  const pathname = usePathname();
+  const isActive =
+    to === '/' ? pathname === '/' : (pathname?.startsWith(to) ?? false);
+
   return (
-    <RouterNavLink 
-      to={to} 
+    <Link
+      href={to}
       onClick={onClick}
-      className={({ isActive }) => `relative text-sm font-medium transition-colors duration-200 group ${
-        isActive 
-          ? 'text-brand-primary' 
-          : 'text-text-secondary hover:text-text-primary'
+      className={`relative text-sm font-medium transition-colors duration-200 group ${
+        isActive ? 'text-brand-primary' : 'text-text-secondary hover:text-text-primary'
       }`}
     >
-       {({ isActive }) => (
-        <>
-          {children}
-          <span className={`absolute bottom-[-4px] left-0 h-0.5 bg-brand-primary transition-all duration-300 ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
-        </>
-      )}
-    </RouterNavLink>
+      {children}
+      <span
+        className={`absolute bottom-[-4px] left-0 h-0.5 bg-brand-primary transition-all duration-300 ${
+          isActive ? 'w-full' : 'w-0 group-hover:w-full'
+        }`}
+      />
+    </Link>
   );
 };
 
 const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLoginSuccess, onLogout }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalView, setAuthModalView] = useState<'signIn' | 'signUp'>('signIn');
@@ -116,7 +122,7 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLogi
 
   const handleLogout = () => {
     onLogout();
-    navigate('/');
+    router.push('/');
   };
 
   const defaultNavItems = [
@@ -190,7 +196,7 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLogi
                         <Menu.Item>
                           {({ active }) => (
                             <Link
-                              to="/dashboard"
+                              href="/dashboard"
                               className={`${
                                 active ? 'bg-surface-muted' : ''
                               } flex items-center px-4 py-2 text-sm text-text-primary`}
@@ -204,7 +210,7 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLogi
                           <Menu.Item>
                             {({ active }) => (
                               <Link
-                                to="/admin"
+                                href="/admin"
                                 className={`${
                                   active ? 'bg-surface-muted' : ''
                                 } flex items-center px-4 py-2 text-sm text-text-primary`}
@@ -335,20 +341,26 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLogi
 
             {/* Nav block: left-aligned list */}
             <nav className="flex flex-col space-y-1 py-4" aria-label="Primary">
-              {navItems.map((item) => (
-                <RouterNavLink
-                  key={item.to}
-                  to={item.to}
-                  onClick={closeMenu}
-                  className={({ isActive }) => `flex items-center text-left text-base font-medium py-3 px-4 rounded-lg min-h-[44px] transition-colors duration-200 ${
-                    isActive
-                      ? 'border-l-2 border-brand-primary bg-surface-muted/50 text-brand-primary pl-[calc(1rem-2px)]'
-                      : 'text-text-primary hover:bg-surface-muted/90 border-l-2 border-transparent'
-                  }`}
-                >
-                  {item.label}
-                </RouterNavLink>
-              ))}
+              {navItems.map((item) => {
+                const isActive =
+                  item.to === '/'
+                    ? pathname === '/'
+                    : (pathname?.startsWith(item.to) ?? false);
+                return (
+                  <Link
+                    key={item.to}
+                    href={item.to}
+                    onClick={closeMenu}
+                    className={`flex items-center text-left text-base font-medium py-3 px-4 rounded-lg min-h-[44px] transition-colors duration-200 ${
+                      isActive
+                        ? 'border-l-2 border-brand-primary bg-surface-muted/50 text-brand-primary pl-[calc(1rem-2px)]'
+                        : 'text-text-primary hover:bg-surface-muted/90 border-l-2 border-transparent'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
             </nav>
 
             <div className="border-t border-border-subtle my-2" />
@@ -357,11 +369,11 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLogi
             <div className="flex flex-col space-y-2 py-4">
               {currentUser ? (
                 <>
-                  <Link to="/dashboard" onClick={closeMenu} className="flex items-center gap-2 text-left text-base font-medium text-text-primary hover:bg-surface-muted/90 transition-colors duration-300 ease-out py-3 px-4 rounded-lg min-h-[44px] border-l-2 border-transparent">
+                  <Link href="/dashboard" onClick={closeMenu} className="flex items-center gap-2 text-left text-base font-medium text-text-primary hover:bg-surface-muted/90 transition-colors duration-300 ease-out py-3 px-4 rounded-lg min-h-[44px] border-l-2 border-transparent">
                     <DashboardIcon className="h-5 w-5 shrink-0" /> Dashboard
                   </Link>
                   {currentUser.role === 'admin' && (
-                    <Link to="/admin" onClick={closeMenu} className="flex items-center gap-2 text-left text-base font-medium text-text-primary hover:bg-surface-muted/90 transition-colors duration-300 ease-out py-3 px-4 rounded-lg min-h-[44px] border-l-2 border-transparent">
+                    <Link href="/admin" onClick={closeMenu} className="flex items-center gap-2 text-left text-base font-medium text-text-primary hover:bg-surface-muted/90 transition-colors duration-300 ease-out py-3 px-4 rounded-lg min-h-[44px] border-l-2 border-transparent">
                       <CogIcon className="h-5 w-5 shrink-0" /> Admin Panel
                     </Link>
                   )}

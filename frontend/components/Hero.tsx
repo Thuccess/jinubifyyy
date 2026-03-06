@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { CheckIcon, StarIcon, WandIcon, PaperAirplaneIcon } from './icons/Icons';
 import Icon from './ui/Icon';
@@ -216,7 +218,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
           </p>
           <div className="animate-fade-in-up" style={{ animationDelay: '400ms' }}>
             <Link
-              to={c.ctaHref || '/contact'}
+              href={c.ctaHref || '/contact'}
               className="relative overflow-hidden btn-shine btn-primary mt-8 group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 ring-2 ring-[color:var(--accent-soft)] focus-visible:ring-offset-2"
             >
                 {c.ctaText}{' '}

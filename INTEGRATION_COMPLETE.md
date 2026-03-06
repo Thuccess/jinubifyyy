@@ -46,9 +46,9 @@ npm install
 This will install `axios` which was added to `package.json`.
 
 ### 2. Configure Frontend Environment
-Create `frontend/.env` file:
+Create `frontend/.env.local` file:
 ```bash
-VITE_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
 Or if your backend runs on a different port/URL, adjust accordingly.
@@ -65,13 +65,13 @@ Make sure:
 - `.env` file is configured in backend folder
 - Server starts on port 5000
 
-### 4. Start Frontend Server
+### 4. Start Frontend Server (Next.js)
 ```bash
 cd frontend
 npm run dev
 ```
 
-Frontend should start on port 3000 (or the port configured in vite.config.ts).
+Frontend should start on port 3000 (Next.js default).
 
 ### 5. Test the Integration
 
@@ -133,7 +133,7 @@ If you see CORS errors, make sure:
 
 ### API Connection Failed
 - Verify backend is running on port 5000
-- Check `VITE_API_URL` in frontend `.env`
+- Check `NEXT_PUBLIC_API_URL` in frontend `.env.local`
 - Check browser network tab for request details
 
 ### Blog Posts Not Loading

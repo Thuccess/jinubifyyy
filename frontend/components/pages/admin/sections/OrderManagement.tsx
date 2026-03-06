@@ -3,6 +3,7 @@ import { adminAPI } from '../../../../services/api';
 import { useNotification } from '../../../admin/useNotification';
 import Modal from '../../../admin/Modal';
 import ConfirmDialog from '../../../admin/ConfirmDialog';
+import { AdminBulkToolbar } from '../../../admin/AdminBulkToolbar';
 import { SearchIcon, ShoppingBagIcon, EyeIcon } from '../../../icons/Icons';
 
 interface Order {
@@ -59,6 +60,9 @@ const OrderManagement: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [adminNotesDraft, setAdminNotesDraft] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkStatus, setBulkStatus] = useState<string>('completed');
+  const [bulkSubmitting, setBulkSubmitting] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -106,6 +110,34 @@ const OrderManagement: React.FC = () => {
     setSelectedOrder(order);
     setAdminNotesDraft(order.adminNotes || '');
     setIsDetailOpen(true);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size >= orders.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(orders.map((o) => o._id)));
+  };
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+  const handleBulkStatusUpdate = async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    setBulkSubmitting(true);
+    try {
+      await adminAPI.bulkOrders(bulkStatus, ids);
+      showNotification('Orders updated', 'success');
+      setSelectedIds(new Set());
+      fetchOrders();
+    } catch (err: unknown) {
+      showNotification('Failed to update orders', 'error');
+    } finally {
+      setBulkSubmitting(false);
+    }
   };
 
   const handleSaveAdminNotes = async () => {
@@ -163,7 +195,7 @@ const OrderManagement: React.FC = () => {
 
   return (
     <>
-      {NotificationComponent}
+      <NotificationComponent />
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -257,9 +289,33 @@ const OrderManagement: React.FC = () => {
           ) : (
             <>
               <div className="overflow-x-auto">
+                <AdminBulkToolbar selectedCount={selectedIds.size} onClearSelection={() => setSelectedIds(new Set())}>
+                <select
+                  value={bulkStatus}
+                  onChange={(e) => setBulkStatus(e.target.value)}
+                  className="px-3 py-1.5 text-sm rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+                <button
+                  type="button"
+                  disabled={bulkSubmitting}
+                  onClick={handleBulkStatusUpdate}
+                  className="px-3 py-1.5 text-sm font-medium rounded-lg bg-brand-primary text-text-inverted hover:opacity-90 disabled:opacity-50"
+                >
+                  Update status
+                </button>
+              </AdminBulkToolbar>
                 <table className="w-full">
                   <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
                     <tr>
+                      <th className="px-3 py-3 w-10">
+                        <input type="checkbox" checked={orders.length > 0 && selectedIds.size === orders.length} onChange={toggleSelectAll} className="rounded border-border-subtle text-brand-primary" aria-label="Select all" />
+                      </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Order ID</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Customer</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Service</th>
@@ -274,6 +330,9 @@ const OrderManagement: React.FC = () => {
                   <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                     {orders.map((order) => (
                       <tr key={order._id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                        <td className="px-3 py-4 w-10">
+                          <input type="checkbox" checked={selectedIds.has(order._id)} onChange={() => toggleSelectOne(order._id)} className="rounded border-border-subtle text-brand-primary" aria-label={`Select order ${order._id}`} />
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-mono text-slate-600 dark:text-slate-400">
                             #{order._id.slice(-8)}

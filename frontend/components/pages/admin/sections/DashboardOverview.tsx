@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserCircleIcon, EnvelopeIcon, ShoppingBagIcon, PostsIcon, ArrowRightIcon, CodeBracketIcon } from '../../../icons/Icons';
+import { UserCircleIcon, EnvelopeIcon, ShoppingBagIcon, PostsIcon, ArrowRightIcon, CodeBracketIcon, TestimonialsIcon, DocumentTextIcon, TeamIcon, CurrencyDollarIcon } from '../../../icons/Icons';
 import Card from '../../../ui/Card';
 import Icon from '../../../ui/Icon';
 
@@ -8,8 +8,13 @@ interface Stats {
   totalBlogPosts: number;
   totalContacts: number;
   totalOrders: number;
+  totalTestimonials?: number;
   pendingContacts: number;
   publishedPosts: number;
+  totalApplications?: number;
+  newApplications?: number;
+  totalInvestors?: number;
+  newInvestors?: number;
 }
 
 interface DashboardOverviewProps {
@@ -98,6 +103,41 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats, onNavigate
           icon={<Icon icon={PostsIcon} size="md" tone="inverted" />}
           color="bg-brand-primary"
           onClick={() => onNavigate('blog')}
+        />
+        <StatCard
+          title="Testimonials"
+          value={stats?.totalTestimonials ?? 0}
+          icon={<Icon icon={TestimonialsIcon} size="md" tone="primary" />}
+          color="bg-surface-muted"
+          onClick={() => onNavigate('testimonials')}
+        />
+        <StatCard
+          title="Applications"
+          value={`${stats?.totalApplications ?? 0} total · ${stats?.newApplications ?? 0} new`}
+          icon={<Icon icon={UserCircleIcon} size="md" tone="primary" />}
+          color="bg-surface-muted"
+          onClick={() => onNavigate('applications')}
+        />
+        <StatCard
+          title="Investors"
+          value={`${stats?.totalInvestors ?? 0} total · ${stats?.newInvestors ?? 0} new`}
+          icon={<Icon icon={CurrencyDollarIcon} size="md" tone="inverted" />}
+          color="bg-brand-primary"
+          onClick={() => onNavigate('investors')}
+        />
+        <StatCard
+          title="About Page"
+          value="Edit"
+          icon={<Icon icon={DocumentTextIcon} size="md" tone="primary" />}
+          color="bg-surface-muted"
+          onClick={() => onNavigate('about')}
+        />
+        <StatCard
+          title="Team Page"
+          value="Edit"
+          icon={<Icon icon={TeamIcon} size="md" tone="primary" />}
+          color="bg-surface-muted"
+          onClick={() => onNavigate('team')}
         />
       </div>
 

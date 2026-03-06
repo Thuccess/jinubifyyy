@@ -8,8 +8,23 @@ const activitySchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['order', 'payment', 'profile_update', 'service_activation'],
+    enum: ['order', 'payment', 'profile_update', 'service_activation', 'admin_action'],
     required: [true, 'Activity type is required'],
+  },
+  /** Human-readable action for admin log (e.g. "Created post", "Updated order") */
+  action: {
+    type: String,
+    trim: true,
+  },
+  /** Entity type for filtering (e.g. "blog", "order", "user", "service") */
+  entityType: {
+    type: String,
+    trim: true,
+  },
+  /** Related entity ID */
+  entityId: {
+    type: String,
+    trim: true,
   },
   description: {
     type: String,
@@ -28,6 +43,8 @@ const activitySchema = new mongoose.Schema({
 // Indexes for performance
 activitySchema.index({ userId: 1 });
 activitySchema.index({ createdAt: -1 });
+activitySchema.index({ entityType: 1 });
+activitySchema.index({ createdAt: -1, entityType: 1 });
 
 const Activity = mongoose.model('Activity', activitySchema);
 

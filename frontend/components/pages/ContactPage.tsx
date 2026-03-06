@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import AnimatedSection from '../AnimatedSection';
 import { TwitterIcon, InstagramIcon, FacebookIcon, YouTubeIcon, WhatsAppIcon } from '../icons/Socials';

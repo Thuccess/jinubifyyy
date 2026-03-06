@@ -5,7 +5,7 @@ type CardVariant = 'default' | 'subtle' | 'emphasis' | 'danger';
 type CardSize = 'sm' | 'md' | 'lg';
 type CardHover = 'lift' | 'glow' | 'none';
 
-type AsProp = keyof JSX.IntrinsicElements;
+type AsProp = keyof React.JSX.IntrinsicElements;
 
 interface BaseCardProps {
   variant?: CardVariant;
@@ -16,7 +16,7 @@ interface BaseCardProps {
 }
 
 type PolymorphicProps<T extends AsProp> = BaseCardProps &
-  Omit<JSX.IntrinsicElements[T], keyof BaseCardProps>;
+  Omit<React.JSX.IntrinsicElements[T], keyof BaseCardProps>;
 
 function getVariantClasses(variant: CardVariant): string {
   switch (variant) {
@@ -47,7 +47,7 @@ function getSizeClasses(size: CardSize): string {
 function getHoverClasses(hover: CardHover): string {
   switch (hover) {
     case 'glow':
-      return 'hover:-translate-y-1 hover:shadow-xl hover:shadow-[0_0_30px_color-mix(in_oklab,var(--accent-soft)_0.6,var(--bg-primary))]';
+      return 'hover:-translate-y-1 hover:shadow-xl';
     case 'none':
       return '';
     case 'lift':

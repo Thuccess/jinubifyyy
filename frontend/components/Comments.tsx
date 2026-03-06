@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Theme } from '../App';
+import type { Theme } from '../types';
 
 interface CommentsProps {
   theme: Theme;

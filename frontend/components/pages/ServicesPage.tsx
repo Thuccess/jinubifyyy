@@ -1,5 +1,7 @@
+ 'use client';
+
 import React, { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import AnimatedSection from '../AnimatedSection';
 import {
   LightBulbIcon,
@@ -42,8 +44,8 @@ const processSteps = [
 // --- Subcomponents ---
 
 const ServiceSection: React.FC<{ item: ServiceDisplayItem; featured?: boolean }> = ({ item, featured }) => {
-  const navigate = useNavigate();
-  const handleViewDemo = () => navigate(`/demos/${item.slug}`);
+  const router = useRouter();
+  const handleViewDemo = () => router.push(`/demos/${item.slug}`);
   return (
     <AnimatedSection>
       <div className={`rounded-lg border p-6 sm:p-8 flex flex-col gap-4 ${featured ? 'border-brand-primary bg-brand-soft/30' : 'border-border-subtle bg-[color:var(--surface-card)]'}`}>
@@ -68,14 +70,14 @@ const ServiceSection: React.FC<{ item: ServiceDisplayItem; featured?: boolean }>
           </button>
           <button
             type="button"
-            onClick={() => navigate('/pricing')}
+            onClick={() => router.push('/pricing')}
             className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-text-inverted bg-brand-primary hover:opacity-90 rounded-md transition-colors min-h-[44px]"
           >
             View Packages <ArrowRightIcon className="h-4 w-4" />
           </button>
           <button
             type="button"
-            onClick={() => navigate('/contact')}
+            onClick={() => router.push('/contact')}
             className="inline-flex items-center px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary rounded-md transition-colors min-h-[44px]"
           >
             Contact us
@@ -114,7 +116,7 @@ const ProcessStep: React.FC<typeof processSteps[0]> = ({ icon, title, descriptio
 
 // --- Pricing Link Section ---
 const PricingLinkSection: React.FC = () => {
-    const navigate = useNavigate();
+    const router = useRouter();
     return (
         <section className="py-16 sm:py-20 lg:py-24 bg-[color:var(--bg-secondary)]" aria-labelledby="pricing-link-heading">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -131,13 +133,13 @@ const PricingLinkSection: React.FC = () => {
                         </p>
                         <div className="mt-8 flex flex-wrap gap-4">
                             <button
-                                onClick={() => navigate('/pricing')}
+                                onClick={() => router.push('/pricing')}
                                 className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-text-inverted bg-brand-primary hover:opacity-90 rounded-md"
                             >
                                 View All Packages <ArrowRightIcon className="h-4 w-4" aria-hidden />
                             </button>
                             <button
-                                onClick={() => navigate('/contact')}
+                                onClick={() => router.push('/contact')}
                                 className="inline-flex items-center px-5 py-2.5 text-sm font-medium text-brand-primary hover:bg-brand-soft rounded-md"
                             >
                                 Request Custom Quote
