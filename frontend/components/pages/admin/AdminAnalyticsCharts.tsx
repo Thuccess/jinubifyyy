@@ -43,7 +43,7 @@ const AdminAnalyticsCharts: React.FC<AdminAnalyticsChartsProps> = ({ data }) => 
         <h3 className="text-lg font-semibold text-text-primary mb-4">Traffic (activity events)</h3>
         <div className="h-64 sm:h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={trafficData.length ? trafficData : [{ date: '-', count: 0 }]} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+            <LineChart data={trafficData.length ? trafficData : [{ date: '-', count: 0, label: '-' }]} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
               <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} />
               <YAxis stroke="var(--text-muted)" fontSize={12} />
@@ -60,7 +60,7 @@ const AdminAnalyticsCharts: React.FC<AdminAnalyticsChartsProps> = ({ data }) => 
           <h3 className="text-lg font-semibold text-text-primary mb-4">Leads (contacts)</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={leadsData.length ? leadsData : [{ date: '-', count: 0 }]} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+              <BarChart data={leadsData.length ? leadsData : [{ date: '-', count: 0, label: '-' }]} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
                 <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} />
                 <YAxis stroke="var(--text-muted)" fontSize={12} />
@@ -74,7 +74,7 @@ const AdminAnalyticsCharts: React.FC<AdminAnalyticsChartsProps> = ({ data }) => 
           <h3 className="text-lg font-semibold text-text-primary mb-4">Conversions (orders)</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={conversionsData.length ? conversionsData : [{ date: '-', count: 0 }]} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+              <BarChart data={conversionsData.length ? conversionsData : [{ date: '-', count: 0, label: '-' }]} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
                 <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} />
                 <YAxis stroke="var(--text-muted)" fontSize={12} />
