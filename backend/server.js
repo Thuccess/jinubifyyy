@@ -99,6 +99,15 @@ if (process.env.NODE_ENV !== 'production') {
 }
 app.use('/uploads', express.static(uploadsDir));
 
+// Health check at root for Render / load balancers
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    service: 'Jinubify API',
+    message: 'Backend is running',
+  });
+});
+
 // General API rate limiting
 app.use('/api', apiLimiter);
 

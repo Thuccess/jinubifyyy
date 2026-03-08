@@ -35,7 +35,7 @@ services:
       # - key: CONTACT_EMAIL
       #   sync: false
 
-  # Frontend: Next.js (set NEXT_PUBLIC_API_URL in Dashboard to backend URL + /api)
+  # Frontend: Next.js – must use "npm start" (next start), NOT "npm run dev"
   - type: web
     name: jinubify-web
     runtime: node
