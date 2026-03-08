@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { StarIcon, QuoteIcon, ChevronLeftIcon, ChevronRightIcon } from './icons/Icons';
 import Icon from './ui/Icon';
 import { testimonialsAPI, type TestimonialItem } from '../services/api';
-import { normalizeImageUrl } from '../utils/image';
+import { normalizeImageUrl } from '../../utils/image';
 
 const FALLBACK_TESTIMONIALS: TestimonialItem[] = [
   {

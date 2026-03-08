@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import AnimatedSection from '../AnimatedSection';
-import { normalizeImageUrl } from '../utils/image';
+import { normalizeImageUrl } from '../../utils/image';
 import { ChevronLeftIcon, ChevronRightIcon, XMarkIcon } from '../icons/Icons';
 import CallToAction from '../sections/CallToAction';
 
