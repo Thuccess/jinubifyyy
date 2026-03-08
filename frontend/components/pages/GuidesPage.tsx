@@ -3,6 +3,7 @@
 import React from 'react';
 import AnimatedSection from '../AnimatedSection';
 import { LightBulbIcon, PencilSquareIcon, RocketLaunchIcon } from '../icons/Icons';
+import CallToAction from '../sections/CallToAction';
 
 const GuidesPage: React.FC = () => {
   return (
@@ -80,6 +81,12 @@ const GuidesPage: React.FC = () => {
                 </ul>
               </div>
             </AnimatedSection>
+          </div>
+        </section>
+
+        <section className="py-16 sm:py-20 lg:py-24" aria-label="Call to action">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <CallToAction />
           </div>
         </section>
       </main>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { adminAPI } from '../../../../services/api';
 import type { TeamPagePayload, TeamMemberPayload } from '../../../../services/api';
 import { useNotification } from '../../../admin/useNotification';
@@ -300,7 +301,7 @@ const TeamManagement: React.FC = () => {
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
                             {m.imageUrl ? (
-                              <img src={getImageUrl(m.imageUrl)} alt="" className="h-11 w-11 rounded-full object-cover bg-[color:var(--surface-muted)] ring-1 ring-border-subtle" />
+                              <Image src={getImageUrl(m.imageUrl)} alt={m.name || 'Team member'} width={44} height={44} className="h-11 w-11 rounded-full object-cover bg-[color:var(--surface-muted)] ring-1 ring-border-subtle" />
                             ) : (
                               <div className="h-11 w-11 rounded-full bg-[color:var(--surface-muted)] flex items-center justify-center text-text-muted text-base font-medium ring-1 ring-border-subtle">
                                 {(m.name || '?').charAt(0)}

@@ -412,14 +412,14 @@ const OrderManagement: React.FC = () => {
                     <button
                       onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                       disabled={currentPage === 1}
-                      className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-card border border-border-subtle rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-card border border-border-subtle rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Previous
                     </button>
                     <button
                       onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                       disabled={currentPage === totalPages}
-                      className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-card border border-border-subtle rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-card border border-border-subtle rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Next
                     </button>

@@ -33,7 +33,7 @@ const BlogPostCard: React.FC<{ post: BlogPost; formatDate: (date: string | Date)
     <div className="overflow-hidden relative w-full h-44">
       <Image
         src={normalizeImageUrl(post.imageUrl || post.coverImage || '') || '/logo/logo-light.png'}
-        alt=""
+        alt={post.title}
         fill
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
         className="object-cover"

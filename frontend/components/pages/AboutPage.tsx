@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import AnimatedSection from '../AnimatedSection';
 import { SparklesIcon, HeartIcon, StarIcon, CogIcon, LightBulbIcon, HandshakeIcon } from '../icons/Icons';
 import { aboutAPI } from '../../services/api';
@@ -198,11 +199,12 @@ const AboutPage: React.FC = () => {
             <AnimatedSection>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 lg:items-center">
                 <div className="aspect-[4/3] lg:aspect-auto lg:min-h-[360px] rounded-lg overflow-hidden border border-border-subtle bg-[color:var(--surface-card)]">
-                  <img
-                    loading="lazy"
-                    className="w-full h-full object-cover"
+                  <Image
                     src={normalizeImageUrl(ourStory.imageUrl || 'https://picsum.photos/seed/office/600/400')}
                     alt="A modern and collaborative office space"
+                    width={600}
+                    height={400}
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 <div>

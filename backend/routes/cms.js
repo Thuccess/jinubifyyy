@@ -12,6 +12,7 @@ const PUBLIC_FILTER = { isDeleted: false, status: 'published', isVisible: true }
 // @desc    Get full public site config (nav, settings, pages with sections)
 // @access  Public
 router.get('/site', async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400');
   try {
     const [settingsDocs, navItems, pages] = await Promise.all([
       SiteSettings.find(PUBLIC_FILTER).sort({ order: 1, key: 1 }).lean(),

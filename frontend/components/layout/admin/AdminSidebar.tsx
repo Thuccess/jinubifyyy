@@ -22,31 +22,38 @@ import {
   CameraIcon,
 } from '../../icons/Icons';
 import { useTheme } from '../../../contexts/ThemeContext';
+import { useAuth } from '../../../contexts/AuthContext';
+
+type AdminRole = 'editor' | 'admin' | 'super_admin';
 
 interface NavItem {
   id: string;
   label: string;
   path: string;
   icon: React.ReactNode;
+  /** Roles that can see this item. Editor = CMS only; Admin = + services, pricing, orders; Super Admin = all. */
+  allowedRoles: AdminRole[];
 }
 
 const navItems: NavItem[] = [
-  { id: 'dashboard', label: 'Dashboard', path: '/admin', icon: <DashboardIcon className="h-5 w-5" /> },
-  { id: 'services', label: 'Services', path: '/admin/services', icon: <CodeBracketIcon className="h-5 w-5" /> },
-  { id: 'demos', label: 'Service Demos', path: '/admin/demos', icon: <MegaphoneIcon className="h-5 w-5" /> },
-  { id: 'pricing', label: 'Pricing & Packages', path: '/admin/pricing', icon: <CurrencyDollarIcon className="h-5 w-5" /> },
-  { id: 'blog', label: 'Blog Posts', path: '/admin/blog', icon: <PostsIcon className="h-5 w-5" /> },
-  { id: 'media', label: 'Media Library', path: '/admin/media', icon: <CameraIcon className="h-5 w-5" /> },
-  { id: 'testimonials', label: 'Testimonials', path: '/admin/testimonials', icon: <TestimonialsIcon className="h-5 w-5" /> },
-  { id: 'about', label: 'About Page', path: '/admin/about', icon: <DocumentTextIcon className="h-5 w-5" /> },
-  { id: 'team', label: 'Team Page', path: '/admin/team', icon: <TeamIcon className="h-5 w-5" /> },
-  { id: 'applications', label: 'Applications', path: '/admin/applications', icon: <ChatBubbleLeftRightIcon className="h-5 w-5" /> },
-  { id: 'investors', label: 'Investors', path: '/admin/investors', icon: <CurrencyDollarIcon className="h-5 w-5" /> },
-  { id: 'contacts', label: 'Contacts', path: '/admin/contacts', icon: <EnvelopeIcon className="h-5 w-5" /> },
-  { id: 'users', label: 'Users', path: '/admin/users', icon: <UserCircleIcon className="h-5 w-5" /> },
-  { id: 'orders', label: 'Orders', path: '/admin/orders', icon: <ShoppingBagIcon className="h-5 w-5" /> },
-  { id: 'activity', label: 'Activity', path: '/admin/activity', icon: <ChartBarIcon className="h-5 w-5" /> },
-  { id: 'settings', label: 'Settings', path: '/admin/settings', icon: <CogIcon className="h-5 w-5" /> },
+  { id: 'dashboard', label: 'Dashboard', path: '/admin', icon: <DashboardIcon className="h-5 w-5" />, allowedRoles: ['editor', 'admin', 'super_admin'] },
+  { id: 'content', label: 'Content', path: '/admin/content', icon: <DocumentTextIcon className="h-5 w-5" />, allowedRoles: ['editor', 'admin', 'super_admin'] },
+  { id: 'services', label: 'Services', path: '/admin/services', icon: <CodeBracketIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
+  { id: 'demos', label: 'Service Demos', path: '/admin/demos', icon: <MegaphoneIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
+  { id: 'pricing', label: 'Pricing & Packages', path: '/admin/pricing', icon: <CurrencyDollarIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
+  { id: 'blog', label: 'Blog Posts', path: '/admin/blog', icon: <PostsIcon className="h-5 w-5" />, allowedRoles: ['editor', 'admin', 'super_admin'] },
+  { id: 'media', label: 'Media Library', path: '/admin/media', icon: <CameraIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
+  { id: 'testimonials', label: 'Testimonials', path: '/admin/testimonials', icon: <TestimonialsIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
+  { id: 'about', label: 'About Page', path: '/admin/about', icon: <DocumentTextIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
+  { id: 'team', label: 'Team Page', path: '/admin/team', icon: <TeamIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
+  { id: 'analytics', label: 'Analytics', path: '/admin/analytics', icon: <ChartBarIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
+  { id: 'applications', label: 'Applications', path: '/admin/applications', icon: <ChatBubbleLeftRightIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
+  { id: 'investors', label: 'Investors', path: '/admin/investors', icon: <CurrencyDollarIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
+  { id: 'contacts', label: 'Contacts', path: '/admin/contacts', icon: <EnvelopeIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
+  { id: 'orders', label: 'Orders', path: '/admin/orders', icon: <ShoppingBagIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
+  { id: 'activity', label: 'Activity', path: '/admin/activity', icon: <ChartBarIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
+  { id: 'users', label: 'Users', path: '/admin/users', icon: <UserCircleIcon className="h-5 w-5" />, allowedRoles: ['super_admin'] },
+  { id: 'settings', label: 'Settings', path: '/admin/settings', icon: <CogIcon className="h-5 w-5" />, allowedRoles: ['super_admin'] },
 ];
 
 interface AdminSidebarProps {
@@ -57,6 +64,9 @@ interface AdminSidebarProps {
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ isCollapsed, onToggle }) => {
   const pathname = usePathname();
   const { theme } = useTheme();
+  const { currentUser } = useAuth();
+  const role = (currentUser?.role as AdminRole) ?? 'admin';
+  const visibleItems = navItems.filter((item) => item.allowedRoles.includes(role));
   const logoSrc = theme === 'dark' ? '/logo/logo-light.png' : '/logo/logo-dark.png';
   const [isMobile, setIsMobile] = useState(
     () => (typeof window !== 'undefined' ? window.innerWidth < 1024 : false)
@@ -142,7 +152,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isCollapsed, onToggle }) =>
             </p>
           )}
           <ul className="space-y-1">
-            {navItems.map((item) => {
+            {visibleItems.map((item) => {
               const active = isActive(item.path);
               return (
                 <li key={item.id}>

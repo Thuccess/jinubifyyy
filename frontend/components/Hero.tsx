@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { CheckIcon, StarIcon, WandIcon, PaperAirplaneIcon } from './icons/Icons';
 import Icon from './ui/Icon';
@@ -137,7 +138,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
         >
             <div className="bg-surface-card/80 backdrop-blur-xl p-3 rounded-xl shadow-2xl border border-border-subtle ring-1 ring-[color:var(--border-subtle)]/50">
                 <div className="flex items-center space-x-2">
-                    <img loading="lazy" src="https://picsum.photos/seed/person1/32/32" alt="Client avatar" className="w-8 h-8 rounded-full" />
+                    <Image src="https://picsum.photos/seed/person1/32/32" alt="Client avatar" width={32} height={32} className="w-8 h-8 rounded-full object-cover" />
                     <p className="text-xs text-text-secondary">New followers this week</p>
                     <span className="text-xs" aria-hidden="true">🎉</span>
                 </div>
@@ -168,7 +169,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
                     <div>
                         <p className="text-sm font-semibold text-text-primary">Campaign #1245</p>
                         <div className="flex items-center space-x-2 mt-2">
-                             <img loading="lazy" src="https://picsum.photos/seed/person2/32/32" alt="Client avatar" className="w-8 h-8 rounded-full" />
+                             <Image src="https://picsum.photos/seed/person2/32/32" alt="Client avatar" width={32} height={32} className="w-8 h-8 rounded-full object-cover" />
                              <div>
                                  <p className="text-xs font-semibold text-text-primary">delarestuale</p>
                                  <p className="text-xs text-text-muted">Premium client</p>
@@ -235,9 +236,9 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
 
           <div className="mt-8 flex items-center justify-center space-x-2 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
             <div className="flex -space-x-2">
-                <img loading="lazy" className="inline-block h-8 w-8 rounded-full ring-2 ring-[color:var(--bg-primary)]" src="https://picsum.photos/seed/avatar1/32/32" alt="Satisfied user 1"/>
-                <img loading="lazy" className="inline-block h-8 w-8 rounded-full ring-2 ring-[color:var(--bg-primary)]" src="https://picsum.photos/seed/avatar2/32/32" alt="Satisfied user 2"/>
-                <img loading="lazy" className="inline-block h-8 w-8 rounded-full ring-2 ring-[color:var(--bg-primary)]" src="https://picsum.photos/seed/avatar3/32/32" alt="Satisfied user 3"/>
+                <Image src="https://picsum.photos/seed/avatar1/32/32" alt="Satisfied user 1" width={32} height={32} className="inline-block h-8 w-8 rounded-full object-cover ring-2 ring-[color:var(--bg-primary)]" />
+                <Image src="https://picsum.photos/seed/avatar2/32/32" alt="Satisfied user 2" width={32} height={32} className="inline-block h-8 w-8 rounded-full object-cover ring-2 ring-[color:var(--bg-primary)]" />
+                <Image src="https://picsum.photos/seed/avatar3/32/32" alt="Satisfied user 3" width={32} height={32} className="inline-block h-8 w-8 rounded-full object-cover ring-2 ring-[color:var(--bg-primary)]" />
             </div>
             <div className="flex items-center text-sm">
                 <Icon icon={StarIcon} size="sm" tone="muted" />

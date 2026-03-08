@@ -10,6 +10,7 @@ const selectList = '-content -versioning -audit';
 
 // GET /api/blogs — list published posts (pagination, search, category, tag, featured, sort)
 router.get('/', async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400');
   try {
     const {
       page = 1,
@@ -71,6 +72,7 @@ router.get('/', async (req, res) => {
 
 // GET /api/blogs/featured — featured published posts
 router.get('/featured', async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400');
   try {
     const query = { ...publishedQuery(), featured: true };
     const posts = await BlogPost.find(query)
@@ -93,6 +95,7 @@ router.get('/featured', async (req, res) => {
 
 // GET /api/blogs/category/:category
 router.get('/category/:category', async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400');
   try {
     const category = decodeURIComponent(req.params.category).trim();
     const { page = 1, limit = 12 } = req.query;
@@ -130,6 +133,7 @@ router.get('/category/:category', async (req, res) => {
 
 // GET /api/blogs/tag/:tag
 router.get('/tag/:tag', async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400');
   try {
     const tag = decodeURIComponent(req.params.tag).trim();
     const { page = 1, limit = 12 } = req.query;
@@ -167,6 +171,7 @@ router.get('/tag/:tag', async (req, res) => {
 
 // GET /api/blogs/:slug — single post (published only), increment views
 router.get('/:slug', async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400');
   try {
     const slug = req.params.slug.trim();
     const query = { slug, ...publishedQuery() };

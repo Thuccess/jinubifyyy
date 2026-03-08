@@ -1,0 +1,54 @@
+# Render Blueprint – Jinubify (GitHub → Render)
+# Deploy from repo root; creates two Web Services: backend API + Next.js frontend.
+# Set secret env vars in Render Dashboard after first deploy (see RENDER_DEPLOY.md).
+
+services:
+  # Backend: Express API + MongoDB (use MongoDB Atlas; set MONGODB_URI + JWT_SECRET in Dashboard)
+  - type: web
+    name: jinubify-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: jinubify-web
+          property: url
+      # Optional: set in Dashboard if needed
+      # - key: JWT_EXPIRES_IN
+      #   value: 7d
+      # - key: SMTP_HOST
+      #   sync: false
+      # - key: SMTP_USER
+      #   sync: false
+      # - key: SMTP_PASS
+      #   sync: false
+      # - key: CONTACT_EMAIL
+      #   sync: false
+
+  # Frontend: Next.js (set NEXT_PUBLIC_API_URL in Dashboard to backend URL + /api)
+  - type: web
+    name: jinubify-web
+    runtime: node
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
+      # Optional: for CDN or custom domain
+      # - key: NEXT_PUBLIC_MEDIA_BASE_URL
+      #   sync: false
+      # - key: NEXT_PUBLIC_SITE_URL
+      #   sync: false

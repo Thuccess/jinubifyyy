@@ -3,12 +3,16 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { blogsPublicAPI } from '../../services/api';
 import AnimatedSection from '../AnimatedSection';
 import Comments from '../Comments';
 import type { BlogPost } from '../../types/blog';
 import { useTheme } from '../../contexts/ThemeContext';
+import DOMPurify from 'dompurify';
 import { normalizeImageUrl } from '../../utils/image';
+import StructuredData from '../seo/StructuredData';
+import { siteConfig } from '../../config/site';
 
 interface BlogPostPageProps {
   theme?: never; // theme is read from useTheme() inside the component
@@ -135,10 +139,27 @@ const BlogPostPage: React.FC<BlogPostPageProps> = (props) => {
   };
 
   const imageUrl = normalizeImageUrl(post.imageUrl || post.coverImage || '');
-  const lazyLoadedContent = (post.content || '').replace(/<img /g, '<img loading="lazy" ');
+  const rawContent = (post.content || '').replace(/<img /g, '<img loading="lazy" ');
+  const [sanitizedContent, setSanitizedContent] = useState('');
+  useEffect(() => {
+    if (typeof window !== 'undefined' && rawContent) {
+      setSanitizedContent(DOMPurify.sanitize(rawContent));
+    }
+  }, [rawContent]);
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: (post.seo?.description || post.excerpt || '').slice(0, 200),
+    author: { '@type': 'Person', name: typeof post.author === 'string' ? post.author : (post.author as { name?: string })?.name || siteConfig.name },
+    datePublished: typeof post.date === 'string' ? post.date : (post.date as Date)?.toISOString?.(),
+    ...(imageUrl && { image: imageUrl.startsWith('http') ? imageUrl : `${typeof window !== 'undefined' ? window.location.origin : siteConfig.url}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}` }),
+    publisher: { '@type': 'Organization', name: siteConfig.name, logo: { '@type': 'ImageObject', url: siteConfig.logo } },
+  };
 
   return (
     <div className="animate-fade-in blog-post-page" data-page="blog-post">
+      <StructuredData data={articleSchema} />
       <div className="py-16 sm:py-20 lg:py-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection>
@@ -164,11 +185,13 @@ const BlogPostPage: React.FC<BlogPostPageProps> = (props) => {
             </header>
 
             {imageUrl && (
-              <div className="mt-8">
-                <img
+              <div className="mt-8 relative w-full aspect-video rounded-lg border border-border-subtle overflow-hidden">
+                <Image
                   src={imageUrl}
-                  alt=""
-                  className="w-full rounded-lg border border-border-subtle aspect-video object-cover"
+                  alt={post.seo?.title || post.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 896px) 100vw, 896px"
                 />
               </div>
             )}
@@ -179,7 +202,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = (props) => {
 
             <article
               className="prose prose-lg lg:prose-xl dark:prose-invert max-w-none mt-12 text-text-secondary prose-headings:font-extrabold prose-headings:text-text-primary prose-a:text-brand-primary"
-              dangerouslySetInnerHTML={{ __html: lazyLoadedContent }}
+              dangerouslySetInnerHTML={{ __html: sanitizedContent }}
             />
 
             <div className="mt-16 border-t border-border-subtle pt-12">

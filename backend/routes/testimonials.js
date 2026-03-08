@@ -8,6 +8,7 @@ const router = express.Router();
  * Public: list active testimonials for the home page (ordered by order, then createdAt)
  */
 router.get('/', async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400');
   try {
     const testimonials = await Testimonial.find({ isActive: true })
       .sort({ order: 1, createdAt: 1 })

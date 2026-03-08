@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { adminAPI } from '../../../../services/api';
 import { useNotification } from '../../../admin/useNotification';
 import ConfirmDialog from '../../../admin/ConfirmDialog';
@@ -280,10 +281,13 @@ const UserManagement: React.FC = () => {
                         <td className="px-3 py-4 w-10"><input type="checkbox" checked={selectedIds.has(user._id)} onChange={() => toggleSelectOne(user._id)} className="rounded border-border-subtle text-brand-primary" aria-label={`Select ${user.name}`} /></td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
-                            <img
+                            <Image
                               src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
                               alt={user.name}
+                              width={40}
+                              height={40}
                               className="h-10 w-10 rounded-full object-cover"
+                              unoptimized
                             />
                             <div>
                               <div className="text-sm font-medium text-text-primary">{user.name}</div>
@@ -348,14 +352,14 @@ const UserManagement: React.FC = () => {
                     <button
                       onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                       disabled={currentPage === 1}
-                      className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-card border border-border-subtle rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-card border border-border-subtle rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Previous
                     </button>
                     <button
                       onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                       disabled={currentPage === totalPages}
-                      className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-card border border-border-subtle rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-card border border-border-subtle rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Next
                     </button>

@@ -1,7 +1,8 @@
  'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { TwitterIcon, InstagramIcon, YouTubeIcon, FacebookIcon, WhatsAppIcon } from './icons/Socials';
 import { PaperAirplaneIcon, CogIcon } from './icons/Icons';
 import { useTheme } from '../contexts/ThemeContext';
@@ -17,18 +18,25 @@ interface FooterProps {
 }
 
 const Logo: React.FC<{ theme: Theme }> = ({ theme }) => (
-    <div className="flex items-center">
-      <img 
+    <div className="flex items-center relative h-7 sm:h-8 md:h-9 lg:h-10 w-auto">
+      <Image
         src={theme === 'dark' ? '/logo/logo-light.png' : '/logo/logo-dark.png'}
-        alt="Jinubify Logo" 
-        className="h-7 sm:h-8 md:h-9 lg:h-10 w-auto transition-[height] duration-200"
+        alt="Jinubify Logo"
+        width={160}
+        height={40}
+        className="object-contain object-left h-full w-auto transition-[height] duration-200"
       />
     </div>
 );
 
 const Footer: React.FC<FooterProps> = ({ currentUser }) => {
+    const [mounted, setMounted] = useState(false);
     const { theme } = useTheme();
     const { site } = useCms();
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
     const settings = site?.siteSettings ?? {};
     const footerTagline = (settings.footerTagline as string) ?? "Modern solutions for your business needs. Empowering brands to grow their social media presence with cutting-edge strategies and tools.";
     const ctaEyebrow = (settings.footerCtaEyebrow as string) ?? 'Start today';
@@ -65,7 +73,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
             { name: 'Press / Media', path: '/press-media' },
             { name: 'Contact', path: '/contact' },
             { name: 'FAQ', path: '/faq' },
-            ...(currentUser ? [{ name: 'Dashboard', path: '/dashboard' }] : []),
+            ...(mounted && currentUser ? [{ name: 'Dashboard', path: '/dashboard' }] : []),
             { name: 'Admin', path: '/admin' },
         ],
         Resources: [

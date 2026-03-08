@@ -27,10 +27,21 @@ import Page from '../models/Page.js';
 import PricingPackage from '../models/PricingPackage.js';
 import MediaAsset from '../models/MediaAsset.js';
 import { addMediaUsage, removeMediaUsage } from '../utils/mediaUsage.js';
+import { body, validationResult } from 'express-validator';
 import { requireAdmin } from '../middleware/admin.js';
+import { authorizeRole } from '../middleware/authorizeRole.js';
 import { adminLimiter } from '../middleware/rateLimiter.js';
+import { formatValidationErrors } from '../middleware/errorHandler.js';
 
 const router = express.Router();
+
+const runValidation = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json(formatValidationErrors(errors.array()));
+  }
+  next();
+};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOAD_DIR = path.join(__dirname, '../uploads');
@@ -320,6 +331,65 @@ router.delete('/media/:id', async (req, res) => {
   }
 });
 
+// @route   GET /api/admin/analytics
+// @desc    Get analytics data for dashboard (traffic, leads, conversions, top services, top blog posts)
+// @access  Admin only
+router.get('/analytics', async (req, res) => {
+  try {
+    const days = Math.min(90, Math.max(7, parseInt(req.query.days, 10) || 30));
+    const start = new Date();
+    start.setDate(start.getDate() - days);
+    start.setHours(0, 0, 0, 0);
+
+    const [trafficAgg, leadsAgg, conversionsAgg, topServicesAgg, topBlogPostsAgg] = await Promise.all([
+      Activity.aggregate([
+        { $match: { createdAt: { $gte: start } } },
+        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, count: { $sum: 1 } } },
+        { $sort: { _id: 1 } },
+      ]),
+      Contact.aggregate([
+        { $match: { createdAt: { $gte: start } } },
+        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, count: { $sum: 1 } } },
+        { $sort: { _id: 1 } },
+      ]),
+      Order.aggregate([
+        { $match: { createdAt: { $gte: start } } },
+        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, count: { $sum: 1 } } },
+        { $sort: { _id: 1 } },
+      ]),
+      Order.aggregate([
+        { $match: { createdAt: { $gte: start } } },
+        { $group: { _id: '$serviceName', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 10 },
+      ]),
+      BlogPost.aggregate([
+        { $match: { $or: [{ published: true }, { status: 'published' }] } },
+        { $project: { title: 1, slug: 1, 'metrics.views': 1, views: 1, date: 1 } },
+        { $addFields: { viewCount: { $ifNull: ['$metrics.views', '$views'] } } },
+        { $sort: { viewCount: -1, date: -1 } },
+        { $limit: 10 },
+      ]),
+    ]);
+
+    const traffic = trafficAgg.map((t) => ({ date: t._id, count: t.count }));
+    const leads = leadsAgg.map((l) => ({ date: l._id, count: l.count }));
+    const conversions = conversionsAgg.map((c) => ({ date: c._id, count: c.count }));
+    const topServices = topServicesAgg.map((s) => ({ name: s._id, count: s.count }));
+    const topBlogPosts = topBlogPostsAgg.map((p) => ({
+      title: p.title,
+      slug: p.slug,
+      views: p.viewCount ?? 0,
+      date: p.date,
+    }));
+
+    res.json({ traffic, leads, conversions, topServices, topBlogPosts });
+  } catch (error) {
+    console.error('Get admin analytics error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // @route   GET /api/admin/stats
 // @desc    Get admin dashboard statistics
 // @access  Admin only
@@ -458,8 +528,8 @@ router.delete('/investors/:id', async (req, res) => {
 
 // @route   GET /api/admin/users
 // @desc    Get all users
-// @access  Admin only
-router.get('/users', async (req, res) => {
+// @access  Super Admin only
+router.get('/users', authorizeRole('super_admin'), async (req, res) => {
   try {
     const { page = 1, limit = 10, search } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -556,8 +626,8 @@ router.put('/contacts/:id', async (req, res) => {
 
 // @route   PUT /api/admin/users/:id
 // @desc    Update user role
-// @access  Admin only
-router.put('/users/:id', async (req, res) => {
+// @access  Super Admin only
+router.put('/users/:id', authorizeRole('super_admin'), async (req, res) => {
   try {
     const { role } = req.body;
 
@@ -666,13 +736,16 @@ router.get('/orders', async (req, res) => {
 // @route   PUT /api/admin/orders/:id
 // @desc    Update order status and optional admin notes
 // @access  Admin only
-router.put('/orders/:id', async (req, res) => {
+router.put(
+  '/orders/:id',
+  [
+    body('status').isIn(['pending', 'processing', 'confirmed', 'completed', 'cancelled']).withMessage('Invalid status'),
+    body('adminNotes').optional().isString(),
+  ],
+  runValidation,
+  async (req, res) => {
   try {
     const { status, adminNotes } = req.body;
-
-    if (!['pending', 'processing', 'confirmed', 'completed', 'cancelled'].includes(status)) {
-      return res.status(400).json({ message: 'Invalid status' });
-    }
 
     const updateData = {
       status,
@@ -701,7 +774,8 @@ router.put('/orders/:id', async (req, res) => {
     console.error('Update order error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
-});
+  }
+);
 
 // --- Testimonials CRUD ---
 
@@ -724,13 +798,19 @@ router.get('/testimonials', async (req, res) => {
 // @route   POST /api/admin/testimonials
 // @desc    Create a testimonial
 // @access  Admin only
-router.post('/testimonials', async (req, res) => {
+router.post(
+  '/testimonials',
+  [
+    body('name').trim().notEmpty().withMessage('Name is required'),
+    body('title').trim().notEmpty().withMessage('Title is required'),
+    body('text').trim().notEmpty().withMessage('Text is required'),
+    body('stars').optional().isInt({ min: 1, max: 5 }).withMessage('Stars must be 1–5'),
+    body('order').optional().isInt({ min: 0 }).withMessage('Order must be a non-negative integer'),
+  ],
+  runValidation,
+  async (req, res) => {
   try {
     const { name, title, avatar, text, stars, order, isActive } = req.body;
-
-    if (!name || !title || !text) {
-      return res.status(400).json({ message: 'Name, title, and text are required' });
-    }
 
     const testimonial = await Testimonial.create({
       name: String(name).trim(),
@@ -751,7 +831,8 @@ router.post('/testimonials', async (req, res) => {
     console.error('Create testimonial error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
-});
+  }
+);
 
 // @route   PUT /api/admin/testimonials/:id
 // @desc    Update a testimonial
@@ -1027,8 +1108,8 @@ router.post('/orders/bulk', async (req, res) => {
 
 // @route   POST /api/admin/users/bulk
 // @desc    Bulk action on users (changeRole, delete). Prevent self-demotion and last-admin removal.
-// @access  Admin only
-router.post('/users/bulk', async (req, res) => {
+// @access  Super Admin only
+router.post('/users/bulk', authorizeRole('super_admin'), async (req, res) => {
   try {
     const { action, ids, role } = req.body;
     if (!Array.isArray(ids) || ids.length === 0) {

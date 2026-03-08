@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { TwitterIcon, LinkedInIcon, GlobeIcon } from '../icons/Socials';
 import { ChevronLeftIcon, ChevronRightIcon } from '../icons/Icons';
 import Icon from '../ui/Icon';
@@ -191,7 +192,7 @@ const TeamPage: React.FC = () => {
             </div>
 
             <div className="order-1 lg:order-2 relative aspect-[4/5] lg:aspect-auto lg:min-h-[400px] rounded-lg overflow-hidden bg-[color:var(--surface-muted)]">
-              <img key={featuredMember.name} src={normalizeImageUrl(featuredMember.imageUrl || '')} alt="" className="w-full h-full object-cover object-top" loading="eager" />
+              <Image key={featuredMember.name} src={normalizeImageUrl(featuredMember.imageUrl || '') || '/logo/logo-light.png'} alt={featuredMember.name} fill className="object-cover object-top" sizes="(max-width: 1024px) 100vw, 50vw" priority />
             </div>
           </div>
         </div>
@@ -216,8 +217,8 @@ const TeamPage: React.FC = () => {
                   aria-pressed={isActive}
                   aria-label={`View ${member.name}, ${member.role}`}
                 >
-                  <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden flex-shrink-0 transition-[box-shadow] ${isActive ? 'ring-2 ring-[color:var(--accent-ring)] ring-offset-2 ring-offset-[color:var(--bg-primary)]' : ''}`}>
-                    <img src={normalizeImageUrl(member.imageUrl || '')} alt="" className="w-full h-full object-cover" loading="lazy" />
+                  <div className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden flex-shrink-0 transition-[box-shadow] ${isActive ? 'ring-2 ring-[color:var(--accent-ring)] ring-offset-2 ring-offset-[color:var(--bg-primary)]' : ''}`}>
+                    <Image src={normalizeImageUrl(member.imageUrl || '') || '/logo/logo-light.png'} alt={member.name} fill className="object-cover" sizes="80px" />
                   </div>
                   <span className="mt-2.5 text-sm font-semibold text-text-primary block truncate w-full max-w-[88px] sm:max-w-[100px]">{member.name}</span>
                   <span className="text-xs text-text-muted block mt-0.5 truncate w-full max-w-[88px] sm:max-w-[100px]">{member.role}</span>

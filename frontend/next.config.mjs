@@ -2,7 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['localhost', 'cdn.jinubify.com'],
+    // Allow image optimizer to fetch from localhost (e.g. backend uploads on :5000)
+    dangerouslyAllowLocalIP: true,
     remotePatterns: [
       {
         protocol: 'http',
@@ -18,6 +19,16 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'ui-avatars.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.jinubify.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
         pathname: '/**',
       },
     ],

@@ -6,6 +6,7 @@ import fs from 'fs';
 import { requireAdmin } from '../middleware/admin.js';
 import MediaAsset from '../models/MediaAsset.js';
 import { getMediaUrlForFilename, getRelativeMediaPath } from '../config/media.js';
+import logger from '../utils/logger.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -76,7 +77,7 @@ router.post('/', (req, res, next) => {
     // - image: relative path suitable for storing in MongoDB
     res.status(201).json({ url, filename, image: relativePath });
   } catch (err) {
-    console.error('Upload error:', err);
+    logger.error('Upload error', { error: err.message, userId: req.user?._id });
     res.status(500).json({ message: err.message || 'Upload failed' });
   }
 });

@@ -35,6 +35,8 @@ import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
 import { requestLogger } from './middleware/logger.js';
 import { validateEnv } from './config/env.js';
+import { startPublishScheduledPostsJob } from './jobs/publishScheduledPosts.js';
+import { startCleanupUnusedMediaJob } from './jobs/cleanupUnusedMedia.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './swagger/swagger.js';
 
@@ -91,8 +93,10 @@ if (process.env.NODE_ENV !== 'test') {
 
 // Static files for uploaded images
 const uploadsDir = path.join(__dirname, 'uploads');
-console.log('STATIC SERVING FROM:', uploadsDir);
-console.log('UPLOAD DIR EXISTS:', fs.existsSync(uploadsDir));
+if (process.env.NODE_ENV !== 'production') {
+  console.log('STATIC SERVING FROM:', uploadsDir);
+  console.log('UPLOAD DIR EXISTS:', fs.existsSync(uploadsDir));
+}
 app.use('/uploads', express.static(uploadsDir));
 
 // General API rate limiting
@@ -258,6 +262,10 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 const startServer = async () => {
   try {
     await connectDB();
+    if (process.env.NODE_ENV !== 'test') {
+      startPublishScheduledPostsJob();
+      startCleanupUnusedMediaJob();
+    }
     server = app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);

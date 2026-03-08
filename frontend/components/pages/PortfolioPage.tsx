@@ -3,7 +3,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import AnimatedSection from '../AnimatedSection';
+import { normalizeImageUrl } from '../utils/image';
 import { ChevronLeftIcon, ChevronRightIcon, XMarkIcon } from '../icons/Icons';
+import CallToAction from '../sections/CallToAction';
 
 // --- Data for the page ---
 const allProjects = [
@@ -90,8 +92,8 @@ const ProjectCard: React.FC<{ project: typeof allProjects[0]; onClick: () => voi
     >
         <div className="aspect-[4/3] overflow-hidden relative">
             <Image
-              src={project.imageUrl}
-              alt=""
+              src={normalizeImageUrl(project.imageUrl) || '/logo/logo-light.png'}
+              alt={project.title}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
               className="object-cover"
@@ -136,7 +138,7 @@ const Lightbox: React.FC<{
         
         <div className="relative w-full aspect-video max-h-[75vh]">
             <Image
-              src={project.imageUrl}
+              src={normalizeImageUrl(project.imageUrl) || '/logo/logo-light.png'}
               alt={project.title}
               fill
               sizes="(max-width: 1280px) 100vw, 1280px"
@@ -254,6 +256,12 @@ const PortfolioPage: React.FC = () => {
                 </div>
             </AnimatedSection>
         </div>
+
+        <section className="py-16 sm:py-20 lg:py-24" aria-label="Call to action">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <CallToAction />
+          </div>
+        </section>
       </div>
 
       {isLightboxOpen && (

@@ -4,6 +4,7 @@ import { body, validationResult } from 'express-validator';
 import User from '../models/User.js';
 import { authenticate } from '../middleware/auth.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
+import logger from '../utils/logger.js';
 
 const router = express.Router();
 
@@ -115,12 +116,14 @@ router.post(
       // Find user and include password for comparison
       const user = await User.findOne({ email }).select('+password');
       if (!user) {
+        logger.warn('Authentication failure: user not found', { email: email?.slice(0, 3) + '***' });
         return res.status(401).json({ message: 'Invalid email or password' });
       }
 
       // Check password
       const isMatch = await user.comparePassword(password);
       if (!isMatch) {
+        logger.warn('Authentication failure: invalid password', { userId: user._id?.toString() });
         return res.status(401).json({ message: 'Invalid email or password' });
       }
 
@@ -140,7 +143,7 @@ router.post(
         },
       });
     } catch (error) {
-      console.error('Login error:', error);
+      logger.error('Login error', { error: error.message });
       res.status(500).json({ message: 'Server error during login', error: error.message });
     }
   }

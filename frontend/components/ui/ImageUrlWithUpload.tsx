@@ -62,7 +62,7 @@ export function ImageUrlWithUpload({
         <div className="mb-2 flex items-center gap-3">
           <img
             src={getImageUrl(value)}
-            alt=""
+            alt="Upload preview"
             className="h-14 w-14 rounded object-cover bg-[color:var(--surface-muted)] ring-1 ring-border-subtle"
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
           />

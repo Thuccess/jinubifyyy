@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { PaperAirplaneIcon } from './icons/Icons';
 import type { GrowthContent } from './cms/sectionTypes';
 
@@ -14,10 +15,10 @@ const Growth: React.FC<{ content?: GrowthContent }> = ({ content: c }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative glass-surface glass-surface--card glass-interactive rounded-3xl p-8 lg:p-16 overflow-hidden border border-border-subtle shadow-xl">
 
-            <img loading="lazy" src="https://picsum.photos/seed/face1/48/48" alt="Happy customer SovaRiver" className="absolute top-12 left-8 w-12 h-12 rounded-full shadow-lg border-2 border-surface-card" />
-            <img loading="lazy" src="https://picsum.photos/seed/face2/48/48" alt="Happy customer Sidanbrook" className="absolute top-20 right-8 w-12 h-12 rounded-full shadow-lg border-2 border-surface-card" />
-            <img loading="lazy" src="https://picsum.photos/seed/face3/48/48" alt="Happy customer" className="absolute bottom-16 left-24 w-10 h-10 rounded-full shadow-lg border-2 border-surface-card" />
-            <img loading="lazy" src="https://picsum.photos/seed/face4/48/48" alt="Happy customer" className="absolute bottom-24 right-16 w-14 h-14 rounded-full shadow-lg border-2 border-surface-card" />
+            <Image src="https://picsum.photos/seed/face1/48/48" alt="Happy customer SovaRiver" width={48} height={48} className="absolute top-12 left-8 w-12 h-12 rounded-full shadow-lg border-2 border-surface-card object-cover" />
+            <Image src="https://picsum.photos/seed/face2/48/48" alt="Happy customer Sidanbrook" width={48} height={48} className="absolute top-20 right-8 w-12 h-12 rounded-full shadow-lg border-2 border-surface-card object-cover" />
+            <Image src="https://picsum.photos/seed/face3/48/48" alt="Happy customer" width={40} height={40} className="absolute bottom-16 left-24 w-10 h-10 rounded-full shadow-lg border-2 border-surface-card object-cover" />
+            <Image src="https://picsum.photos/seed/face4/48/48" alt="Happy customer" width={56} height={56} className="absolute bottom-24 right-16 w-14 h-14 rounded-full shadow-lg border-2 border-surface-card object-cover" />
 
             <div className="text-center relative">
                 <div className="inline-flex items-center bg-brand-soft rounded-full p-2 text-sm font-semibold shadow">

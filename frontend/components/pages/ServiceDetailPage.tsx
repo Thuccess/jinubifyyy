@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import AnimatedSection from '../AnimatedSection';
 import { useServiceBySlug } from '../../hooks/useServices';
 import { ArrowRightIcon } from '../icons/Icons';
+import StructuredData from '../seo/StructuredData';
+import { siteConfig } from '../../config/site';
 
 const ServiceDetailPage: React.FC = () => {
   const params = useParams();
@@ -51,9 +53,18 @@ const ServiceDetailPage: React.FC = () => {
   }
 
   const bullets = Array.isArray(service.bullets) ? service.bullets : [];
+  const serviceSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    serviceType: service.title,
+    provider: { '@type': 'Organization', name: siteConfig.name, url: siteConfig.url },
+    areaServed: 'Worldwide',
+    description: (service.intro || service.shortDescription || service.description || '').slice(0, 300),
+  };
 
   return (
     <div className="animate-fade-in">
+      <StructuredData data={serviceSchema} />
       <header className="py-16 sm:py-20 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">

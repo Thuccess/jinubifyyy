@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import AnimatedSection from '../AnimatedSection';
+import { normalizeImageUrl } from '../../utils/image';
 import { useServiceBySlug, useDemosByServiceSlug } from '../../hooks/useServices';
 
 const DemoOverviewPage: React.FC = () => {
@@ -88,7 +89,8 @@ const DemoOverviewPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {demos.map((demo) => {
                 const sortedImages = [...(demo.images || [])].sort((a, b) => a.order - b.order);
-                const coverUrl = demo.coverImageUrl || sortedImages[0]?.url || '';
+                const rawCover = demo.coverImageUrl || sortedImages[0]?.url || '';
+                const coverUrl = rawCover ? normalizeImageUrl(rawCover) : '';
 
                 return (
                   <AnimatedSection key={demo._id}>
@@ -101,7 +103,7 @@ const DemoOverviewPage: React.FC = () => {
                         {coverUrl ? (
                           <Image
                             src={coverUrl}
-                            alt=""
+                            alt={demo.title}
                             fill
                             sizes="(max-width: 768px) 100vw, 400px"
                             className="object-cover"

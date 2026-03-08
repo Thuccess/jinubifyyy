@@ -322,6 +322,16 @@ export const adminAPI = {
     const response = await api.get('/admin/stats');
     return response.data;
   },
+  getAnalytics: async (days?: number) => {
+    const response = await api.get<{
+      traffic: { date: string; count: number }[];
+      leads: { date: string; count: number }[];
+      conversions: { date: string; count: number }[];
+      topServices: { name: string; count: number }[];
+      topBlogPosts: { title: string; slug: string; views: number; date?: string }[];
+    }>('/admin/analytics', { params: days ? { days } : {} });
+    return response.data;
+  },
   getUsers: async (params?: { page?: number; limit?: number; search?: string }) => {
     const response = await api.get('/admin/users', { params });
     return response.data;

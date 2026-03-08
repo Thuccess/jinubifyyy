@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import type { User } from '../../types';
 import { ShoppingBagIcon, SparklesIcon, WalletIcon, CheckIcon, PaperAirplaneIcon, CogIcon } from '../icons/Icons';
 import Icon from '../ui/Icon';
@@ -187,7 +188,7 @@ const ProfileCard: React.FC = () => {
     return (
          <Card size="lg">
             <div className="flex flex-col items-center text-center">
-                <img className="h-24 w-24 rounded-full object-cover border-4 border-white dark:border-slate-700 shadow-lg" src={formData.photoURL} alt="User avatar" />
+                <Image className="h-24 w-24 rounded-full object-cover border-4 border-white dark:border-slate-700 shadow-lg" src={formData.photoURL} alt="User avatar" width={96} height={96} unoptimized />
                 <div className="mt-4 w-full">
                      {isEditing ? (
                         <form onSubmit={handleSave} className="space-y-6">

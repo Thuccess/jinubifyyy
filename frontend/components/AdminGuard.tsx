@@ -16,8 +16,8 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
   useEffect(() => {
     if (isLoading) return;
 
-    const isAdmin = currentUser?.role === 'admin';
-    if (!currentUser || !isAdmin) {
+    const canAccessAdmin = currentUser && ['editor', 'admin', 'super_admin'].includes(currentUser.role);
+    if (!currentUser || !canAccessAdmin) {
       const next = pathname ? `/admin/login?next=${encodeURIComponent(pathname)}` : '/admin/login';
       router.replace(next);
     }
@@ -37,7 +37,7 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
     );
   }
 
-  if (!currentUser || currentUser.role !== 'admin') {
+  if (!currentUser || !['editor', 'admin', 'super_admin'].includes(currentUser.role)) {
     return null;
   }
 

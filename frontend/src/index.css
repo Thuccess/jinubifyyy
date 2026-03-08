@@ -97,8 +97,8 @@ html.dark {
   --border-strong: var(--color-slate-600);
   --border-accent: var(--color-slate-200);
 
-  /* Background pattern tokens (dark mode) – subtle so text stays primary */
-  --bg-dot-color: color-mix(in_oklab, var(--color-slate-200) 38%, transparent);
+  /* Background pattern tokens (dark mode) – light-gray dots, slightly darker for subtlety */
+  --bg-dot-color: var(--color-slate-500);
 
   /* Glassmorphism tokens (dark mode) */
   --glass-bg: color-mix(in_oklab, var(--surface-card) 65%, transparent);
@@ -323,12 +323,6 @@ body {
   position: relative;
   background-color: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow-soft);
-}
-
-html.dark .glass-surface {
-  background-color: var(--glass-bg);
-  border-color: var(--glass-border);
   box-shadow: var(--glass-shadow-soft);
 }
 

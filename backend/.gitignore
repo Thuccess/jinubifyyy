@@ -29,3 +29,6 @@ Thumbs.db
 dist/
 build/
 
+# Backups (mongodump output)
+backups/
+

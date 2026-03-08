@@ -11,6 +11,7 @@ const SERVICE_PAGE_SIZE = 50;
 
 // Common list handler with pagination and sorting
 router.get('/', async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400');
   try {
     const {
       page = 1,
@@ -72,6 +73,7 @@ router.get('/', async (req, res) => {
 
 // Public: services that have at least one active demo (for demos landing)
 router.get('/with-demos', async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400');
   try {
     const demoServiceIds = await Demo.distinct('service', { isActive: true });
     if (demoServiceIds.length === 0) {
@@ -93,6 +95,7 @@ router.get('/with-demos', async (req, res) => {
 
 // Get single service by slug (public) or id (admin via query)
 router.get('/by-slug/:slug', async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400');
   try {
     const service = await Service.findOne({
       slug: req.params.slug,

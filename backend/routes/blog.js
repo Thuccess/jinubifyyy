@@ -3,7 +3,7 @@ import { body, validationResult } from 'express-validator';
 import BlogPost from '../models/BlogPost.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { blogWriteLimiter } from '../middleware/rateLimiter.js';
-import { requireAdmin } from '../middleware/admin.js';
+import { requireAdmin, requireCmsEditor } from '../middleware/admin.js';
 import { addMediaUsage, removeMediaUsage } from '../utils/mediaUsage.js';
 
 const router = express.Router();
@@ -12,12 +12,14 @@ const router = express.Router();
 // @desc    Get all blog posts (admin: filter by status/published; public: published only)
 // @access  Public (admins can see unpublished)
 router.get('/', optionalAuth, async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400');
   try {
     const { search, category, tag, page = 1, limit = 10, published, status } = req.query;
     const query = {};
 
-    if (req.user && req.user.role === 'admin') {
-      if (status && ['draft', 'review', 'published', 'archived'].includes(status)) {
+    const isCmsEditor = req.user && ['editor', 'admin', 'super_admin'].includes(req.user.role);
+    if (isCmsEditor) {
+      if (status && ['draft', 'review', 'scheduled', 'published', 'archived'].includes(status)) {
         if (status === 'published') {
           query.$or = [{ status: 'published' }, { status: { $exists: false }, published: true }];
         } else {
@@ -81,10 +83,12 @@ router.get('/', optionalAuth, async (req, res) => {
 // @desc    Get single blog post by slug (admins can see any status)
 // @access  Public (admins can see unpublished)
 router.get('/:slug', optionalAuth, async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400');
   try {
     const slug = req.params.slug.trim();
     const baseQuery = { slug };
-    const visibility = (!req.user || req.user.role !== 'admin')
+    const isCmsEditor = req.user && ['editor', 'admin', 'super_admin'].includes(req.user.role);
+    const visibility = !isCmsEditor
       ? { $or: [{ published: true }, { status: 'published' }] }
       : {};
     const query = Object.keys(visibility).length ? { $and: [baseQuery, visibility] } : baseQuery;
@@ -112,7 +116,7 @@ router.get('/:slug', optionalAuth, async (req, res) => {
 router.post(
   '/',
   blogWriteLimiter,
-  requireAdmin,
+  requireCmsEditor,
   [
     body('slug').trim().notEmpty().withMessage('Slug is required'),
     body('title').trim().notEmpty().withMessage('Title is required'),
@@ -173,7 +177,7 @@ router.post(
 // @route   PUT /api/blog/:slug
 // @desc    Update a blog post (supports status, featured, seo, tags, coverImage, etc.)
 // @access  Private (Admin)
-router.put('/:slug', blogWriteLimiter, requireAdmin, async (req, res) => {
+router.put('/:slug', blogWriteLimiter, requireCmsEditor, async (req, res) => {
   try {
     const update = { ...req.body, updatedAt: new Date() };
     if (update.audit === undefined) update.audit = {};
@@ -212,7 +216,7 @@ router.put('/:slug', blogWriteLimiter, requireAdmin, async (req, res) => {
 // @route   PATCH /api/blog/:slug/status
 // @desc    Update only status (draft | review | published | archived)
 // @access  Private (Admin)
-router.patch('/:slug/status', blogWriteLimiter, requireAdmin, async (req, res) => {
+router.patch('/:slug/status', blogWriteLimiter, requireCmsEditor, async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Admin access required' });
@@ -249,7 +253,7 @@ router.patch('/:slug/status', blogWriteLimiter, requireAdmin, async (req, res) =
 // @route   DELETE /api/blog/:slug
 // @desc    Delete a blog post
 // @access  Private (Admin)
-router.delete('/:slug', requireAdmin, async (req, res) => {
+router.delete('/:slug', requireCmsEditor, async (req, res) => {
   try {
     const post = await BlogPost.findOneAndDelete({ slug: req.params.slug });
 

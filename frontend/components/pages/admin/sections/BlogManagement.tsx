@@ -384,7 +384,7 @@ const BlogManagement: React.FC = () => {
                             {post.imageUrl ? (
                               <img
                                 src={getImageUrl(post.imageUrl)}
-                                alt=""
+                                alt={post.title || 'Blog post cover'}
                                 className="h-11 w-11 shrink-0 rounded-lg object-cover bg-[color:var(--surface-muted)]"
                               />
                             ) : (

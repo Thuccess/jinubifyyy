@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, Fragment } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { Menu, Transition } from '@headlessui/react';
 import { SunIcon, MoonIcon, UserCircleIcon, LogoutIcon, DashboardIcon, CogIcon } from './icons/Icons';
@@ -14,9 +15,11 @@ import AuthModal from './AuthModal';
 
 const Logo: React.FC<{ theme: Theme }> = ({ theme }) => (
   <Link href="/" className="flex items-center" aria-label="Jinubify Home">
-    <img 
+    <Image
       src={theme === 'dark' ? '/logo/logo-light.png' : '/logo/logo-dark.png'}
-      alt="Jinubify Logo" 
+      alt="Jinubify Logo"
+      width={160}
+      height={40}
       className="h-7 sm:h-8 md:h-9 lg:h-10 w-auto transition-[height] duration-200"
     />
   </Link>
@@ -63,8 +66,14 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLogi
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalView, setAuthModalView] = useState<'signIn' | 'signUp'>('signIn');
+  const [mounted, setMounted] = useState(false);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
   const menuContentRef = useRef<HTMLDivElement>(null);
+
+  // Defer auth UI until after mount so server and client render the same (avoids hydration mismatch).
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -172,13 +181,16 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLogi
 
               <div className="hidden md:block border-l border-border-subtle h-6"></div>
 
-              {currentUser ? (
+              {(mounted && currentUser) ? (
                 <Menu as="div" className="relative">
                   <Menu.Button className="flex items-center space-x-2 p-2 rounded-full text-text-secondary hover:text-text-primary hover:bg-surface-muted/70 transition-colors duration-300 ease-out">
-                    <img 
-                      src={currentUser.photoURL} 
+                    <Image
+                      src={currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name || 'User')}&background=random`}
                       alt={currentUser.name}
+                      width={32}
+                      height={32}
                       className="h-8 w-8 rounded-full object-cover"
+                      unoptimized
                     />
                     <span className="hidden sm:block text-sm font-medium">{currentUser.name}</span>
                   </Menu.Button>
@@ -367,7 +379,7 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLogi
 
             {/* Auth block */}
             <div className="flex flex-col space-y-2 py-4">
-              {currentUser ? (
+              {(mounted && currentUser) ? (
                 <>
                   <Link href="/dashboard" onClick={closeMenu} className="flex items-center gap-2 text-left text-base font-medium text-text-primary hover:bg-surface-muted/90 transition-colors duration-300 ease-out py-3 px-4 rounded-lg min-h-[44px] border-l-2 border-transparent">
                     <DashboardIcon className="h-5 w-5 shrink-0" /> Dashboard

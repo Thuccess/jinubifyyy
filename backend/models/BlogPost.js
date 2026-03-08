@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const STATUSES = ['draft', 'review', 'published', 'archived'];
+const STATUSES = ['draft', 'review', 'scheduled', 'published', 'archived'];
 
 const blogPostSchema = new mongoose.Schema({
   slug: {
@@ -70,6 +70,10 @@ const blogPostSchema = new mongoose.Schema({
     enum: STATUSES,
     default: 'published',
   },
+  scheduledAt: {
+    type: Date,
+    default: null,
+  },
   featured: {
     type: Boolean,
     default: false,
@@ -117,7 +121,8 @@ blogPostSchema.pre('save', function (next) {
   this.updatedAt = new Date();
   if (this.coverImage === '' && this.imageUrl) this.coverImage = this.imageUrl;
   if (this.status === 'published') this.published = true;
-  else if (this.status === 'draft' || this.status === 'review' || this.status === 'archived') this.published = false;
+  else if (this.status === 'draft' || this.status === 'review' || this.status === 'scheduled' || this.status === 'archived') this.published = false;
+  if (this.status === 'scheduled' && this.scheduledAt && this.scheduledAt > new Date()) this.published = false;
   if (this.metrics && this.metrics.views === undefined) this.metrics.views = this.views ?? 0;
   next();
 });
@@ -128,6 +133,7 @@ blogPostSchema.index({ category: 1 });
 blogPostSchema.index({ tags: 1 });
 blogPostSchema.index({ date: -1 });
 blogPostSchema.index({ featured: 1, date: -1 });
+blogPostSchema.index({ status: 1, scheduledAt: 1 });
 
 const BlogPost = mongoose.model('BlogPost', blogPostSchema);
 export default BlogPost;

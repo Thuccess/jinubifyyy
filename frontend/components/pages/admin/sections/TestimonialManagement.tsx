@@ -206,7 +206,7 @@ const TestimonialManagement: React.FC = () => {
                           {item.avatar ? (
                             <img
                               src={item.avatar}
-                              alt=""
+                              alt={item.name || 'Testimonial author'}
                               className="h-10 w-10 shrink-0 rounded-full object-cover bg-[color:var(--surface-muted)]"
                             />
                           ) : (
