@@ -31,6 +31,12 @@ const nextConfig = {
         hostname: 'images.unsplash.com',
         pathname: '/**',
       },
+      // Production backend (Render) – images from API uploads
+      {
+        protocol: 'https',
+        hostname: 'jinubifyyy-2.onrender.com',
+        pathname: '/uploads/**',
+      },
     ],
   },
 };

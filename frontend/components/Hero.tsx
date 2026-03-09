@@ -112,7 +112,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
     }, []);
 
   return (
-    <div ref={heroRef} className="relative pb-24 sm:pt-24 sm:pb-32">
+    <div ref={heroRef} className="relative pt-6 pb-24 sm:pt-24 sm:pb-32">
       {/* Background Elements */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-1/4 -left-1/4 w-full h-full bg-[radial-gradient(circle_at_top_left,var(--accent-soft),transparent_60%)] rounded-full blur-3xl opacity-60 animate-aurora" style={{ animationDirection: 'alternate', animationDuration: '20s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite' }}></div>
