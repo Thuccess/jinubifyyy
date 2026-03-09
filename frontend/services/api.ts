@@ -8,9 +8,10 @@ import { env } from '../config/env';
 // API base URL
 const API_BASE_URL = env.apiUrl;
 
-// Create axios instance
+// Create axios instance (shared across the app)
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },

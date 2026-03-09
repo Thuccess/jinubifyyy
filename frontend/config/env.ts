@@ -16,7 +16,10 @@ const getEnvVar = (key: string, defaultValue?: string): string => {
 };
 
 export const env: EnvConfig = {
-  apiUrl: getEnvVar('NEXT_PUBLIC_API_URL', 'http://localhost:5000/api'),
+  // API base URL must be provided via NEXT_PUBLIC_API_URL (e.g. http://localhost:5000/api in dev,
+  // https://jinubifyyy-2.onrender.com/api in production). No localhost fallback here so that
+  // misconfigured deployments fail fast.
+  apiUrl: getEnvVar('NEXT_PUBLIC_API_URL'),
   nodeEnv: (getEnvVar('NODE_ENV', 'development') as 'development' | 'production' | 'test'),
   mediaBaseUrl: process.env.NEXT_PUBLIC_MEDIA_BASE_URL,
 };

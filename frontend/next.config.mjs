@@ -4,6 +4,7 @@ const nextConfig = {
   images: {
     // Allow image optimizer to fetch from localhost (e.g. backend uploads on :5000)
     dangerouslyAllowLocalIP: true,
+    domains: ['jinubifyyy-2.onrender.com'],
     remotePatterns: [
       {
         protocol: 'http',
