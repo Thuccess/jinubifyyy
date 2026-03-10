@@ -121,7 +121,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
       
        {/* Central Wireframe Sphere */}
        <div 
-        className="absolute top-1/2 left-1/2 w-[500px] h-[500px] sm:w-[700px] sm:h-[700px] lg:w-[900px] lg:h-[900px] -translate-x-1/2 -translate-y-1/2 -z-10 transition-transform duration-500 ease-out"
+        className="absolute top-[60%] left-1/2 w-[500px] h-[500px] sm:w-[700px] sm:h-[700px] lg:w-[900px] lg:h-[900px] -translate-x-1/2 -translate-y-1/2 -z-10 transition-transform duration-500 ease-out"
         style={{ transform: 'translate(calc(-50% + var(--x, 0px) * -0.2), calc(-50% + var(--y, 0px) * -0.2))' }}
         >
         <div className="w-full h-full rounded-full border-[1px] border-[color:var(--accent-soft)]/40 animate-spin-slow" style={{ animationDuration: '15s' }}></div>
