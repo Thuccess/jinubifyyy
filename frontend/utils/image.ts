@@ -1,4 +1,4 @@
-import { env } from '../config/env';
+import { env, isProduction } from '../config/env';
 
 /**
  * Resolve an image URL so that:
@@ -10,12 +10,37 @@ import { env } from '../config/env';
 export const resolveImageUrl = (url: string): string => {
   if (!url) return '';
 
-  // If already absolute, just normalize legacy /api/uploads and return
+  // If already absolute, normalize legacy /api/uploads and, in production,
+  // rewrite any leftover localhost URLs to the configured media/API origin.
   if (/^https?:\/\//i.test(url)) {
     try {
       const u = new URL(url);
       if (u.pathname.startsWith('/api/uploads/')) {
         u.pathname = u.pathname.replace('/api/uploads/', '/uploads/');
+      }
+
+      // In production, avoid shipping absolute localhost URLs by rewriting
+      // them to the configured media base URL or API origin.
+      if (isProduction && (u.hostname === 'localhost' || u.hostname === '127.0.0.1')) {
+        const baseCandidate = (env.mediaBaseUrl || env.apiUrl || '').trim();
+        if (baseCandidate) {
+          try {
+            const target = new URL(baseCandidate);
+            // If NEXT_PUBLIC_API_URL includes /api, strip it from the path so
+            // that uploads live at the root of the backend origin.
+            if (target.pathname.startsWith('/api/')) {
+              target.pathname = target.pathname.replace('/api/', '/');
+            } else if (target.pathname === '/api') {
+              target.pathname = '/';
+            }
+
+            u.protocol = target.protocol;
+            u.hostname = target.hostname;
+            u.port = target.port;
+          } catch {
+            // If rewriting fails, fall back to the original absolute URL.
+          }
+        }
       }
       return u.toString();
     } catch {

@@ -206,14 +206,17 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
             </div>
           </div>
 
-          <h1 className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[color:var(--text-primary)] to-[color:var(--text-secondary)] pb-2 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-            {(c.heading || DEFAULT_HERO.heading)?.split(' with ')[0]}
-            {' with '}
-            <span className="inline-flex align-middle">
-              <Icon icon={WandIcon} size="lg" tone="brand" />
-            </span>{' '}
-            {(c.heading || DEFAULT_HERO.heading)?.split(' with ')[1] || 'Authentic Social Engagement'}
-          </h1>
+          <div className="relative mt-6">
+            <div className="pointer-events-none absolute -inset-x-10 -top-6 h-32 bg-[radial-gradient(circle_at_top,var(--accent-soft)_0,transparent_60%)] opacity-70 blur-3xl"></div>
+            <h1 className="relative text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[color:var(--text-primary)] to-[color:var(--text-secondary)] pb-2 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+              {(c.heading || DEFAULT_HERO.heading)?.split(' with ')[0]}
+              {' with '}
+              <span className="inline-flex align-middle">
+                <Icon icon={WandIcon} size="lg" tone="brand" />
+              </span>{' '}
+              {(c.heading || DEFAULT_HERO.heading)?.split(' with ')[1] || 'Authentic Social Engagement'}
+            </h1>
+          </div>
           <p className="mt-6 text-lg text-text-secondary animate-fade-in-up" style={{ animationDelay: '300ms' }}>
             {c.subheading}
           </p>
