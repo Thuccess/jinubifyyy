@@ -97,7 +97,9 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // Static files for uploaded images
-const uploadsDir = path.join(__dirname, 'uploads');
+// In production on Render, point UPLOADS_DIR to a persistent disk (e.g. /data/uploads)
+// so files survive deploys. Locally we fall back to the ./uploads folder.
+const uploadsDir = process.env.UPLOADS_DIR || path.join(__dirname, 'uploads');
 if (process.env.NODE_ENV !== 'production') {
   console.log('STATIC SERVING FROM:', uploadsDir);
   console.log('UPLOAD DIR EXISTS:', fs.existsSync(uploadsDir));
