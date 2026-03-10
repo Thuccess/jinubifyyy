@@ -2,16 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    // Allow image optimizer to fetch from localhost (e.g. backend uploads on :5000)
+    // Allow image optimizer to fetch from the backend uploads (Render) and other whitelisted hosts.
     dangerouslyAllowLocalIP: true,
     domains: ['jinubifyyy-2.onrender.com'],
     remotePatterns: [
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '5000',
-        pathname: '/uploads/**',
-      },
       {
         protocol: 'https',
         hostname: 'picsum.photos',

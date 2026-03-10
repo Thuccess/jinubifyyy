@@ -3,7 +3,7 @@ import type { AuthResponse, User } from '../types';
 import type { BlogPost, BlogPostListResponse, BlogPostResponse, BlogQueryParams } from '../types/blog';
 import type { UserProfileResponse, UpdateProfileData } from '../types/user';
 import type { ApiResponse, ErrorResponse } from '../types/api';
-import { env } from '../config/env';
+import { env, hasApiUrl } from '../config/env';
 
 // API base URL
 const API_BASE_URL = env.apiUrl;
@@ -16,6 +16,17 @@ const api: AxiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+if (!hasApiUrl && typeof window !== 'undefined') {
+  // Surface a clear error in the console instead of crashing on import.
+  // In production, this indicates a misconfigured deployment (missing NEXT_PUBLIC_API_URL).
+  // The UI stays up, but API calls will fail until the env is fixed.
+  // eslint-disable-next-line no-console
+  console.error(
+    'NEXT_PUBLIC_API_URL is not set. API requests will fail. ' +
+      'Set NEXT_PUBLIC_API_URL to your backend base URL (including /api).',
+  );
+}
 
 // Request interceptor to add auth token
 api.interceptors.request.use(

@@ -1,10 +1,11 @@
 import type { MetadataRoute } from 'next';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://jinubify.com';
-const API_BASE = process.env.NEXT_PUBLIC_API_URL!;
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 async function fetchBlogSlugs(): Promise<string[]> {
   try {
+    if (!API_BASE) return [];
     const res = await fetch(`${API_BASE}/blogs?limit=500`, { next: { revalidate: 3600 } });
     const data = await res.json();
     const posts = data?.posts || [];
@@ -16,6 +17,7 @@ async function fetchBlogSlugs(): Promise<string[]> {
 
 async function fetchServiceSlugs(): Promise<string[]> {
   try {
+    if (!API_BASE) return [];
     const res = await fetch(`${API_BASE}/services?limit=500`, { next: { revalidate: 3600 } });
     const data = await res.json();
     const items = data?.data || [];
