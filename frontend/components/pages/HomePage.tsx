@@ -15,7 +15,7 @@ import { CmsPageSectionRenderer } from '../cms/CmsPageSectionRenderer';
 
 const FALLBACK_SECTIONS = (
   <>
-    <PageSection id="home" className="pt-8 lg:pt-12">
+    <PageSection id="home">
       <Hero />
     </PageSection>
     <PageSection id="partners">
