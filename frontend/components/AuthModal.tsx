@@ -32,7 +32,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-
+  
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -116,28 +116,28 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
     setLoading(true);
     setError('');
     try {
-      const response = await authAPI.signup({
+        const response = await authAPI.signup({
         name: [formData.firstName, formData.lastName].filter(Boolean).join(' ') || formData.email,
-        email: formData.email,
-        password: formData.password,
-        photoURL: formData.photoURL || undefined,
-      });
-      const signupRole = response.user.role && String(response.user.role).toLowerCase() === 'admin' ? 'admin' : 'user';
-      const normalizedUser = {
-        _id: response.user._id,
-        name: response.user.name,
-        email: response.user.email,
-        photoURL: response.user.photoURL,
-        role: signupRole,
-        balance: response.user.balance,
-      };
-      storeAuth(response.token, normalizedUser as User, rememberMe);
-      onSuccess(normalizedUser as User);
+          email: formData.email,
+          password: formData.password,
+          photoURL: formData.photoURL || undefined,
+        });
+        const signupRole = response.user.role && String(response.user.role).toLowerCase() === 'admin' ? 'admin' : 'user';
+        const normalizedUser = {
+          _id: response.user._id,
+          name: response.user.name,
+          email: response.user.email,
+          photoURL: response.user.photoURL,
+          role: signupRole,
+          balance: response.user.balance,
+        };
+        storeAuth(response.token, normalizedUser as User, rememberMe);
+        onSuccess(normalizedUser as User);
       onClose();
     } catch (err: any) {
       setError(
-        err.response?.data?.message ||
-          err.response?.data?.errors?.[0]?.msg ||
+        err.response?.data?.message || 
+        err.response?.data?.errors?.[0]?.msg ||
           'Failed to sign up. Please try again.'
       );
     } finally {
@@ -217,7 +217,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                       <div>
                         <Dialog.Title as="h3" className="text-xl md:text-2xl font-bold text-text-primary">
                           {view === 'signIn' ? 'Sign In' : step === 1 ? 'Sign Up Account' : step === 2 ? 'Set Up Workspace' : 'Set Up Profile'}
-                        </Dialog.Title>
+                  </Dialog.Title>
                         <p className="mt-1 text-sm text-text-secondary">
                           {view === 'signIn'
                             ? 'Enter your credentials to access your account.'
@@ -228,14 +228,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                                 : 'Add a profile photo (optional).'}
                         </p>
                       </div>
-                      <button
-                        onClick={onClose}
+                  <button
+                    onClick={onClose}
                         className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-muted/90 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
-                        aria-label="Close"
-                      >
-                        <XMarkIcon className="h-6 w-6" />
-                      </button>
-                    </div>
+                    aria-label="Close"
+                  >
+                    <XMarkIcon className="h-6 w-6" />
+                  </button>
+                </div>
 
                     {view === 'signIn' ? (
                       <form onSubmit={handleSignIn} className="flex flex-col gap-4 flex-1">
@@ -249,32 +249,32 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                             </svg>
                             Github
                           </button>
-                        </div>
+                    </div>
                         <p className="text-center text-xs text-text-muted">Or</p>
-                        <div>
+                  <div>
                           <label htmlFor="email" className={labelClass}>Email</label>
-                          <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            required
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
                             className={inputClass}
                             placeholder="eg. john@example.com"
-                          />
-                        </div>
-                        <div>
+                    />
+                  </div>
+                  <div>
                           <label htmlFor="password" className={labelClass}>Password</label>
                           <div className="relative">
-                            <input
+                    <input
                               type={showPassword ? 'text' : 'password'}
-                              id="password"
-                              name="password"
-                              value={formData.password}
-                              onChange={handleInputChange}
-                              required
-                              minLength={6}
+                      id="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      required
+                      minLength={6}
                               className={`${inputClass} pr-10`}
                               placeholder="Enter your password"
                             />
@@ -286,14 +286,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                             >
                               {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
                             </button>
-                          </div>
-                        </div>
-                        <div className="flex items-center">
-                          <input
-                            id="remember-me"
-                            type="checkbox"
-                            checked={rememberMe}
-                            onChange={(e) => setRememberMe(e.target.checked)}
+                  </div>
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        id="remember-me"
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
                             className="h-4 w-4 rounded border-border-subtle text-[color:var(--accent-primary)] focus:ring-[color:var(--accent-ring)]"
                           />
                           <label htmlFor="remember-me" className="ml-2 text-sm text-text-secondary">Remember me</label>
@@ -383,14 +383,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                           <div>
                             <label htmlFor="photoURL" className={labelClass}>Photo URL (optional)</label>
                             <input type="url" id="photoURL" name="photoURL" value={formData.photoURL} onChange={handleInputChange} className={inputClass} placeholder="https://example.com/photo.jpg" />
-                          </div>
-                        )}
+                    </div>
+                  )}
 
-                        {error && (
+                  {error && (
                           <div className="p-3 rounded-lg text-sm bg-[color:var(--surface-muted)] border border-border-strong text-text-primary">
                             {error}
-                          </div>
-                        )}
+                    </div>
+                  )}
 
                         <div className="flex gap-3 mt-auto pt-4">
                           {step > 1 && (
@@ -402,15 +402,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                               Back
                             </button>
                           )}
-                          <button
-                            type="submit"
-                            disabled={loading}
+                  <button
+                    type="submit"
+                    disabled={loading}
                             className="flex-1 py-3 rounded-xl font-semibold btn-primary disabled:opacity-60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
-                          >
+                  >
                             {loading ? 'Processing...' : step < 3 ? 'Next' : 'Sign Up'}
-                          </button>
+                  </button>
                         </div>
-                      </form>
+                </form>
                     )}
 
                     {view === 'signUp' && (
@@ -418,7 +418,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                         Already have an account?{' '}
                         <button type="button" onClick={() => { setView('signIn'); setError(''); setStep(1); }} className="font-medium text-text-primary hover:underline">
                           Log In
-                        </button>
+                  </button>
                       </p>
                     )}
                   </div>

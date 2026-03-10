@@ -69,16 +69,28 @@ app.use(helmet({
 
 // CORS configuration
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
+  'https://jinubifyyy-4.onrender.com',
+  'https://www.jinubify.com',
   'http://localhost:3000',
-].filter(Boolean);
+];
 
-app.use(cors({
-  origin: allowedOrigins,
+const corsOptions = {
+  origin(origin, callback) {
+    // Allow requests with no origin (curl, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS: Origin ${origin} is not allowed`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
-}));
+};
+
+app.use(cors(corsOptions));
 
 // Request ID middleware (must be early in the chain)
 app.use(requestIdMiddleware);
