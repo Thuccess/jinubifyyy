@@ -74,16 +74,16 @@
   --btn-duration: 0.28s;
 
   /* Hero layout tokens – control vertical rhythm and typography across breakpoints */
-  --hero-gap-heading: 1rem;          /* space above main heading */
-  --hero-gap-after-heading: 0.85rem; /* space between heading and subheading */
-  --hero-gap-after-cta: 0.9rem;      /* space after primary CTA */
-  --hero-gap-section: 1rem;          /* space between stacked info rows */
+  --hero-gap-heading: 0.75rem;          /* space above main heading */
+  --hero-gap-after-heading: 0.5rem;     /* space between heading and subheading */
+  --hero-gap-after-cta: 0.75rem;        /* space after primary CTA */
+  --hero-gap-section: 0.75rem;          /* space between stacked info rows */
 
   /* Typography scales for hero (mobile-first, refined via media queries) */
-  --hero-heading-size: clamp(2.25rem, 6vw, 3.5rem);
-  --hero-heading-line-height: clamp(2.6rem, 6.6vw, 4rem);
-  --hero-subheading-size: clamp(1rem, 3.2vw, 1.125rem);
-  --hero-subheading-line-height: 1.6;
+  --hero-heading-size: clamp(2rem, 5vw, 3rem);
+  --hero-heading-line-height: clamp(2.3rem, 5.4vw, 3.4rem);
+  --hero-subheading-size: clamp(0.95rem, 2.8vw, 1.05rem);
+  --hero-subheading-line-height: 1.55;
 }
 
 /* Dark mode semantic tokens (monochrome: from same neutral scale) */
@@ -133,27 +133,27 @@ html.dark {
 
 @media (min-width: 640px) {
   :root {
-    --hero-gap-heading: 1.25rem;
-    --hero-gap-after-heading: 1rem;
-    --hero-gap-after-cta: 1.25rem;
-    --hero-gap-section: 1.5rem;
+    --hero-gap-heading: 1rem;
+    --hero-gap-after-heading: 0.75rem;
+    --hero-gap-after-cta: 1rem;
+    --hero-gap-section: 1.25rem;
 
-    --hero-heading-size: clamp(2.5rem, 4.4vw, 3.75rem);
-    --hero-heading-line-height: clamp(2.9rem, 5vw, 4.25rem);
-    --hero-subheading-size: clamp(1.05rem, 2.2vw, 1.2rem);
+    --hero-heading-size: clamp(2.25rem, 3.8vw, 3.25rem);
+    --hero-heading-line-height: clamp(2.6rem, 4.4vw, 3.7rem);
+    --hero-subheading-size: clamp(1rem, 2.1vw, 1.15rem);
   }
 }
 
 @media (min-width: 1024px) {
   :root {
-    --hero-gap-heading: 1.5rem;
-    --hero-gap-after-heading: 1.25rem;
-    --hero-gap-after-cta: 1.5rem;
-    --hero-gap-section: 2rem;
+    --hero-gap-heading: 1.25rem;
+    --hero-gap-after-heading: 1rem;
+    --hero-gap-after-cta: 1.25rem;
+    --hero-gap-section: 1.75rem;
 
-    --hero-heading-size: 3.75rem;
-    --hero-heading-line-height: 4.25rem;
-    --hero-subheading-size: 1.2rem;
+    --hero-heading-size: 3.25rem;
+    --hero-heading-line-height: 3.8rem;
+    --hero-subheading-size: 1.15rem;
   }
 }
 
