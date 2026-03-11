@@ -8,11 +8,16 @@ interface PageSectionProps {
 }
 
 const PageSection: React.FC<PageSectionProps> = ({ id, children, className }) => {
+  const basePadding =
+    id === 'home'
+      ? 'pt-4 sm:pt-10 lg:pt-16 pb-10 sm:pb-16 lg:pb-24'
+      : 'py-8 sm:py-14 lg:py-24';
+
   return (
     <AnimatedSection>
       <section
         id={id}
-        className={`py-8 sm:py-14 lg:py-24 ${className ?? ''}`}
+        className={`${basePadding} ${className ?? ''}`}
       >
         {children}
       </section>
