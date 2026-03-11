@@ -10,7 +10,9 @@ import logger from '../utils/logger.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const UPLOAD_DIR = path.join(__dirname, '../uploads');
+// Use the same uploads directory as the static /uploads middleware in server.js.
+// In production on Render this should point to a persistent disk via UPLOADS_DIR.
+const UPLOAD_DIR = process.env.UPLOADS_DIR || path.join(__dirname, '../uploads');
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
