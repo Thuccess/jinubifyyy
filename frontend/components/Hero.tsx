@@ -114,7 +114,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
   return (
     <div
       ref={heroRef}
-      className="relative flex items-center pt-2 pb-16 sm:pt-24 sm:pb-32 lg:pb-40 min-h-[calc(100vh-4rem)] sm:min-h-0"
+      className="relative flex items-center pt-2 pb-16 sm:pt-24 sm:pb-32 lg:pb-40 min-h-[calc(100vh-4rem)] sm:min-h-0 overflow-x-hidden"
     >
       {/* Background Elements */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
