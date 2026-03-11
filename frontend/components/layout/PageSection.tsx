@@ -12,7 +12,7 @@ const PageSection: React.FC<PageSectionProps> = ({ id, children, className }) =>
     <AnimatedSection>
       <section
         id={id}
-        className={`py-12 sm:py-16 lg:py-24 ${className ?? ''}`}
+        className={`py-8 sm:py-14 lg:py-24 ${className ?? ''}`}
       >
         {children}
       </section>
