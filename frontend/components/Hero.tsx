@@ -112,7 +112,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
     }, []);
 
   return (
-    <div ref={heroRef} className="relative pt-4 pb-20 sm:pt-24 sm:pb-32 lg:pb-40">
+    <div ref={heroRef} className="relative pt-2 pb-16 sm:pt-24 sm:pb-32 lg:pb-40">
       {/* Background Elements */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-1/4 -left-1/4 w-full h-full bg-[radial-gradient(circle_at_top_left,var(--accent-soft),transparent_60%)] rounded-full blur-3xl opacity-60 animate-aurora" style={{ animationDirection: 'alternate', animationDuration: '20s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite' }}></div>
@@ -206,7 +206,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
             </div>
           </div>
 
-          <div className="relative mt-6">
+          <div className="relative mt-4 sm:mt-6">
             <div className="pointer-events-none absolute -inset-x-10 -top-6 h-32 bg-[radial-gradient(circle_at_top,var(--accent-soft)_0,transparent_60%)] opacity-70 blur-3xl"></div>
             <h1 className="relative text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[color:var(--text-primary)] to-[color:var(--text-secondary)] pb-2 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
               {(c.heading || DEFAULT_HERO.heading)?.split(' with ')[0]}
@@ -217,13 +217,13 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
               {(c.heading || DEFAULT_HERO.heading)?.split(' with ')[1] || 'Authentic Social Engagement'}
             </h1>
           </div>
-          <p className="mt-6 text-lg text-text-secondary animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+          <p className="mt-4 sm:mt-6 text-lg text-text-secondary animate-fade-in-up" style={{ animationDelay: '300ms' }}>
             {c.subheading}
           </p>
           <div className="animate-fade-in-up" style={{ animationDelay: '400ms' }}>
             <Link
               href={c.ctaHref || '/contact'}
-              className="relative overflow-hidden btn-shine btn-primary mt-8 group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 ring-2 ring-[color:var(--accent-soft)] focus-visible:ring-offset-2"
+              className="relative overflow-hidden btn-shine btn-primary mt-6 sm:mt-8 group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 ring-2 ring-[color:var(--accent-soft)] focus-visible:ring-offset-2"
             >
                 {c.ctaText}{' '}
                 <span className="ml-2 inline-flex">
@@ -237,7 +237,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
             </Link>
           </div>
 
-          <div className="mt-8 flex items-center justify-center space-x-2 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
+          <div className="mt-6 sm:mt-8 flex items-center justify-center space-x-2 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
             <div className="flex -space-x-2">
                 <Image src="https://picsum.photos/seed/avatar1/32/32" alt="Satisfied user 1" width={32} height={32} className="inline-block h-8 w-8 rounded-full object-cover ring-2 ring-[color:var(--bg-primary)]" />
                 <Image src="https://picsum.photos/seed/avatar2/32/32" alt="Satisfied user 2" width={32} height={32} className="inline-block h-8 w-8 rounded-full object-cover ring-2 ring-[color:var(--bg-primary)]" />
@@ -251,7 +251,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
           </div>
 
             {c.bullets && c.bullets.length > 0 && (
-            <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm font-medium text-text-secondary animate-fade-in-up" style={{ animationDelay: '600ms' }}>
+            <div className="mt-6 sm:mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm font-medium text-text-secondary animate-fade-in-up" style={{ animationDelay: '600ms' }}>
             {c.bullets.map((bullet, i) => (
             <div key={i} className="relative group flex items-center justify-center">
               <Icon icon={CheckIcon} size="sm" tone="brand" className="mr-2" />
