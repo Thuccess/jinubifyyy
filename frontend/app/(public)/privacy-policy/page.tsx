@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import PrivacyPolicyPage from '@/components/pages/PrivacyPolicyPage';
+import CmsBasicPage from '@/components/pages/CmsBasicPage';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy | Jinubify',
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <PrivacyPolicyPage />;
+  return <CmsBasicPage slug="privacy-policy" defaultTitle="Privacy Policy" />;
 }

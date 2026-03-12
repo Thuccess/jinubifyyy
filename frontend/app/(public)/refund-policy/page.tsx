@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import RefundPolicyPage from '@/components/pages/RefundPolicyPage';
+import CmsBasicPage from '@/components/pages/CmsBasicPage';
 
 export const metadata: Metadata = {
   title: 'Refund Policy | Jinubify',
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <RefundPolicyPage />;
+  return <CmsBasicPage slug="refund-policy" defaultTitle="Refund Policy" />;
 }

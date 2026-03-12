@@ -29,6 +29,7 @@ import careerRoutes from './routes/career.js';
 import investmentRoutes from './routes/investment.js';
 import pagesPublicRoutes from './routes/pagesPublic.js';
 import uploadRoutes from './routes/upload.js';
+import eventsRoutes from './routes/events.js';
 import { mongoSanitizeMiddleware } from './middleware/sanitize.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
@@ -159,6 +160,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/career', careerRoutes);
 app.use('/api/investment', investmentRoutes);
 app.use('/api/pages', pagesPublicRoutes);
+app.use('/api/events', eventsRoutes);
 
 // Enhanced health check endpoint
 app.get('/api/health', async (req, res) => {

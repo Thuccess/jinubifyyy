@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import TermsOfServicePage from '@/components/pages/TermsOfServicePage';
+import CmsBasicPage from '@/components/pages/CmsBasicPage';
 
 export const metadata: Metadata = {
   title: 'Terms of Service | Jinubify',
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <TermsOfServicePage />;
+  return <CmsBasicPage slug="terms-of-service" defaultTitle="Terms of Service" />;
 }

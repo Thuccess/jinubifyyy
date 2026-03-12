@@ -253,6 +253,12 @@ const AdminContentPage: React.FC = () => {
   const { refetch: refetchCms } = useCms();
   const { currentUser } = useAuth();
 
+  const showError = useCallback((message: string) => {
+    // Surface a simple, non-intrusive error to the editor.
+    // eslint-disable-next-line no-alert
+    window.alert(message);
+  }, []);
+
   const contentSections = [
     { id: 'site', label: 'Site & Navigation', icon: <LinkIcon className="h-5 w-5" /> },
     { id: 'pages', label: 'Pages', icon: <CodeBracketIcon className="h-5 w-5" /> },
@@ -268,6 +274,7 @@ const AdminContentPage: React.FC = () => {
       setNavItems(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error('Load nav error:', e);
+      showError('Failed to load navigation items. Please try again.');
       setNavItems([]);
     } finally {
       setLoading(false);
@@ -282,6 +289,7 @@ const AdminContentPage: React.FC = () => {
       setSiteSettings(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error('Load site settings error:', e);
+      showError('Failed to load site settings. Please try again.');
       setSiteSettings([]);
     } finally {
       setLoading(false);
@@ -297,14 +305,16 @@ const AdminContentPage: React.FC = () => {
 
   const handleSaveNavItem = async (id: string) => {
     if (!navEditLabel.trim() || !navEditHref.trim()) return;
+    const href = navEditHref.trim().startsWith('/') ? navEditHref.trim() : `/${navEditHref.trim()}`;
     setSaving(id);
     try {
-      await adminCmsAPI.updateNavItem(id, { label: navEditLabel.trim(), href: navEditHref.trim() });
+      await adminCmsAPI.updateNavItem(id, { label: navEditLabel.trim(), href });
       setNavEditId(null);
       await loadNav();
       refetchCms();
     } catch (e) {
       console.error('Update nav error:', e);
+      showError('Failed to update navigation item. Please try again.');
     } finally {
       setSaving(null);
     }
@@ -318,6 +328,7 @@ const AdminContentPage: React.FC = () => {
       refetchCms();
     } catch (e) {
       console.error('Toggle nav visible error:', e);
+      showError('Failed to change visibility. Please try again.');
     } finally {
       setSaving(null);
     }
@@ -332,6 +343,7 @@ const AdminContentPage: React.FC = () => {
       refetchCms();
     } catch (e) {
       console.error('Delete nav error:', e);
+      showError('Failed to hide menu item. Please try again.');
     } finally {
       setSaving(null);
     }
@@ -339,15 +351,17 @@ const AdminContentPage: React.FC = () => {
 
   const handleAddNavItem = async () => {
     if (!newNavLabel.trim() || !newNavHref.trim()) return;
+    const href = newNavHref.trim().startsWith('/') ? newNavHref.trim() : `/${newNavHref.trim()}`;
     setSaving('new');
     try {
-      await adminCmsAPI.createNavItem({ label: newNavLabel.trim(), href: newNavHref.trim() });
+      await adminCmsAPI.createNavItem({ label: newNavLabel.trim(), href });
       setNewNavLabel('');
       setNewNavHref('');
       await loadNav();
       refetchCms();
     } catch (e) {
       console.error('Create nav error:', e);
+      showError('Failed to create navigation item. Please try again.');
     } finally {
       setSaving(null);
     }
@@ -361,6 +375,7 @@ const AdminContentPage: React.FC = () => {
       refetchCms();
     } catch (e) {
       console.error('Save site setting error:', e);
+      showError('Failed to save site setting. Please try again.');
     } finally {
       setSaving(null);
     }
@@ -378,6 +393,7 @@ const AdminContentPage: React.FC = () => {
       setPages(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error('Load pages error:', e);
+      showError('Failed to load pages. Please try again.');
       setPages([]);
     } finally {
       setLoading(false);
@@ -393,6 +409,7 @@ const AdminContentPage: React.FC = () => {
       setPageDetail({ page: data, sections: (data?.sections ?? []) as Array<Record<string, unknown>> });
     } catch (e) {
       console.error('Load page detail error:', e);
+      showError('Failed to load page details. Please try again.');
       setPageDetail(null);
     } finally {
       setLoading(false);
@@ -407,6 +424,7 @@ const AdminContentPage: React.FC = () => {
       refetchCms();
     } catch (e) {
       console.error('Update section error:', e);
+      showError('Failed to update section. Please try again.');
     } finally {
       setSaving(null);
     }
@@ -421,6 +439,7 @@ const AdminContentPage: React.FC = () => {
       refetchCms();
     } catch (e) {
       console.error('Delete section error:', e);
+      showError('Failed to hide section. Please try again.');
     } finally {
       setSaving(null);
     }
@@ -440,6 +459,7 @@ const AdminContentPage: React.FC = () => {
       refetchCms();
     } catch (e) {
       console.error('Duplicate section error:', e);
+      showError('Failed to duplicate section. Please try again.');
     } finally {
       setSaving(null);
     }
@@ -467,6 +487,7 @@ const AdminContentPage: React.FC = () => {
       refetchCms();
     } catch (e) {
       console.error('Reorder sections error:', e);
+      showError('Failed to reorder sections. Please try again.');
     } finally {
       setSaving(null);
       setDraggingSectionId(null);
@@ -642,7 +663,7 @@ const AdminContentPage: React.FC = () => {
                 Site settings
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                Global key-value settings (e.g. site name, meta description). Edit and save to update the public site.
+                Global key-value settings (e.g. site name, meta description). Edit and save to update the public site. For legal pages like Privacy Policy, Terms of Service, Refund Policy, and Disclaimer, create a CMS page with the appropriate slug and set the page <span className=\"font-semibold\">Type</span> to <span className=\"font-mono\">legal</span>.
               </p>
               {loading ? (
                 <p className="text-sm text-slate-500">Loading…</p>
@@ -786,15 +807,46 @@ const AdminContentPage: React.FC = () => {
                         role={currentUser?.role}
                         onChange={setEditingPage}
                         onSave={async (payload) => {
-                          const id = String(editingPage?._id);
-                          setSaving(id);
+                          const id = editingPage?._id ? String(editingPage._id) : null;
+                          const rawSlug = String(payload.slug || editingPage?.slug || '').trim();
+                          if (!rawSlug) {
+                            showError('Slug is required.');
+                            return;
+                          }
+                          const normalizedSlug = rawSlug
+                            .replace(/^\/+/, '')
+                            .replace(/\s+/g, '-')
+                            .toLowerCase();
+                          const title = String(payload.title || editingPage?.title || '').trim();
+                          if (!title) {
+                            showError('Title is required.');
+                            return;
+                          }
+
+                          const body = {
+                            ...payload,
+                            slug: normalizedSlug,
+                            title,
+                          };
+
+                          setSaving(id ?? 'new-page');
                           try {
-                            await adminCmsAPI.updatePage(id, payload);
-                            await loadPages();
-                            await loadPageDetail(id);
+                            if (id) {
+                              await adminCmsAPI.updatePage(id, body as Record<string, unknown>);
+                              await loadPages();
+                              await loadPageDetail(id);
+                            } else {
+                              const res = await adminCmsAPI.createPage(body as any);
+                              const created = res.data as { _id?: string };
+                              const newId = String(created._id);
+                              await loadPages();
+                              await loadPageDetail(newId);
+                              setEditingPage(created as any);
+                            }
                             refetchCms();
                           } catch (e) {
                             console.error('Update page meta error:', e);
+                            showError('Failed to save page. Please check the fields and try again.');
                           } finally {
                             setSaving(null);
                           }

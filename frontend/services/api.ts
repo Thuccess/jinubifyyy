@@ -625,6 +625,66 @@ export const testimonialsAPI = {
   },
 };
 
+// Events collection (public + admin)
+export interface EventItemPayload {
+  _id?: string;
+  title: string;
+  slug: string;
+  description?: string;
+  imageUrl?: string;
+  content?: string;
+  date?: string;
+  tags?: string[];
+  status?: 'draft' | 'published';
+  isFeatured?: boolean;
+  order?: number;
+}
+
+export const eventsAPI = {
+  // Public list
+  getEvents: async (params?: { page?: number; limit?: number; featured?: boolean }) => {
+    const response = await api.get('/events', {
+      params: {
+        ...params,
+        featured: typeof params?.featured === 'boolean' ? String(params.featured) : undefined,
+      },
+    });
+    return response.data as {
+      data: EventItemPayload[];
+      pagination?: { page: number; limit: number; total: number; pages: number };
+    };
+  },
+  // Public single
+  getBySlug: async (slug: string) => {
+    const response = await api.get(`/events/${encodeURIComponent(slug)}`);
+    return response.data as { data: EventItemPayload };
+  },
+  // Admin list
+  adminList: async (params?: { page?: number; limit?: number; status?: string; search?: string }) => {
+    const response = await api.get('/events/admin/list', { params });
+    return response.data as {
+      data: EventItemPayload[];
+      pagination?: { page: number; limit: number; total: number; pages: number };
+    };
+  },
+  create: async (payload: EventItemPayload) => {
+    const response = await api.post('/events/admin', payload);
+    return response.data as { message: string; data: EventItemPayload };
+  },
+  update: async (id: string, payload: EventItemPayload) => {
+    const response = await api.put(`/events/admin/${id}`, payload);
+    return response.data as { message: string; data: EventItemPayload };
+  },
+  remove: async (id: string) => {
+    const response = await api.delete(`/events/admin/${id}`);
+    return response.data as { message: string };
+  },
+  reorder: async (order: { id: string; order: number }[]) => {
+    const response = await api.patch('/events/reorder', { order });
+    return response.data as { message: string; data: EventItemPayload[] };
+  },
+};
+
 // Services CMS API (admin + public)
 export type ServicePayload = {
   title: string;

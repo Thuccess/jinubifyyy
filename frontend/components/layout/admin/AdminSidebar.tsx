@@ -20,6 +20,7 @@ import {
   TeamIcon,
   ChartBarIcon,
   CameraIcon,
+  CalendarIcon,
 } from '../../icons/Icons';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -39,6 +40,7 @@ const navItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', path: '/admin', icon: <DashboardIcon className="h-5 w-5" />, allowedRoles: ['editor', 'admin', 'super_admin'] },
   { id: 'content', label: 'Content', path: '/admin/content', icon: <DocumentTextIcon className="h-5 w-5" />, allowedRoles: ['editor', 'admin', 'super_admin'] },
   { id: 'services', label: 'Services', path: '/admin/services', icon: <CodeBracketIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
+  { id: 'events', label: 'Events', path: '/admin/events', icon: <CalendarIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
   { id: 'demos', label: 'Service Demos', path: '/admin/demos', icon: <MegaphoneIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
   { id: 'pricing', label: 'Pricing & Packages', path: '/admin/pricing', icon: <CurrencyDollarIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
   { id: 'blog', label: 'Blog Posts', path: '/admin/blog', icon: <PostsIcon className="h-5 w-5" />, allowedRoles: ['editor', 'admin', 'super_admin'] },

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import DisclaimerPage from '@/components/pages/DisclaimerPage';
+import CmsBasicPage from '@/components/pages/CmsBasicPage';
 
 export const metadata: Metadata = {
   title: 'Disclaimer | Jinubify',
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <DisclaimerPage />;
+  return <CmsBasicPage slug="disclaimer" defaultTitle="Disclaimer" />;
 }

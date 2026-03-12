@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import CmsBasicPage from '@/components/pages/CmsBasicPage';
+import EventsPage from '@/components/pages/EventsPage';
 
 export const metadata: Metadata = {
   title: 'Events | Jinubify',
@@ -7,5 +8,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <CmsBasicPage slug="events" />;
+  return (
+    <>
+      <CmsBasicPage slug="events" />
+      <EventsPage />
+    </>
+  );
 }

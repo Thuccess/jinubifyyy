@@ -14,7 +14,7 @@ const DEFAULT_NAMES = ['YouTube', 'Twitter', 'Instagram', 'TikTok', 'Facebook'];
 const Partners: React.FC<{ content?: PartnersContent }> = ({ content: c }) => {
   const names = (c?.platformNames && c.platformNames.length > 0) ? c.platformNames : DEFAULT_NAMES;
   const partners = names.map((name) => ({ name, icon: PARTNER_ICONS[name] ?? null, href: '#' }));
-  const eyebrow = c?.eyebrow ?? "Trusted by the world's leading platforms";
+  const eyebrow = c?.eyebrow ?? 'Supporting Businesses Across East Africa';
   return (
     <div className="py-16 sm:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
