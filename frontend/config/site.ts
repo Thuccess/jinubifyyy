@@ -7,7 +7,7 @@ const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://jinubify.com';
 export const siteConfig = {
   name: 'Jinubify',
   description:
-    'Jinubify delivers modern digital solutions—web development, branding, and digital marketing—to help businesses grow.',
+    'Jinubify helps South Sudanese businesses and organizations across East Africa grow through modern technology, branding, marketing, and digital solutions.',
   url: baseUrl,
   logo: `${baseUrl}/logo/logo-light.png`,
   sameAs: [

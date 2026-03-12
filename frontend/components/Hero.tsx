@@ -77,13 +77,13 @@ const FollowerChart = () => (
 
 
 const DEFAULT_HERO: HeroContent = {
-  badge: 'Business Growth, Simplified',
-  badgeSub: 'Technology, branding, and marketing in one place.',
-  heading: 'Build, Brand, and Grow Your Business with Jinubify',
+  badge: 'Digital solutions for growth',
+  badgeSub: 'Serving South Sudanese businesses across East Africa.',
+  heading: 'Digital Solutions for South Sudanese Businesses Across East Africa',
   subheading:
-    'Jinubify helps startups, businesses, and organizations grow through technology, design, and digital marketing. From websites and software to branding, printing, and social media management, we provide everything your business needs to succeed.',
-  ctaText: 'Get Started',
-  ctaHref: '/contact',
+    'Jinubify helps startups, SMEs, and organizations build powerful brands, modern websites, mobile apps, and marketing systems that attract customers and drive growth.',
+  ctaText: 'Request a Quote',
+  ctaHref: '/request-quote',
   ratingText: '4.8 / 5',
   ratingSub: 'Rating over 500 Reviews',
   bullets: ['Technology & Software', 'Branding & Printing', 'Digital Marketing', 'Business Growth Support'],
@@ -216,12 +216,10 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
               className="relative hero-heading font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[color:var(--text-primary)] to-[color:var(--text-secondary)] pb-2 animate-fade-in-up"
               style={{ animationDelay: '200ms' }}
             >
-              {(c.heading || DEFAULT_HERO.heading)?.split(' with ')[0]}
-              {' with '}
+              {c.heading || DEFAULT_HERO.heading}{' '}
               <span className="inline-flex align-middle">
                 <Icon icon={WandIcon} size="lg" tone="brand" />
-              </span>{' '}
-              {(c.heading || DEFAULT_HERO.heading)?.split(' with ')[1] || 'Authentic Social Engagement'}
+              </span>
             </h1>
           </div>
           <p
@@ -232,7 +230,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
           </p>
           <div className="animate-fade-in-up hero-gap-after-cta" style={{ animationDelay: '400ms' }}>
             <Link
-              href={c.ctaHref || '/contact'}
+              href={c.ctaHref || '/request-quote'}
               className="relative overflow-hidden btn-shine btn-primary group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 ring-2 ring-[color:var(--accent-soft)] focus-visible:ring-offset-2"
             >
               {c.ctaText}{' '}
@@ -249,10 +247,16 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
               href="/services"
               className="mt-3 sm:mt-0 sm:ml-3 inline-flex items-center justify-center px-6 py-3 text-sm font-semibold rounded-xl btn-secondary"
             >
-              View Services
+              Explore Services
+            </Link>
+            <Link
+              href="/demos"
+              className="mt-3 sm:mt-0 sm:ml-3 inline-flex items-center justify-center px-6 py-3 text-sm font-semibold rounded-xl btn-secondary"
+            >
+              View Demos
             </Link>
             <p className="mt-3 text-sm text-text-secondary">
-              Modern solutions combining technology, design, marketing, and printing to help businesses grow faster.
+              Serving businesses across Uganda, Kenya, and South Sudan.
             </p>
           </div>
 

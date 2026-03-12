@@ -4,7 +4,7 @@ import AboutPage from '@/components/pages/AboutPage';
 export const metadata: Metadata = {
   title: 'About | Jinubify',
   description:
-    'Learn about Jinubify—our story, values, and the team behind modern digital solutions for businesses.',
+    'Jinubify is a digital solutions company helping South Sudanese entrepreneurs, startups, NGOs, and organizations across East Africa grow through modern technology, branding, marketing, and practical business tools.',
 };
 
 export default function Page() {
