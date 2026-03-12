@@ -663,7 +663,7 @@ const AdminContentPage: React.FC = () => {
                 Site settings
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                Global key-value settings (e.g. site name, meta description). Edit and save to update the public site. For legal pages like Privacy Policy, Terms of Service, Refund Policy, and Disclaimer, create a CMS page with the appropriate slug and set the page <span className=\"font-semibold\">Type</span> to <span className=\"font-mono\">legal</span>.
+                Global key-value settings (e.g. site name, meta description). Edit and save to update the public site. For legal pages like Privacy Policy, Terms of Service, Refund Policy, and Disclaimer, create a CMS page with the appropriate slug and set the page <span className="font-semibold">Type</span> to <span className="font-mono">legal</span>.
               </p>
               {loading ? (
                 <p className="text-sm text-slate-500">Loading…</p>
