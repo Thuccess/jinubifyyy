@@ -77,15 +77,16 @@ const FollowerChart = () => (
 
 
 const DEFAULT_HERO: HeroContent = {
-  badge: 'Major Update!',
-  badgeSub: 'Jinubify v1.0 is now online !',
-  heading: "Unlock Explosive Growth with Authentic Social Engagement",
-  subheading: "The ultimate toolkit for artists, influencers, and brands to build real communities and dominate social media.",
-  ctaText: "Get Started for Free",
-  ctaHref: "/contact",
-  ratingText: "4.8 / 5",
-  ratingSub: "Rating over 500 Reviews",
-  bullets: ["Starting at Just $0.001/K", "Non-drop services", "Lifetime Refills", "24/7 Support"],
+  badge: 'Business Growth, Simplified',
+  badgeSub: 'Technology, branding, and marketing in one place.',
+  heading: 'Build, Brand, and Grow Your Business with Jinubify',
+  subheading:
+    'Jinubify helps startups, businesses, and organizations grow through technology, design, and digital marketing. From websites and software to branding, printing, and social media management, we provide everything your business needs to succeed.',
+  ctaText: 'Get Started',
+  ctaHref: '/contact',
+  ratingText: '4.8 / 5',
+  ratingSub: 'Rating over 500 Reviews',
+  bullets: ['Technology & Software', 'Branding & Printing', 'Digital Marketing', 'Business Growth Support'],
 };
 
 const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
@@ -234,16 +235,25 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
               href={c.ctaHref || '/contact'}
               className="relative overflow-hidden btn-shine btn-primary group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 ring-2 ring-[color:var(--accent-soft)] focus-visible:ring-offset-2"
             >
-                {c.ctaText}{' '}
-                <span className="ml-2 inline-flex">
-                  <Icon
-                    icon={PaperAirplaneIcon}
-                    size="sm"
-                    tone="inverted"
-                    className="transition-transform duration-300 group-hover:translate-x-1"
-                  />
-                </span>
+              {c.ctaText}{' '}
+              <span className="ml-2 inline-flex">
+                <Icon
+                  icon={PaperAirplaneIcon}
+                  size="sm"
+                  tone="inverted"
+                  className="transition-transform duration-300 group-hover:translate-x-1"
+                />
+              </span>
             </Link>
+            <Link
+              href="/services"
+              className="mt-3 sm:mt-0 sm:ml-3 inline-flex items-center justify-center px-6 py-3 text-sm font-semibold rounded-xl btn-secondary"
+            >
+              View Services
+            </Link>
+            <p className="mt-3 text-sm text-text-secondary">
+              Modern solutions combining technology, design, marketing, and printing to help businesses grow faster.
+            </p>
           </div>
 
           <div
