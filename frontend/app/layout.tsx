@@ -5,9 +5,9 @@ import { ClientProviders } from './ClientProviders';
 
 export const metadata: Metadata = {
   icons: {
-    icon: '/logo/logo-light.png',
-    shortcut: '/logo/logo-light.png',
-    apple: '/logo/logo-light.png',
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
   },
 };
 
