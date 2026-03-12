@@ -16,6 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head>
         <meta name="google-site-verification" content="H1NRjzvzNN7Wy7kezBBMkcLVua2cH83EeGlCgnfzGaA" />
+        <link rel="icon" href="/favicon.png" sizes="any" type="image/png" />
       </head>
       <body>
         <ClientProviders>{children}</ClientProviders>
