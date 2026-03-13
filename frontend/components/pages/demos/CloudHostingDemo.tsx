@@ -38,7 +38,7 @@ const CloudHostingDemo: React.FC = () => {
                 Who It's For
               </h2>
               <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-                Perfect for businesses, NGOs, and organizations in Juba, South Sudan, and beyond that need reliable hosting, domain management, or cloud storage solutions to keep their websites and data secure and accessible.
+                Perfect for businesses, NGOs, and organizations across East Africa that need reliable hosting, domain management, or cloud storage solutions to keep their websites and data secure and accessible.
               </p>
               <h2 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 sm:text-4xl mb-6 mt-12">
                 What Problem It Solves

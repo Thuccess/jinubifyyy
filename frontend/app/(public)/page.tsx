@@ -4,9 +4,9 @@ import StructuredData from '@/components/seo/StructuredData';
 import { siteConfig } from '@/config/site';
 
 export const metadata: Metadata = {
-  title: 'Jinubify | Digital Solutions for South Sudanese Businesses in East Africa',
+  title: 'Jinubify | Digital Solutions for Businesses Across East Africa',
   description:
-    'Jinubify provides website development, mobile apps, branding, digital marketing, printing, and cloud services for businesses across Uganda, Kenya, and South Sudan.',
+    'Jinubify provides website development, mobile apps, branding, digital marketing, printing, and cloud services for businesses across East Africa, including Uganda, Kenya, Tanzania, Rwanda, and South Sudan.',
 };
 
 const organizationSchema = {

@@ -78,8 +78,8 @@ const FollowerChart = () => (
 
 const DEFAULT_HERO: HeroContent = {
   badge: 'Digital solutions for growth',
-  badgeSub: 'Serving South Sudanese businesses across East Africa.',
-  heading: 'Digital Solutions for South Sudanese Businesses Across East Africa',
+  badgeSub: 'Serving businesses across East Africa.',
+  heading: 'Digital Solutions for Businesses Across East Africa',
   subheading:
     'Jinubify helps startups, SMEs, and organizations build powerful brands, modern websites, mobile apps, and marketing systems that attract customers and drive growth.',
   ctaText: 'Request a Quote',
@@ -256,7 +256,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
               View Demos
             </Link>
             <p className="mt-3 text-sm text-text-secondary">
-              Serving businesses across Uganda, Kenya, and South Sudan.
+              Serving businesses across East Africa, including Uganda, Kenya, Tanzania, Rwanda, and South Sudan.
             </p>
           </div>
 

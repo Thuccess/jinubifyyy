@@ -40,7 +40,7 @@ const GraphicDesignDemo: React.FC = () => {
                 Who It's For
               </h2>
               <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-                Perfect for startups, SMEs, NGOs, and organizations in Juba, South Sudan, and beyond that need professional branding, logo design, and visual identity to establish credibility and connect with their target audience.
+                Perfect for startups, SMEs, NGOs, and organizations across East Africa that need professional branding, logo design, and visual identity to establish credibility and connect with their target audience.
               </p>
               <h2 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 sm:text-4xl mb-6 mt-12">
                 What Problem It Solves

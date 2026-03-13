@@ -40,7 +40,7 @@ const DigitalMarketingDemo: React.FC = () => {
                 Who It's For
               </h2>
               <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-                Ideal for businesses and organizations in Juba, South Sudan, and beyond that want to increase their online visibility, attract more customers, and drive measurable results through strategic digital marketing campaigns.
+                Ideal for businesses and organizations across East Africa that want to increase their online visibility, attract more customers, and drive measurable results through strategic digital marketing campaigns.
               </p>
               <h2 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 sm:text-4xl mb-6 mt-12">
                 What Problem It Solves
