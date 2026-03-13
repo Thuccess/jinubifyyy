@@ -5,9 +5,9 @@ import { ClientProviders } from './ClientProviders';
 
 export const metadata: Metadata = {
   icons: {
-    icon: '/favicon.png',
-    shortcut: '/favicon.png',
-    apple: '/favicon.png',
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
   },
 };
 
@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head>
         <meta name="google-site-verification" content="H1NRjzvzNN7Wy7kezBBMkcLVua2cH83EeGlCgnfzGaA" />
-        <link rel="icon" href="/favicon.png" sizes="any" type="image/png" />
+        <link rel="icon" href="/favicon.ico" sizes="any" type="image/x-icon" />
       </head>
       <body>
         <ClientProviders>{children}</ClientProviders>
