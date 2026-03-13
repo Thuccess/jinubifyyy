@@ -9,7 +9,8 @@ export const siteConfig = {
   description:
     'Jinubify helps businesses and organizations across East Africa grow through modern technology, branding, marketing, and digital solutions.',
   url: baseUrl,
-  logo: `${baseUrl}/logo/logo-light.png`,
+  // This logo is also used in structured data and by search engines.
+  logo: `${baseUrl}/search-engine-logo.png`,
   sameAs: [
     process.env.NEXT_PUBLIC_SOCIAL_TWITTER || '',
     process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN || '',
