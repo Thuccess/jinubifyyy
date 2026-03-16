@@ -250,6 +250,14 @@ const AdminContentPage: React.FC = () => {
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const [draggingSectionId, setDraggingSectionId] = useState<string | null>(null);
   const [dragOverSectionId, setDragOverSectionId] = useState<string | null>(null);
+  const [showAddSectionForm, setShowAddSectionForm] = useState(false);
+  const [newSectionForm, setNewSectionForm] = useState<{ sectionKey: string; type: string; heading: string; body: string }>({
+    sectionKey: '',
+    type: 'text',
+    heading: '',
+    body: '',
+  });
+  const [sectionContentDraft, setSectionContentDraft] = useState<{ sectionId: string; heading: string; body: string } | null>(null);
   const { refetch: refetchCms } = useCms();
   const { currentUser } = useAuth();
 
@@ -492,6 +500,28 @@ const AdminContentPage: React.FC = () => {
       setSaving(null);
       setDraggingSectionId(null);
       setDragOverSectionId(null);
+    }
+  };
+
+  const handleCreateSection = async (pageId: string) => {
+    const key = (newSectionForm.sectionKey || 'section').trim().replace(/\s+/g, '_').toLowerCase() || 'section';
+    setSaving('new-section');
+    try {
+      await adminCmsAPI.createSection(pageId, {
+        sectionKey: key,
+        type: newSectionForm.type || 'text',
+        content: { heading: newSectionForm.heading.trim(), body: newSectionForm.body.trim() },
+        isVisible: true,
+      });
+      if (selectedPageId === pageId) await loadPageDetail(pageId);
+      refetchCms();
+      setShowAddSectionForm(false);
+      setNewSectionForm({ sectionKey: '', type: 'text', heading: '', body: '' });
+    } catch (e) {
+      console.error('Create section error:', e);
+      showError('Failed to add section. Please try again.');
+    } finally {
+      setSaving(null);
     }
   };
 
@@ -873,8 +903,89 @@ const AdminContentPage: React.FC = () => {
                         <h5 className="text-sm font-medium text-slate-800 dark:text-slate-200">Sections</h5>
                         <div className="flex items-center gap-2">
                           <span className="text-[11px] text-slate-500 dark:text-slate-400">Drag rows to reorder</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingSectionId(null);
+                              setSectionContentDraft(null);
+                              setShowAddSectionForm((prev) => !prev);
+                              if (!showAddSectionForm) setNewSectionForm({ sectionKey: '', type: 'text', heading: '', body: '' });
+                            }}
+                            className="text-xs px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center gap-1"
+                          >
+                            <PlusIcon className="w-3.5 h-3.5" />
+                            Add section
+                          </button>
                         </div>
                       </div>
+                      {showAddSectionForm && (
+                        <div className="mb-4 p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 space-y-2">
+                          <h6 className="text-xs font-medium text-slate-700 dark:text-slate-200">New section</h6>
+                          <div className="grid grid-cols-2 gap-2">
+                            <label className="col-span-2 sm:col-span-1">
+                              <span className="block text-[11px] text-slate-500 dark:text-slate-400 mb-0.5">Key (e.g. intro)</span>
+                              <input
+                                type="text"
+                                value={newSectionForm.sectionKey}
+                                onChange={(e) => setNewSectionForm((f) => ({ ...f, sectionKey: e.target.value }))}
+                                className="w-full px-2 py-1.5 text-xs border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-900"
+                                placeholder="intro"
+                              />
+                            </label>
+                            <label>
+                              <span className="block text-[11px] text-slate-500 dark:text-slate-400 mb-0.5">Type</span>
+                              <select
+                                value={newSectionForm.type}
+                                onChange={(e) => setNewSectionForm((f) => ({ ...f, type: e.target.value }))}
+                                className="w-full px-2 py-1.5 text-xs border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-900"
+                              >
+                                {SECTION_TYPE_OPTIONS.map((opt) => (
+                                  <option key={opt.id} value={opt.id}>
+                                    {opt.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                          </div>
+                          <label>
+                            <span className="block text-[11px] text-slate-500 dark:text-slate-400 mb-0.5">Heading</span>
+                            <input
+                              type="text"
+                              value={newSectionForm.heading}
+                              onChange={(e) => setNewSectionForm((f) => ({ ...f, heading: e.target.value }))}
+                              className="w-full px-2 py-1.5 text-xs border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-900"
+                              placeholder="Section heading"
+                            />
+                          </label>
+                          <label>
+                            <span className="block text-[11px] text-slate-500 dark:text-slate-400 mb-0.5">Body</span>
+                            <textarea
+                              value={newSectionForm.body}
+                              onChange={(e) => setNewSectionForm((f) => ({ ...f, body: e.target.value }))}
+                              rows={3}
+                              className="w-full px-2 py-1.5 text-xs border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-900 resize-y"
+                              placeholder="Section body text"
+                            />
+                          </label>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleCreateSection(selectedPageId)}
+                              disabled={saving === 'new-section'}
+                              className="text-xs px-3 py-1.5 rounded bg-brand-primary text-white hover:opacity-90 disabled:opacity-50"
+                            >
+                              {saving === 'new-section' ? 'Adding…' : 'Add section'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => { setShowAddSectionForm(false); setNewSectionForm({ sectionKey: '', type: 'text', heading: '', body: '' }); }}
+                              className="text-xs px-3 py-1.5 rounded border border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
                       <ul className="space-y-2">
                         {(pageDetail.sections as Array<{ _id: string; sectionKey: string; type?: string; order?: number; isVisible?: boolean; content?: Record<string, unknown> }>)
                           .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
@@ -943,7 +1054,19 @@ const AdminContentPage: React.FC = () => {
                                   </button>
                                   <button
                                     type="button"
-                                    onClick={() => setEditingSectionId((prev) => (prev === sec._id ? null : sec._id))}
+                                    onClick={() => {
+                                      const next = editingSectionId === sec._id ? null : sec._id;
+                                      setEditingSectionId(next);
+                                      if (next === sec._id) {
+                                        setSectionContentDraft({
+                                          sectionId: sec._id,
+                                          heading: String((sec.content as Record<string, unknown>)?.heading ?? ''),
+                                          body: String((sec.content as Record<string, unknown>)?.body ?? ''),
+                                        });
+                                      } else {
+                                        setSectionContentDraft(null);
+                                      }
+                                    }}
                                     className="text-xs px-2 py-1 rounded border border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700"
                                   >
                                     Edit
@@ -959,27 +1082,108 @@ const AdminContentPage: React.FC = () => {
                                 </div>
                                 {editingSectionId === sec._id && (
                                   <div className="mt-1 border-t border-slate-200 dark:border-slate-700 pt-2 space-y-2">
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <label className="block text-xs font-medium text-slate-600 dark:text-slate-300">
+                                        Section type
+                                        <select
+                                          value={sec.type || sec.sectionKey}
+                                          onChange={(e) =>
+                                            handleUpdateSection(selectedPageId, sec._id, {
+                                              type: e.target.value,
+                                            })
+                                          }
+                                          className="mt-1 w-full px-2 py-1.5 text-xs border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                                        >
+                                          {SECTION_TYPE_OPTIONS.map((opt) => (
+                                            <option key={opt.id} value={opt.id}>
+                                              {opt.label}
+                                            </option>
+                                          ))}
+                                        </select>
+                                      </label>
+                                      <label className="block text-xs font-medium text-slate-600 dark:text-slate-300">
+                                        Status
+                                        <select
+                                          value={String((sec as any).status ?? 'draft')}
+                                          onChange={(e) =>
+                                            handleUpdateSection(selectedPageId, sec._id, {
+                                              status: e.target.value,
+                                            })
+                                          }
+                                          className="mt-1 w-full px-2 py-1.5 text-xs border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                                        >
+                                          <option value="draft">Draft</option>
+                                          <option value="review">In review</option>
+                                          <option value="published">Published</option>
+                                          <option value="archived">Archived</option>
+                                        </select>
+                                      </label>
+                                    </div>
                                     <label className="block text-xs font-medium text-slate-600 dark:text-slate-300">
-                                      Section type
-                                      <select
-                                        value={sec.type || sec.sectionKey}
-                                        onChange={(e) =>
-                                          handleUpdateSection(selectedPageId, sec._id, {
-                                            type: e.target.value,
-                                          })
-                                        }
+                                      Heading
+                                      <input
+                                        type="text"
+                                        value={sectionContentDraft?.sectionId === sec._id ? sectionContentDraft.heading : String((sec.content as Record<string, unknown>)?.heading ?? '')}
+                                        onFocus={() => {
+                                          if (sectionContentDraft?.sectionId !== sec._id) {
+                                            setSectionContentDraft({
+                                              sectionId: sec._id,
+                                              heading: String((sec.content as Record<string, unknown>)?.heading ?? ''),
+                                              body: String((sec.content as Record<string, unknown>)?.body ?? ''),
+                                            });
+                                          }
+                                        }}
+                                        onChange={(e) => {
+                                          setSectionContentDraft((d) =>
+                                            d?.sectionId === sec._id ? { ...d, heading: e.target.value } : { sectionId: sec._id, heading: e.target.value, body: String((sec.content as Record<string, unknown>)?.body ?? '') }
+                                          );
+                                        }}
                                         className="mt-1 w-full px-2 py-1.5 text-xs border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
-                                      >
-                                        {SECTION_TYPE_OPTIONS.map((opt) => (
-                                          <option key={opt.id} value={opt.id}>
-                                            {opt.label}
-                                          </option>
-                                        ))}
-                                      </select>
+                                        placeholder="Section heading"
+                                      />
                                     </label>
-                                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                                      Detailed per-type editors (hero, grid, FAQ, etc.) will use this type to decide which fields to show.
-                                    </p>
+                                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-300">
+                                      Body
+                                      <textarea
+                                        value={sectionContentDraft?.sectionId === sec._id ? sectionContentDraft.body : String((sec.content as Record<string, unknown>)?.body ?? '')}
+                                        onFocus={() => {
+                                          if (sectionContentDraft?.sectionId !== sec._id) {
+                                            setSectionContentDraft({
+                                              sectionId: sec._id,
+                                              heading: String((sec.content as Record<string, unknown>)?.heading ?? ''),
+                                              body: String((sec.content as Record<string, unknown>)?.body ?? ''),
+                                            });
+                                          }
+                                        }}
+                                        onChange={(e) => {
+                                          setSectionContentDraft((d) =>
+                                            d?.sectionId === sec._id ? { ...d, body: e.target.value } : { sectionId: sec._id, heading: String((sec.content as Record<string, unknown>)?.heading ?? ''), body: e.target.value }
+                                          );
+                                        }}
+                                        rows={4}
+                                        className="mt-1 w-full px-2 py-1.5 text-xs border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-900 text-slate-900 dark:text-white resize-y"
+                                        placeholder="Section body"
+                                      />
+                                    </label>
+                                    <div className="flex items-center gap-2">
+                                      <button
+                                        type="button"
+                                        onClick={async () => {
+                                          const content = (sec.content as Record<string, unknown>) || {};
+                                          const heading = sectionContentDraft?.sectionId === sec._id ? sectionContentDraft.heading : String(content.heading ?? '');
+                                          const body = sectionContentDraft?.sectionId === sec._id ? sectionContentDraft.body : String(content.body ?? '');
+                                          await handleUpdateSection(selectedPageId, sec._id, { content: { ...content, heading, body } });
+                                          setSectionContentDraft(null);
+                                        }}
+                                        disabled={saving === sec._id}
+                                        className="text-xs px-3 py-1.5 rounded bg-brand-primary text-white hover:opacity-90 disabled:opacity-50"
+                                      >
+                                        {saving === sec._id ? 'Saving…' : 'Save content'}
+                                      </button>
+                                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                                        Shown on the public page for this slug.
+                                      </p>
+                                    </div>
                                   </div>
                                 )}
                               </li>

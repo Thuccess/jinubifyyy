@@ -115,22 +115,22 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
   return (
     <div
       ref={heroRef}
-      className="relative flex items-center pt-2 pb-10 sm:pt-20 sm:pb-16 lg:pt-24 lg:pb-20 overflow-x-hidden"
+      className="relative flex pt-6 pb-6 sm:pt-14 sm:pb-10 lg:pt-16 lg:pb-12 min-h-[calc(100vh-8rem)]"
     >
-      {/* Background Elements */}
+      {/* Background Elements (gradients + circle lines, clipped with overflow-hidden) */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-1/4 -left-1/4 w-full h-full bg-[radial-gradient(circle_at_top_left,var(--accent-soft),transparent_60%)] rounded-full blur-3xl opacity-60 animate-aurora" style={{ animationDirection: 'alternate', animationDuration: '20s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite' }}></div>
         <div className="absolute -bottom-1/4 -right-1/4 w-3/4 h-3/4 bg-[radial-gradient(circle_at_bottom_right,var(--accent-soft),transparent_65%)] rounded-full blur-3xl opacity-50 animate-aurora" style={{ animationDirection: 'alternate-reverse', animationDuration: '25s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite' }}></div>
-      </div>
-      
-       {/* Central Wireframe Sphere */}
-       <div 
-        className="absolute top-[60%] left-1/2 w-[500px] h-[500px] sm:w-[700px] sm:h-[700px] lg:w-[900px] lg:h-[900px] -translate-x-1/2 -translate-y-1/2 -z-10 transition-transform duration-500 ease-out"
-        style={{ transform: 'translate(calc(-50% + var(--x, 0px) * -0.2), calc(-50% + var(--y, 0px) * -0.2))' }}
+
+        {/* Central Wireframe Sphere – overflow clipped by parent */}
+        <div
+          className="absolute top-[55%] left-1/2 w-[420px] h-[420px] sm:w-[640px] sm:h-[640px] lg:w-[820px] lg:h-[820px] -translate-x-1/2 -translate-y-1/2 transition-transform duration-500 ease-out"
+          style={{ transform: 'translate(calc(-50% + var(--x, 0px) * -0.2), calc(-50% + var(--y, 0px) * -0.2))' }}
         >
-        <div className="w-full h-full rounded-full border-[1px] border-[color:var(--accent-soft)]/40 animate-spin-slow" style={{ animationDuration: '15s' }}></div>
-        <div className="absolute top-1/2 left-1/2 w-[80%] h-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full border-[1px] border-[color:var(--accent-soft)]/30 animate-spin-slow" style={{ animationDirection: 'reverse', animationDuration: '20s' }}></div>
-        <div className="absolute top-1/2 left-1/2 w-[60%] h-[60%] -translate-x-1/2 -translate-y-1/2 rounded-full border-[1px] border-[color:var(--accent-soft)]/20 animate-spin-slow" style={{ animationDuration: '25s' }}></div>
+          <div className="w-full h-full rounded-full border-[1px] border-[color:var(--accent-soft)]/40 animate-spin-slow" style={{ animationDuration: '15s' }}></div>
+          <div className="absolute top-1/2 left-1/2 w-[80%] h-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full border-[1px] border-[color:var(--accent-soft)]/30 animate-spin-slow" style={{ animationDirection: 'reverse', animationDuration: '20s' }}></div>
+          <div className="absolute top-1/2 left-1/2 w-[60%] h-[60%] -translate-x-1/2 -translate-y-1/2 rounded-full border-[1px] border-[color:var(--accent-soft)]/20 animate-spin-slow" style={{ animationDuration: '25s' }}></div>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative w-full">

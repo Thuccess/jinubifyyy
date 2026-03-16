@@ -10,7 +10,7 @@ interface PageSectionProps {
 const PageSection: React.FC<PageSectionProps> = ({ id, children, className }) => {
   const basePadding =
     id === 'home'
-      ? 'pt-4 sm:pt-10 lg:pt-16 pb-10 sm:pb-16 lg:pb-24'
+      ? 'pt-2 sm:pt-8 lg:pt-14 pb-6 sm:pb-10 lg:pb-16'
       : 'py-8 sm:py-14 lg:py-24';
 
   return (

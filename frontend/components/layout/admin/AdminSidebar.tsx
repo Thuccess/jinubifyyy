@@ -54,7 +54,7 @@ const navItems: NavItem[] = [
   { id: 'contacts', label: 'Contacts', path: '/admin/contacts', icon: <EnvelopeIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
   { id: 'orders', label: 'Orders', path: '/admin/orders', icon: <ShoppingBagIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
   { id: 'activity', label: 'Activity', path: '/admin/activity', icon: <ChartBarIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
-  { id: 'users', label: 'Users', path: '/admin/users', icon: <UserCircleIcon className="h-5 w-5" />, allowedRoles: ['super_admin'] },
+  { id: 'users', label: 'Users', path: '/admin/users', icon: <UserCircleIcon className="h-5 w-5" />, allowedRoles: ['admin', 'super_admin'] },
   { id: 'settings', label: 'Settings', path: '/admin/settings', icon: <CogIcon className="h-5 w-5" />, allowedRoles: ['super_admin'] },
 ];
 

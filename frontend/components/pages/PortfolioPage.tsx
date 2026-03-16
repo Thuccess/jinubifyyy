@@ -6,67 +6,7 @@ import AnimatedSection from '../AnimatedSection';
 import { normalizeImageUrl } from '../../utils/image';
 import { ChevronLeftIcon, ChevronRightIcon, XMarkIcon } from '../icons/Icons';
 import CallToAction from '../sections/CallToAction';
-
-// --- Data for the page ---
-const allProjects = [
-  {
-    title: 'E-commerce Platform "Vexora"',
-    category: 'Web Development',
-    description: 'A scalable online store with a custom CMS, designed for a seamless user experience and robust backend management.',
-    imageUrl: 'https://picsum.photos/seed/project1/1200/800',
-  },
-  {
-    title: 'Fintech Mobile App "CoinHub"',
-    category: 'Mobile App',
-    description: 'A secure and intuitive app for managing finances, featuring biometric login and real-time transaction alerts.',
-    imageUrl: 'https://picsum.photos/seed/project2/1200/800',
-  },
-  {
-    title: 'Startup Rebranding "Aethera"',
-    category: 'Branding',
-    description: 'A complete branding package for a tech startup, including logo design, color palette, and brand guidelines.',
-    imageUrl: 'https://picsum.photos/seed/project3/1200/800',
-  },
-  {
-    title: 'Global Product Launch Campaign',
-    category: 'Marketing',
-    description: 'A viral marketing campaign for a consumer product that resulted in a 300% increase in engagement across all platforms.',
-    imageUrl: 'https://picsum.photos/seed/project4/1200/800',
-  },
-  {
-    title: 'Enterprise Cloud Migration',
-    category: 'IT Solutions',
-    description: 'Seamlessly moved a legacy enterprise system for a Fortune 500 company to a modern, scalable cloud infrastructure with zero downtime.',
-    imageUrl: 'https://picsum.photos/seed/project5/1200/800',
-  },
-  {
-    title: 'Corporate Culture Showcase Video',
-    category: 'Multimedia',
-    description: 'An engaging promotional video for a global firm, highlighting their company culture, values, and achievements to attract top talent.',
-    imageUrl: 'https://picsum.photos/seed/project6/1200/800',
-  },
-  {
-    title: 'SaaS Platform "Analytica"',
-    category: 'Web Development',
-    description: 'A complex data analytics dashboard for B2B clients, providing real-time insights and customizable reports.',
-    imageUrl: 'https://picsum.photos/seed/project7/1200/800',
-  },
-  {
-    title: 'Animated Explainer Video Series',
-    category: 'Multimedia',
-    description: 'A series of short, animated videos simplifying complex software features, increasing user adoption by 40%.',
-    imageUrl: 'https://picsum.photos/seed/project8/1200/800',
-  },
-  {
-    title: 'Nationwide Network Security Overhaul',
-    category: 'IT Solutions',
-    description: 'Designed and implemented a comprehensive network security solution for a retail chain across 50+ locations.',
-    imageUrl: 'https://picsum.photos/seed/project9/1200/800',
-  },
-];
-
-const categories = ['All', 'Web Development', 'Multimedia', 'IT Solutions', 'Mobile App', 'Branding', 'Marketing'];
-
+import { usePortfolio } from '../../hooks/usePortfolio';
 
 // --- Subcomponents ---
 
@@ -84,7 +24,15 @@ const PageHeader: React.FC = () => (
     </header>
 );
 
-const ProjectCard: React.FC<{ project: typeof allProjects[0]; onClick: () => void }> = ({ project, onClick }) => (
+type Project = {
+  _id?: string;
+  title: string;
+  description?: string;
+  imageUrl?: string;
+  tags?: string[];
+};
+
+const ProjectCard: React.FC<{ project: Project; onClick: () => void }> = ({ project, onClick }) => (
     <button
         type="button"
         onClick={onClick}
@@ -109,7 +57,7 @@ const ProjectCard: React.FC<{ project: typeof allProjects[0]; onClick: () => voi
 
 const Lightbox: React.FC<{
   isOpen: boolean;
-  project: typeof allProjects[0];
+  project: Project;
   onClose: () => void;
   onNext: () => void;
   onPrev: () => void;
@@ -175,14 +123,26 @@ const Lightbox: React.FC<{
 const PortfolioPage: React.FC = () => {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeCategory, setActiveCategory] = useState<string>('All');
 
-  const filteredProjects = useMemo(() => {
+  const { data, isLoading, isError } = usePortfolio({ limit: 50 });
+  const items = (data?.data || []) as Project[];
+
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    items.forEach((item) => {
+      (item.tags || []).forEach((tag) => set.add(tag));
+    });
+    const list = Array.from(set).sort();
+    return ['All', ...list];
+  }, [items]);
+
+  const filteredProjects: Project[] = useMemo(() => {
     if (activeCategory === 'All') {
-      return allProjects;
+      return items;
     }
-    return allProjects.filter(project => project.category === activeCategory);
-  }, [activeCategory]);
+    return items.filter((item) => (item.tags || []).includes(activeCategory));
+  }, [items, activeCategory]);
 
 
   const openLightbox = (index: number) => {
@@ -229,32 +189,47 @@ const PortfolioPage: React.FC = () => {
       <div className="py-16 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mb-12 flex justify-center flex-wrap gap-2">
-                {categories.map(category => (
-                    <button
-                        key={category}
-                        onClick={() => setActiveCategory(category)}
-                        className={`px-4 py-2 text-sm font-semibold rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)] ${
-                            activeCategory === category
-                            ? 'bg-brand-primary text-text-inverted'
-                            : 'border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-surface-muted/90'
-                        }`}
-                    >
-                        {category}
-                    </button>
-                ))}
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setActiveCategory(category)}
+                  className={`px-4 py-2 text-sm font-semibold rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)] ${
+                    activeCategory === category
+                      ? 'bg-brand-primary text-text-inverted'
+                      : 'border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-surface-muted/90'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
             </div>
-            
-            <AnimatedSection>
+
+            {isLoading ? (
+              <div className="py-12 text-center text-text-secondary">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-primary mx-auto mb-4" />
+                Loading portfolio...
+              </div>
+            ) : isError ? (
+              <div className="py-12 text-center text-text-secondary">
+                <p className="text-sm">Failed to load portfolio items. Please try again.</p>
+              </div>
+            ) : filteredProjects.length === 0 ? (
+              <div className="py-12 text-center text-text-secondary">
+                <p className="text-sm">No content available yet.</p>
+              </div>
+            ) : (
+              <AnimatedSection>
                 <div key={activeCategory} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {filteredProjects.map((project, index) => (
-                        <ProjectCard 
-                            key={project.title} 
-                            project={project}
-                            onClick={() => openLightbox(index)}
-                        />
-                    ))}
+                  {filteredProjects.map((project, index) => (
+                    <ProjectCard
+                      key={project._id || project.title}
+                      project={project}
+                      onClick={() => openLightbox(index)}
+                    />
+                  ))}
                 </div>
-            </AnimatedSection>
+              </AnimatedSection>
+            )}
         </div>
 
         <section className="py-16 sm:py-20 lg:py-24" aria-label="Call to action">

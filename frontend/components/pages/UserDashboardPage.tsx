@@ -7,7 +7,7 @@ import { ShoppingBagIcon, SparklesIcon, WalletIcon, CheckIcon, PaperAirplaneIcon
 import Icon from '../ui/Icon';
 import AnimatedSection from '../AnimatedSection';
 import Card from '../ui/Card';
-import { userAPI, dashboardAPI, getStoredUser } from '../../services/api';
+import { userAPI, dashboardAPI, clientAPI, getStoredUser } from '../../services/api';
 
 // --- Subcomponents for the Dashboard ---
 
@@ -593,39 +593,92 @@ const OrdersList: React.FC = () => {
   );
 };
 
+const SummaryCards: React.FC = () => {
+  const [summary, setSummary] = useState<any | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await clientAPI.getDashboardSummary();
+        setSummary(data.summary);
+      } catch {
+        setSummary(null);
+      }
+    };
+    load();
+  }, []);
+
+  if (!summary) return null;
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <OverviewStatCard
+        icon={<Icon icon={ShoppingBagIcon} size="md" tone="brand" />}
+        title="Active Projects"
+        value={String(summary.activeProjects ?? 0)}
+      />
+      <OverviewStatCard
+        icon={<Icon icon={SparklesIcon} size="md" tone="brand" />}
+        title="Pending Tasks"
+        value={String(summary.pendingTasks ?? 0)}
+      />
+      <OverviewStatCard
+        icon={<Icon icon={WalletIcon} size="md" tone="brand" />}
+        title="Recent Updates"
+        value={String(summary.recentUpdates ?? 0)}
+      />
+      <OverviewStatCard
+        icon={<Icon icon={CogIcon} size="md" tone="brand" />}
+        title="Unread Messages"
+        value={String(summary.unreadMessages ?? 0)}
+      />
+    </div>
+  );
+};
 
 const UserDashboardPage: React.FC = () => {
-    return (
-        <div className="animate-fade-in min-h-screen">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-                <div className="lg:grid lg:grid-cols-3 lg:gap-8 space-y-8 lg:space-y-0">
-                    
-                    {/* Left Column: Profile */}
-                    <div className="lg:col-span-1">
-                        <AnimatedSection>
-                            <ProfileCard />
-                        </AnimatedSection>
-                    </div>
-
-                    {/* Right Column: Dashboard Info */}
-                    <div className="lg:col-span-2 space-y-8">
-                        <AnimatedSection>
-                          <AccountOverview />
-                        </AnimatedSection>
-                        <AnimatedSection>
-                          <OrdersList />
-                        </AnimatedSection>
-                         <AnimatedSection>
-                          <RecentActivity />
-                        </AnimatedSection>
-                         <AnimatedSection>
-                          <Recommendations />
-                        </AnimatedSection>
-                    </div>
-                </div>
+  return (
+    <div className="animate-fade-in min-h-screen">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
+        {/* Top: welcome + summary stats */}
+        <AnimatedSection>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-text-primary">
+                Your Jinubify dashboard
+              </h1>
+              <p className="mt-1 text-sm text-text-secondary">
+                Track projects, messages, files, and results in one place.
+              </p>
             </div>
+            <SummaryCards />
+          </div>
+        </AnimatedSection>
+
+        {/* Middle: projects / activity vs profile */}
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)] gap-6">
+          <AnimatedSection>
+            <div className="space-y-6">
+              <AccountOverview />
+              <OrdersList />
+            </div>
+          </AnimatedSection>
+
+          <AnimatedSection>
+            <div className="space-y-6">
+              <ProfileCard />
+              <RecentActivity />
+            </div>
+          </AnimatedSection>
         </div>
-    );
+
+        {/* Bottom: recommendations / growth nudges */}
+        <AnimatedSection>
+          <Recommendations />
+        </AnimatedSection>
+      </div>
+    </div>
+  );
 };
 
 export default UserDashboardPage;

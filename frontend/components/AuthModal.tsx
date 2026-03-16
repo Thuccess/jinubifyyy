@@ -40,6 +40,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
     password: '',
     workspaceName: '',
     photoURL: '',
+    phone: '',
+    company: '',
+    website: '',
   });
 
   useEffect(() => {
@@ -53,6 +56,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
       password: '',
       workspaceName: '',
       photoURL: '',
+      phone: '',
+      company: '',
+      website: '',
     });
   }, [initialView, isOpen]);
 
@@ -109,31 +115,40 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
   const handleSignUpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (step < 3) {
+      // Before moving to final step, ensure core account fields are filled
+      if (!formData.firstName.trim() && !formData.lastName.trim()) {
+        setError('Please enter your name.');
+        return;
+      }
+      if (!formData.email.trim() || !formData.password.trim()) {
+        setError('Please fill in your email and password.');
+        return;
+      }
       setStep((s) => s + 1);
       setError('');
+      return;
+    }
+    // Final step: require company, phone, photo
+    if (!formData.company.trim() || !formData.phone.trim() || !formData.photoURL.trim()) {
+      setError('Company, phone number, and profile photo are required.');
       return;
     }
     setLoading(true);
     setError('');
     try {
-        const response = await authAPI.signup({
-        name: [formData.firstName, formData.lastName].filter(Boolean).join(' ') || formData.email,
-          email: formData.email,
-          password: formData.password,
-          photoURL: formData.photoURL || undefined,
-        });
-        const signupRole = response.user.role && String(response.user.role).toLowerCase() === 'admin' ? 'admin' : 'user';
-        const normalizedUser = {
-          _id: response.user._id,
-          name: response.user.name,
-          email: response.user.email,
-          photoURL: response.user.photoURL,
-          role: signupRole,
-          balance: response.user.balance,
-        };
-        storeAuth(response.token, normalizedUser as User, rememberMe);
-        onSuccess(normalizedUser as User);
-      onClose();
+      const name = [formData.firstName, formData.lastName].filter(Boolean).join(' ') || formData.email;
+      const response = await authAPI.register({
+        name,
+        email: formData.email,
+        password: formData.password,
+        photoURL: formData.photoURL,
+        phone: formData.phone,
+        company: formData.company,
+        website: formData.website || undefined,
+      });
+      setError(response.message || 'Your account has been submitted for approval. You will be able to log in once the admin approves your request.');
+      setView('signIn');
+      setStep(1);
     } catch (err: any) {
       setError(
         err.response?.data?.message || 
@@ -225,7 +240,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                               ? 'Enter your personal data to create your account.'
                               : step === 2
                                 ? 'Name your workspace (optional).'
-                                : 'Add a profile photo (optional).'}
+                                : 'Add your company details, phone, and profile photo.'}
                         </p>
                       </div>
                   <button
@@ -380,11 +395,57 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                           </div>
                         )}
                         {step === 3 && (
-                          <div>
-                            <label htmlFor="photoURL" className={labelClass}>Photo URL (optional)</label>
-                            <input type="url" id="photoURL" name="photoURL" value={formData.photoURL} onChange={handleInputChange} className={inputClass} placeholder="https://example.com/photo.jpg" />
-                    </div>
-                  )}
+                          <>
+                            <div>
+                              <label htmlFor="company" className={labelClass}>Company name</label>
+                              <input
+                                type="text"
+                                id="company"
+                                name="company"
+                                value={formData.company}
+                                onChange={handleInputChange}
+                                className={inputClass}
+                                placeholder="eg. Jinubify Ltd."
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="phone" className={labelClass}>Phone number</label>
+                              <input
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                value={formData.phone}
+                                onChange={handleInputChange}
+                                className={inputClass}
+                                placeholder="eg. +256 700 000000"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="photoURL" className={labelClass}>Profile photo URL</label>
+                              <input
+                                type="url"
+                                id="photoURL"
+                                name="photoURL"
+                                value={formData.photoURL}
+                                onChange={handleInputChange}
+                                className={inputClass}
+                                placeholder="https://example.com/photo.jpg"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="website" className={labelClass}>Website URL (optional)</label>
+                              <input
+                                type="url"
+                                id="website"
+                                name="website"
+                                value={formData.website}
+                                onChange={handleInputChange}
+                                className={inputClass}
+                                placeholder="https://yourcompany.com"
+                              />
+                            </div>
+                          </>
+                        )}
 
                   {error && (
                           <div className="p-3 rounded-lg text-sm bg-[color:var(--surface-muted)] border border-border-strong text-text-primary">

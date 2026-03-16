@@ -8,8 +8,8 @@ import { authAPI, storeAuth, clearAuth } from '../../services/api';
 import type { User } from '../../types';
 
 const normalizeUserWithRole = (raw: User): User => {
-  const role =
-    raw.role && String(raw.role).toLowerCase() === 'admin' ? 'admin' : 'user';
+  const r = raw.role && String(raw.role).toLowerCase();
+  const role = r === 'admin' || r === 'super_admin' ? 'admin' : 'user';
   return {
     _id: raw._id,
     name: raw.name,
@@ -67,12 +67,14 @@ const AdminLoginPage: React.FC = () => {
 
       router.push(next);
     } catch (err: unknown) {
-      const ax = err as { response?: { data?: { message?: string; errors?: Array<{ msg?: string }> } } };
-      setError(
+      const ax = err as { response?: { status?: number; data?: { message?: string; errors?: Array<{ msg?: string }> } } };
+      const msg =
         ax.response?.data?.message ||
-          ax.response?.data?.errors?.[0]?.msg ||
-          'Sign in failed. Please check your email and password.'
-      );
+        ax.response?.data?.errors?.[0]?.msg ||
+        (ax.response?.status === 403
+          ? 'Your account cannot access the admin area. It may be pending approval.'
+          : 'Sign in failed. Please check your email and password.');
+      setError(msg);
     } finally {
       setLoading(false);
     }

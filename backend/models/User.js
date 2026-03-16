@@ -26,6 +26,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'https://ui-avatars.com/api/?name=User&background=random',
   },
+  phone: {
+    type: String,
+    trim: true,
+    default: '',
+  },
   balance: {
     type: Number,
     default: 50.0,
@@ -35,8 +40,19 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'editor', 'admin', 'super_admin'],
     default: 'user',
   },
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending',
+    index: true,
+  },
   // Optional profile / brand fields
   company: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  website: {
     type: String,
     trim: true,
     default: '',
@@ -57,6 +73,19 @@ const userSchema = new mongoose.Schema({
     secondaryColor: { type: String, trim: true, default: '' },
     logoUrl: { type: String, trim: true, default: '' },
     toneOfVoice: { type: String, trim: true, default: '' },
+  },
+  approvedAt: {
+    type: Date,
+    default: null,
+  },
+  approvedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null,
+  },
+  lastLoginAt: {
+    type: Date,
+    default: null,
   },
   createdAt: {
     type: Date,
@@ -95,6 +124,7 @@ userSchema.methods.toJSON = function () {
 
 // Indexes for performance
 userSchema.index({ role: 1 });
+userSchema.index({ status: 1 });
 
 const User = mongoose.model('User', userSchema);
 

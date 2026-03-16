@@ -1,9 +1,9 @@
- 'use client';
+'use client';
 
 import React, { useEffect, useMemo } from 'react';
 import { usePathname, useParams } from 'next/navigation';
-import AnimatedSection from '../AnimatedSection';
 import { useCms } from '../../contexts/CmsContext';
+import PageSection from '../layout/PageSection';
 
 interface CmsBasicPageProps {
   slug?: string;
@@ -167,6 +167,21 @@ export const CmsBasicPage: React.FC<CmsBasicPageProps> = ({
         })()
       : [];
 
+  const renderedSections = (sections.length > 0 ? sections : fallbackSections) as Array<{
+    _id: string;
+    sectionKey: string;
+    content?: Record<string, unknown>;
+  }>;
+
+  const isLegalPage =
+    effectiveSlug === 'disclaimer' ||
+    effectiveSlug === 'privacy-policy' ||
+    effectiveSlug === 'refund-policy' ||
+    effectiveSlug === 'cookie-policy' ||
+    effectiveSlug === 'terms-of-service';
+
+  const eyebrowText = eyebrow || (isLegalPage ? 'Legal & compliance' : undefined);
+
   useEffect(() => {
     const previousTitle = document.title;
     const metaDescription = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
@@ -199,21 +214,23 @@ export const CmsBasicPage: React.FC<CmsBasicPageProps> = ({
 
   return (
     <div className="animate-fade-in">
-      <header className="py-16 sm:py-20 lg:py-24">
+      <header className="py-10 sm:py-14 lg:py-16 bg-[color:var(--surface-subtle)] border-b border-border-subtle">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {eyebrow && (
-            <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              {eyebrow}
-            </p>
-          )}
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-text-primary sm:text-4xl lg:text-5xl max-w-2xl">
-            {title}
-          </h1>
-          {intro && (
-            <p className="mt-5 text-base text-text-secondary leading-relaxed max-w-xl sm:text-lg">
-              {intro}
-            </p>
-          )}
+          <div className="max-w-3xl">
+            {eyebrowText && (
+              <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                {eyebrowText}
+              </p>
+            )}
+            <h1 className="mt-3 text-3xl font-bold tracking-tight text-text-primary sm:text-4xl lg:text-5xl">
+              {title}
+            </h1>
+            {intro && (
+              <p className="mt-4 text-base text-text-secondary leading-relaxed max-w-2xl sm:text-lg">
+                {intro}
+              </p>
+            )}
+          </div>
         </div>
       </header>
 
@@ -232,70 +249,68 @@ export const CmsBasicPage: React.FC<CmsBasicPageProps> = ({
               </p>
             </div>
           )}
-          {!isLoading && !error && sections.length > 0 && (
-            <div className="space-y-8">
-              {sections.map((section) => {
-                const content = section.content || {};
-                const heading =
-                  (content.heading as string) ||
-                  (content.title as string) ||
-                  (section.sectionKey as string);
-                const body =
-                  (content.body as string) ||
-                  (content.text as string) ||
-                  (content.description as string) ||
-                  '';
+          {!isLoading && !error && renderedSections.length > 0 && (
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.2fr)]">
+              <div className="space-y-6 sm:space-y-8">
+                {renderedSections.map((section) => {
+                  const content = section.content || {};
+                  const heading =
+                    (content.heading as string) ||
+                    (content.title as string) ||
+                    (section.sectionKey as string);
+                  const body =
+                    (content.body as string) ||
+                    (content.text as string) ||
+                    (content.description as string) ||
+                    '';
 
-                return (
-                  <AnimatedSection key={section._id}>
-                    <section className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8">
-                      {heading && (
-                        <h2 className="text-lg font-semibold text-text-primary sm:text-xl">
-                          {heading}
-                        </h2>
-                      )}
-                      {body && (
-                        <p className="mt-3 text-sm text-text-secondary leading-relaxed whitespace-pre-line">
-                          {body}
-                        </p>
-                      )}
-                    </section>
-                  </AnimatedSection>
-                );
-              })}
-            </div>
-          )}
-          {!isLoading && !error && sections.length === 0 && fallbackSections.length > 0 && (
-            <div className="space-y-8">
-              {fallbackSections.map((section) => {
-                const content = section.content as { heading?: string; title?: string; body?: string; text?: string; description?: string };
-                const heading =
-                  (content.heading || '') ||
-                  (content.title || '') ||
-                  (section.sectionKey || '');
-                const body =
-                  (content.body || '') ||
-                  (content.text || '') ||
-                  (content.description || '') ||
-                  '';
+                  if (!heading && !body) return null;
 
-                return (
-                  <AnimatedSection key={section._id}>
-                    <section className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8">
-                      {heading && (
-                        <h2 className="text-lg font-semibold text-text-primary sm:text-xl">
+                  return (
+                    <PageSection key={section._id} id={section.sectionKey}>
+                      <article className="max-w-3xl rounded-xl border border-border-subtle bg-[color:var(--surface-card)]/90 backdrop-blur-sm p-6 sm:p-8 shadow-sm">
+                        {heading && (
+                          <h2 className="text-lg sm:text-xl font-semibold text-text-primary">
+                            {heading}
+                          </h2>
+                        )}
+                        {body && (
+                          <p className="mt-4 text-sm sm:text-base text-text-secondary leading-relaxed whitespace-pre-line">
+                            {body}
+                          </p>
+                        )}
+                      </article>
+                    </PageSection>
+                  );
+                })}
+              </div>
+
+              <aside className="hidden lg:block">
+                <div className="sticky top-28 rounded-xl border border-border-subtle bg-[color:var(--surface-card)]/80 backdrop-blur-sm p-5 space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+                    On this page
+                  </p>
+                  <nav className="space-y-2">
+                    {renderedSections.map((section) => {
+                      const content = section.content || {};
+                      const heading =
+                        (content.heading as string) ||
+                        (content.title as string) ||
+                        (section.sectionKey as string);
+                      if (!heading) return null;
+                      return (
+                        <a
+                          key={section._id}
+                          href={`#${section.sectionKey}`}
+                          className="block text-xs text-text-secondary hover:text-text-primary transition-colors"
+                        >
                           {heading}
-                        </h2>
-                      )}
-                      {body && (
-                        <p className="mt-3 text-sm text-text-secondary leading-relaxed whitespace-pre-line">
-                          {body}
-                        </p>
-                      )}
-                    </section>
-                  </AnimatedSection>
-                );
-              })}
+                        </a>
+                      );
+                    })}
+                  </nav>
+                </div>
+              </aside>
             </div>
           )}
         </div>

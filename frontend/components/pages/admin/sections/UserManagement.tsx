@@ -11,10 +11,13 @@ interface User {
   _id: string;
   name: string;
   email: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'editor' | 'super_admin';
   balance?: number;
   createdAt: string;
   photoURL?: string;
+  company?: string;
+  status?: 'pending' | 'approved' | 'rejected';
+  lastLoginAt?: string;
 }
 
 const UserManagement: React.FC = () => {
@@ -22,7 +25,7 @@ const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [statusTab, setStatusTab] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [newRole, setNewRole] = useState<'user' | 'admin'>('user');
@@ -38,10 +41,16 @@ const UserManagement: React.FC = () => {
   });
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkSubmitting, setBulkSubmitting] = useState(false);
+  const [messageUser, setMessageUser] = useState<User | null>(null);
+  const [messageInput, setMessageInput] = useState('');
+  const [messages, setMessages] = useState<
+    { id: string; message: string; created_at: string; sender_id: string; receiver_id: string }[]
+  >([]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
 
   useEffect(() => {
     fetchUsers();
-  }, [searchQuery, roleFilter, currentPage]);
+  }, [searchQuery, statusTab, currentPage]);
 
   const fetchUsers = async () => {
     try {
@@ -49,17 +58,16 @@ const UserManagement: React.FC = () => {
       const params: any = {
         page: currentPage,
         limit: itemsPerPage,
-        search: searchQuery || undefined
+        search: searchQuery || undefined,
       };
-      const response = await adminAPI.getUsers(params);
-      let filteredUsers = response.users || [];
-      
-      // Client-side role filter
-      if (roleFilter !== 'all') {
-        filteredUsers = filteredUsers.filter((user: User) => user.role === roleFilter);
+      let response;
+      if (statusTab === 'all') {
+        response = await adminAPI.getUsers(params);
+      } else {
+        response = await adminAPI.getUsersByStatus(statusTab, params);
       }
-      
-      setUsers(filteredUsers);
+
+      setUsers(response.users || []);
       if (response.pagination) {
         setTotalPages(response.pagination.pages || 1);
       }
@@ -89,13 +97,7 @@ const UserManagement: React.FC = () => {
   };
 
   const handleCreateUser = () => {
-    setSelectedUser(null);
-    setFormData({
-      name: '',
-      email: '',
-      role: 'user',
-    });
-    setIsFormOpen(true);
+    showNotification('Users are created via registration and approved here.', 'info');
   };
 
   const toggleSelectAll = () => {
@@ -174,17 +176,49 @@ const UserManagement: React.FC = () => {
     setIsFormOpen(true);
   };
 
+  const openMessageDialog = async (user: User) => {
+    setMessageUser(user);
+    setMessageInput('');
+    setLoadingMessages(true);
+    try {
+      const res = await adminAPI.getUserMessages(user._id);
+      setMessages(res.messages || []);
+    } catch (err) {
+      showNotification('Failed to load messages', 'error');
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  const sendAdminMessage = async () => {
+    if (!messageUser || !messageInput.trim()) return;
+    try {
+      const res = await adminAPI.sendUserMessage(messageUser._id, { message: messageInput.trim() });
+      setMessages(prev => [...prev, res.item]);
+      setMessageInput('');
+      showNotification('Message sent', 'success');
+    } catch (err) {
+      showNotification('Failed to send message', 'error');
+    }
+  };
+
   const handleDeleteUserClick = (user: User) => {
     setSelectedUser(user);
     setIsDeleteDialogOpen(true);
   };
 
-  const confirmDeleteUser = () => {
+  const confirmDeleteUser = async () => {
     if (!selectedUser) return;
-    setUsers(prev => prev.filter((u) => u._id !== selectedUser._id));
-    showNotification('User deleted (local only – connect to backend later)', 'success');
-    setIsDeleteDialogOpen(false);
-    setSelectedUser(null);
+    try {
+      await adminAPI.deleteUser(selectedUser._id);
+      showNotification('User deleted successfully', 'success');
+      fetchUsers();
+    } catch (error: any) {
+      showNotification(error.response?.data?.message || 'Failed to delete user', 'error');
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setSelectedUser(null);
+    }
   };
 
   const formatDate = (date: string): string => {
@@ -214,7 +248,7 @@ const UserManagement: React.FC = () => {
           </button>
         </div>
 
-        {/* Search and Filter */}
+        {/* Search and Status Tabs */}
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 relative">
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-text-muted" />
@@ -229,18 +263,27 @@ const UserManagement: React.FC = () => {
               className="w-full pl-10 pr-4 py-2 border border-border-subtle rounded-lg bg-surface-card text-text-primary focus:ring-2 focus:ring-[color:var(--accent-ring)] focus:border-border-accent"
             />
           </div>
-          <select
-            value={roleFilter}
-            onChange={(e) => {
-              setRoleFilter(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="px-4 py-2 border border-border-subtle rounded-lg bg-surface-card text-text-primary focus:ring-2 focus:ring-[color:var(--accent-ring)] focus:border-border-accent"
-          >
-            <option value="all">All Roles</option>
-            <option value="user">Users</option>
-            <option value="admin">Admins</option>
-          </select>
+          <div className="flex gap-2">
+            {(['all', 'pending', 'approved', 'rejected'] as const).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => {
+                  setStatusTab(tab);
+                  setCurrentPage(1);
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                  statusTab === tab
+                    ? 'bg-brand-primary text-text-inverted border-brand-primary'
+                    : 'border-border-subtle bg-surface-card text-text-primary hover:bg-surface-muted/80'
+                }`}
+              >
+                {tab === 'all'
+                  ? 'All Users'
+                  : tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Users Table */}
@@ -269,8 +312,9 @@ const UserManagement: React.FC = () => {
                       <th className="px-3 py-3 w-10"><input type="checkbox" checked={users.length > 0 && selectedIds.size === users.length} onChange={toggleSelectAll} className="rounded border-border-subtle text-brand-primary" aria-label="Select all" /></th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">User</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Email</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Role</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Balance</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Company</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Last Login</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Joined</th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">Actions</th>
                     </tr>
@@ -297,17 +341,33 @@ const UserManagement: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-text-secondary">{user.email}</div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            user.role === 'admin'
-                              ? 'bg-surface-muted text-text-primary'
-                              : 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300'
-                          }`}>
-                            {user.role === 'admin' ? 'Admin' : 'User'}
-                          </span>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
+                          {user.status === 'approved' && (
+                            <span className="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:text-emerald-200">
+                              Approved
+                            </span>
+                          )}
+                          {user.status === 'pending' && (
+                            <span className="inline-flex items-center rounded-full bg-amber-100 dark:bg-amber-900/40 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:text-amber-200">
+                              Pending
+                            </span>
+                          )}
+                          {user.status === 'rejected' && (
+                            <span className="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:text-red-200">
+                              Rejected
+                            </span>
+                          )}
+                          {!user.status && (
+                            <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-900/60 px-2.5 py-0.5 text-xs font-medium text-slate-700 dark:text-slate-300">
+                              Approved
+                            </span>
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
-                          ${user.balance?.toFixed(2) || '0.00'}
+                          {user.company || '—'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
+                          {user.lastLoginAt ? formatDate(user.lastLoginAt) : 'Never'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
                           {formatDate(user.createdAt)}
@@ -315,21 +375,46 @@ const UserManagement: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end gap-2">
                             <button
-                              onClick={() => handleEditUser(user)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-surface-muted/90 rounded transition-colors duration-300 ease-out"
+                              onClick={() => openMessageDialog(user)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-surface-muted/80 rounded-lg transition-colors"
                             >
-                              Edit
+                              Message
                             </button>
-                            <button
-                              onClick={() => handleRoleChange(user)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-brand-primary hover:bg-surface-muted/90 rounded transition-colors duration-300 ease-out"
-                            >
-                              <ShieldCheckIcon className="h-4 w-4" />
-                              {user.role === 'admin' ? 'Remove Admin' : 'Make Admin'}
-                            </button>
+                            {user.status !== 'approved' && (
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    await adminAPI.approveUser(user._id);
+                                    showNotification('User approved', 'success');
+                                    fetchUsers();
+                                  } catch (error: any) {
+                                    showNotification(error.response?.data?.message || 'Failed to approve user', 'error');
+                                  }
+                                }}
+                                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition-colors duration-300 ease-out"
+                              >
+                                Approve
+                              </button>
+                            )}
+                            {user.status !== 'rejected' && (
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    await adminAPI.rejectUser(user._id);
+                                    showNotification('User rejected', 'success');
+                                    fetchUsers();
+                                  } catch (error: any) {
+                                    showNotification(error.response?.data?.message || 'Failed to reject user', 'error');
+                                  }
+                                }}
+                                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded transition-colors duration-300 ease-out"
+                              >
+                                Reject
+                              </button>
+                            )}
                             <button
                               onClick={() => handleDeleteUserClick(user)}
-                              className="p-2 text-text-primary hover:bg-surface-muted/90 rounded-lg transition-colors duration-300 ease-out"
+                              className="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30 rounded-lg transition-colors duration-300 ease-out"
                               aria-label="Delete user"
                             >
                               <DeleteIcon className="h-4 w-4" />
@@ -437,6 +522,76 @@ const UserManagement: React.FC = () => {
             >
               {selectedUser ? 'Save Changes' : 'Create User'}
             </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Admin ↔ Client Messages Modal */}
+      <Modal
+        isOpen={!!messageUser}
+        onClose={() => {
+          setMessageUser(null);
+          setMessages([]);
+          setMessageInput('');
+        }}
+        title={messageUser ? `Messages with ${messageUser.name}` : 'Messages'}
+        size="lg"
+      >
+        <div className="flex flex-col gap-4 max-h-[480px]">
+          <div className="flex-1 overflow-y-auto border border-border-subtle rounded-lg p-3 bg-surface-muted/40">
+            {loadingMessages ? (
+              <div className="h-24 flex items-center justify-center text-sm text-text-secondary">
+                Loading messages...
+              </div>
+            ) : messages.length === 0 ? (
+              <p className="text-sm text-text-secondary">
+                No messages yet. Send a message below to start a conversation.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {messages.map((m) => {
+                  const fromAdmin = m.sender_id !== messageUser?._id;
+                  return (
+                    <div
+                      key={m.id}
+                      className={`flex ${fromAdmin ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-xs rounded-2xl px-3 py-2 text-sm ${
+                          fromAdmin
+                            ? 'bg-brand-primary text-text-inverted rounded-br-sm'
+                            : 'bg-surface-card text-text-primary rounded-bl-sm'
+                        }`}
+                      >
+                        <p>{m.message}</p>
+                        <p className="mt-1 text-[10px] opacity-80">
+                          {new Date(m.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          <div className="space-y-2">
+            <textarea
+              value={messageInput}
+              onChange={(e) => setMessageInput(e.target.value)}
+              rows={3}
+              className="w-full rounded-lg border border-border-subtle bg-bg-primary px-3 py-2 text-sm"
+              placeholder={messageUser ? `Message ${messageUser.name}...` : 'Type a message...'}
+            />
+            <div className="flex justify-end">
+              <button
+                type="button"
+                disabled={!messageInput.trim()}
+                onClick={sendAdminMessage}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-brand-primary text-text-inverted disabled:opacity-60"
+              >
+                Send
+              </button>
+            </div>
           </div>
         </div>
       </Modal>

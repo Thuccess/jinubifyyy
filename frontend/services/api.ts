@@ -72,6 +72,10 @@ export const authAPI = {
     const response = await api.post<AuthResponse>('/auth/signup', data);
     return response.data;
   },
+  register: async (data: { name: string; email: string; password: string; photoURL: string; phone: string; company: string; website?: string }) => {
+    const response = await api.post<{ message: string }>('/auth/register', data);
+    return response.data;
+  },
   login: async (data: { email: string; password: string }): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>('/auth/login', data);
     return response.data;
@@ -264,6 +268,62 @@ export const dashboardAPI = {
   },
 };
 
+// Client Dashboard API (client portal)
+export const clientAPI = {
+  getDashboardSummary: async () => {
+    const response = await api.get('/client/dashboard-summary');
+    return response.data;
+  },
+  getProjects: async () => {
+    const response = await api.get('/client/projects');
+    return response.data;
+  },
+  getProjectById: async (id: string) => {
+    const response = await api.get(`/client/projects/${id}`);
+    return response.data;
+  },
+  getMessages: async () => {
+    const response = await api.get('/client/messages');
+    return response.data;
+  },
+  sendMessage: async (data: { projectId?: string; message: string }) => {
+    const response = await api.post('/client/messages', data);
+    return response.data;
+  },
+  getFiles: async () => {
+    const response = await api.get('/client/files');
+    return response.data;
+  },
+  getPayments: async () => {
+    const response = await api.get('/client/payments');
+    return response.data;
+  },
+  getReports: async () => {
+    const response = await api.get('/client/reports');
+    return response.data;
+  },
+  submitServiceRequest: async (data: {
+    serviceType: string;
+    projectDescription: string;
+    budget?: number;
+    deadline?: string;
+    attachments?: { name: string; url: string }[];
+  }) => {
+    const response = await api.post('/client/service-request', data);
+    return response.data;
+  },
+  updateProfile: async (data: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    company?: string;
+    password?: string;
+  }) => {
+    const response = await api.patch('/client/profile', data);
+    return response.data;
+  },
+};
+
 // Public Orders API (pricing page "Order Now")
 export interface PublicOrderCustomer {
   name: string;
@@ -348,8 +408,32 @@ export const adminAPI = {
     const response = await api.get('/admin/users', { params });
     return response.data;
   },
+  getUsersByStatus: async (status: 'pending' | 'approved' | 'rejected', params?: { page?: number; limit?: number; search?: string }) => {
+    const response = await api.get(`/admin/users/${status}`, { params });
+    return response.data;
+  },
+  getUserMessages: async (userId: string) => {
+    const response = await api.get(`/admin/users/${userId}/messages`);
+    return response.data;
+  },
+  sendUserMessage: async (userId: string, data: { message: string; projectId?: string }) => {
+    const response = await api.post(`/admin/users/${userId}/messages`, data);
+    return response.data;
+  },
   updateUserRole: async (userId: string, role: 'user' | 'admin') => {
     const response = await api.put(`/admin/users/${userId}`, { role });
+    return response.data;
+  },
+  approveUser: async (userId: string) => {
+    const response = await api.patch(`/admin/users/${userId}/approve`);
+    return response.data;
+  },
+  rejectUser: async (userId: string) => {
+    const response = await api.patch(`/admin/users/${userId}/reject`);
+    return response.data;
+  },
+  deleteUser: async (userId: string) => {
+    const response = await api.delete(`/admin/users/${userId}`);
     return response.data;
   },
   getContacts: async (params?: { page?: number; limit?: number; status?: string }) => {
@@ -682,6 +766,66 @@ export const eventsAPI = {
   reorder: async (order: { id: string; order: number }[]) => {
     const response = await api.patch('/events/reorder', { order });
     return response.data as { message: string; data: EventItemPayload[] };
+  },
+};
+
+// Portfolio collection (public + admin)
+export interface PortfolioItemPayload {
+  _id?: string;
+  title: string;
+  slug: string;
+  description?: string;
+  imageUrl?: string;
+  content?: string;
+  date?: string;
+  tags?: string[];
+  status?: 'draft' | 'published';
+  isFeatured?: boolean;
+  order?: number;
+}
+
+export const portfolioAPI = {
+  // Public list
+  getList: async (params?: { page?: number; limit?: number; featured?: boolean }) => {
+    const response = await api.get('/portfolio', {
+      params: {
+        ...params,
+        featured: typeof params?.featured === 'boolean' ? String(params.featured) : undefined,
+      },
+    });
+    return response.data as {
+      data: PortfolioItemPayload[];
+      pagination?: { page: number; limit: number; total: number; pages: number };
+    };
+  },
+  // Public single
+  getBySlug: async (slug: string) => {
+    const response = await api.get(`/portfolio/${encodeURIComponent(slug)}`);
+    return response.data as { data: PortfolioItemPayload };
+  },
+  // Admin list
+  adminList: async (params?: { page?: number; limit?: number; status?: string; search?: string }) => {
+    const response = await api.get('/portfolio/admin/list', { params });
+    return response.data as {
+      data: PortfolioItemPayload[];
+      pagination?: { page: number; limit: number; total: number; pages: number };
+    };
+  },
+  create: async (payload: PortfolioItemPayload) => {
+    const response = await api.post('/portfolio/admin', payload);
+    return response.data as { message: string; data: PortfolioItemPayload };
+  },
+  update: async (id: string, payload: PortfolioItemPayload) => {
+    const response = await api.put(`/portfolio/admin/${id}`, payload);
+    return response.data as { message: string; data: PortfolioItemPayload };
+  },
+  remove: async (id: string) => {
+    const response = await api.delete(`/portfolio/admin/${id}`);
+    return response.data as { message: string };
+  },
+  reorder: async (order: { id: string; order: number }[]) => {
+    const response = await api.patch('/portfolio/reorder', { order });
+    return response.data as { message: string; data: PortfolioItemPayload[] };
   },
 };
 

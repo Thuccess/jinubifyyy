@@ -2,6 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
 import User from '../models/User.js';
+import Activity from '../models/Activity.js';
 import { authenticate } from '../middleware/auth.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
 import logger from '../utils/logger.js';
@@ -18,21 +19,79 @@ const generateToken = (userId) => {
   });
 };
 
+const signupValidators = [
+  body('name').trim().notEmpty().withMessage('Name is required'),
+  body('email').isEmail().normalizeEmail().withMessage('Please provide a valid email'),
+  body('password')
+    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter')
+    .matches(/[0-9]/).withMessage('Password must contain at least one number')
+    .matches(/[^A-Za-z0-9]/).withMessage('Password must contain at least one special character'),
+  body('photoURL').isURL().withMessage('Photo URL must be a valid URL'),
+  body('phone').trim().notEmpty().withMessage('Phone number is required'),
+  body('company').trim().notEmpty().withMessage('Company is required'),
+  body('website').optional().isURL().withMessage('Website URL must be a valid URL'),
+];
+
+// @route   POST /api/auth/register
+// @desc    Register a new user for manual approval
+// @access  Public
+router.post(
+  '/register',
+  signupValidators,
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation failed',
+          errors: errors.array().map((err) => ({
+            field: err.path || err.param,
+            message: err.msg,
+          })),
+        });
+      }
+
+      const { name, email, password, photoURL, phone, company, website } = req.body;
+
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ message: 'User already exists with this email' });
+      }
+
+      const user = new User({
+        name,
+        email,
+        password,
+        photoURL: photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
+        phone,
+        company,
+        website: website || '',
+        status: 'pending',
+      });
+
+      await user.save();
+
+      res.status(201).json({
+        message:
+          'Your account has been submitted for approval. You will be able to log in once the admin approves your request.',
+      });
+    } catch (error) {
+      console.error('Register error:', error);
+      res.status(500).json({ message: 'Server error during registration', error: error.message });
+    }
+  }
+);
+
 // @route   POST /api/auth/signup
-// @desc    Register a new user
+// @desc    Register a new user (legacy, immediate access)
 // @access  Public
 router.post(
   '/signup',
   [
-    body('name').trim().notEmpty().withMessage('Name is required'),
-    body('email').isEmail().normalizeEmail().withMessage('Please provide a valid email'),
-    body('password')
-      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
-      .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
-      .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter')
-      .matches(/[0-9]/).withMessage('Password must contain at least one number')
-      .matches(/[^A-Za-z0-9]/).withMessage('Password must contain at least one special character'),
-    body('photoURL').optional().isURL().withMessage('Photo URL must be a valid URL'),
+    ...signupValidators,
   ],
   async (req, res) => {
     try {
@@ -48,7 +107,7 @@ router.post(
         });
       }
 
-      const { name, email, password, photoURL } = req.body;
+      const { name, email, password, photoURL, phone, company, website } = req.body;
 
       // Check if user already exists
       const existingUser = await User.findOne({ email });
@@ -62,24 +121,17 @@ router.post(
         email,
         password,
         photoURL: photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
+        phone,
+        company,
+        website: website || '',
+        status: 'approved',
       });
 
       await user.save();
 
-      // Generate token
-      const token = generateToken(user._id);
-
       res.status(201).json({
-        message: 'User created successfully',
-        token,
-        user: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          photoURL: user.photoURL,
-          role: user.role,
-          balance: user.balance,
-        },
+        message:
+          'Your account has been created. You can log in immediately because this signup endpoint auto-approves users.',
       });
     } catch (error) {
       console.error('Signup error:', error);
@@ -127,6 +179,36 @@ router.post(
         return res.status(401).json({ message: 'Invalid email or password' });
       }
 
+      // Manual approval flow: check status (admins and super_admins can always log in)
+      const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+      if (!isAdmin) {
+        if (user.status === 'pending') {
+          return res.status(403).json({ message: 'Your account is awaiting admin approval.' });
+        }
+        if (user.status === 'rejected') {
+          return res.status(403).json({ message: 'Your registration was not approved.' });
+        }
+      }
+      // Legacy users with no status are treated as approved
+
+      // Track login timestamp and activity
+      user.lastLoginAt = new Date();
+      await user.save();
+
+      try {
+        await Activity.create({
+          userId: user._id,
+          type: 'login',
+          action: 'Client login',
+          entityType: 'user',
+          entityId: user._id.toString(),
+          description: `User ${user.email} logged in`,
+          metadata: {},
+        });
+      } catch (activityError) {
+        logger.warn('Failed to record login activity', { error: activityError.message });
+      }
+
       // Generate token
       const token = generateToken(user._id);
 
@@ -140,6 +222,8 @@ router.post(
           photoURL: user.photoURL,
           role: user.role,
           balance: user.balance,
+          status: user.status,
+          lastLoginAt: user.lastLoginAt,
         },
       });
     } catch (error) {

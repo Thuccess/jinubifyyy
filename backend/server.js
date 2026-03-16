@@ -14,6 +14,7 @@ import blogsPublicRoutes from './routes/blogsPublic.js';
 import contactRoutes from './routes/contact.js';
 import dashboardRoutes from './routes/dashboard.js';
 import adminRoutes from './routes/admin.js';
+import clientRoutes from './routes/client.js';
 import serviceRoutes from './routes/services.js';
 import pricingRoutes from './routes/pricing.js';
 import orderRoutes from './routes/orders.js';
@@ -30,6 +31,7 @@ import investmentRoutes from './routes/investment.js';
 import pagesPublicRoutes from './routes/pagesPublic.js';
 import uploadRoutes from './routes/upload.js';
 import eventsRoutes from './routes/events.js';
+import portfolioRoutes from './routes/portfolio.js';
 import { mongoSanitizeMiddleware } from './middleware/sanitize.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
@@ -144,6 +146,7 @@ app.use('/api/blog', blogRoutes);
 app.use('/api/blogs', blogsPublicRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/client', clientRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/pricing', pricingRoutes);
@@ -161,6 +164,7 @@ app.use('/api/career', careerRoutes);
 app.use('/api/investment', investmentRoutes);
 app.use('/api/pages', pagesPublicRoutes);
 app.use('/api/events', eventsRoutes);
+app.use('/api/portfolio', portfolioRoutes);
 
 // Enhanced health check endpoint
 app.get('/api/health', async (req, res) => {

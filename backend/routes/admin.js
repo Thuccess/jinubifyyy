@@ -26,6 +26,7 @@ import Service from '../models/Service.js';
 import Page from '../models/Page.js';
 import PricingPackage from '../models/PricingPackage.js';
 import MediaAsset from '../models/MediaAsset.js';
+import Message from '../models/Message.js';
 import { addMediaUsage, removeMediaUsage } from '../utils/mediaUsage.js';
 import { body, validationResult } from 'express-validator';
 import { requireAdmin } from '../middleware/admin.js';
@@ -119,6 +120,80 @@ router.get('/activity', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
+// @route   GET /api/admin/users/:id/messages
+// @desc    Get messages between admin team and a specific user
+// @access  Admin and Super Admin
+router.get('/users/:id/messages', authorizeRole('admin', 'super_admin'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const messages = await Message.find({
+      $or: [{ senderId: id }, { receiverId: id }],
+    })
+      .sort({ createdAt: 1 })
+      .lean();
+
+    res.json({
+      messages: messages.map((m) => ({
+        id: m._id,
+        project_id: m.projectId || null,
+        sender_id: m.senderId,
+        receiver_id: m.receiverId,
+        message: m.message,
+        attachments: m.attachments || [],
+        created_at: m.createdAt,
+      })),
+    });
+  } catch (error) {
+    console.error('Admin get user messages error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// @route   POST /api/admin/users/:id/messages
+// @desc    Send a message from admin to a specific user
+// @access  Admin and Super Admin
+router.post(
+  '/users/:id/messages',
+  authorizeRole('admin', 'super_admin'),
+  [body('message').trim().notEmpty().withMessage('Message is required')],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json(formatValidationErrors(errors.array()));
+      }
+
+      const adminId = req.user._id;
+      const { id } = req.params;
+      const { projectId, message } = req.body;
+
+      const msg = await Message.create({
+        projectId: projectId || undefined,
+        senderId: adminId,
+        receiverId: id,
+        message,
+        attachments: [],
+      });
+
+      res.status(201).json({
+        message: 'Message sent',
+        item: {
+          id: msg._id,
+          project_id: msg.projectId || null,
+          sender_id: msg.senderId,
+          receiver_id: msg.receiverId,
+          message: msg.message,
+          attachments: msg.attachments || [],
+          created_at: msg.createdAt,
+        },
+      });
+    } catch (error) {
+      console.error('Admin send user message error:', error);
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  }
+);
 
 // @route   GET /api/admin/search
 // @desc    Global admin search across users, orders, services, blog posts, CMS pages
@@ -527,11 +602,11 @@ router.delete('/investors/:id', async (req, res) => {
 });
 
 // @route   GET /api/admin/users
-// @desc    Get all users
-// @access  Super Admin only
-router.get('/users', authorizeRole('super_admin'), async (req, res) => {
+// @desc    Get all users (optionally filtered by status)
+// @access  Admin and Super Admin
+router.get('/users', authorizeRole('admin', 'super_admin'), async (req, res) => {
   try {
-    const { page = 1, limit = 10, search } = req.query;
+    const { page = 1, limit = 10, search, status } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const query = {};
@@ -540,6 +615,10 @@ router.get('/users', authorizeRole('super_admin'), async (req, res) => {
         { name: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
       ];
+    }
+
+    if (status && ['pending', 'approved', 'rejected'].includes(String(status))) {
+      query.status = status;
     }
 
     const users = await User.find(query)
@@ -565,6 +644,50 @@ router.get('/users', authorizeRole('super_admin'), async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
+// Helper to build status-specific user list routes
+const buildUserStatusRoute = (status) => {
+  router.get(`/users/${status}`, authorizeRole('admin', 'super_admin'), async (req, res) => {
+    try {
+      const { page = 1, limit = 10, search } = req.query;
+      const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+
+      const query = { status };
+      if (search) {
+        query.$or = [
+          { name: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } },
+        ];
+      }
+
+      const users = await User.find(query)
+        .select('-password')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit, 10))
+        .lean();
+
+      const total = await User.countDocuments(query);
+
+      res.json({
+        users,
+        pagination: {
+          page: parseInt(page, 10),
+          limit: parseInt(limit, 10),
+          total,
+          pages: Math.ceil(total / parseInt(limit, 10)),
+        },
+      });
+    } catch (error) {
+      console.error(`Get ${status} users error:`, error);
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  });
+};
+
+buildUserStatusRoute('pending');
+buildUserStatusRoute('approved');
+buildUserStatusRoute('rejected');
 
 // @route   GET /api/admin/contacts
 // @desc    Get all contact submissions
@@ -626,8 +749,8 @@ router.put('/contacts/:id', async (req, res) => {
 
 // @route   PUT /api/admin/users/:id
 // @desc    Update user role
-// @access  Super Admin only
-router.put('/users/:id', authorizeRole('super_admin'), async (req, res) => {
+// @access  Admin and Super Admin
+router.put('/users/:id', authorizeRole('admin', 'super_admin'), async (req, res) => {
   try {
     const { role } = req.body;
 
@@ -663,6 +786,89 @@ router.put('/users/:id', authorizeRole('super_admin'), async (req, res) => {
     res.json({ message: 'User role updated', user });
   } catch (error) {
     console.error('Update user role error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// @route   PATCH /api/admin/users/:id/approve
+// @desc    Approve user account
+// @access  Admin and Super Admin
+router.patch('/users/:id/approve', authorizeRole('admin', 'super_admin'), async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        status: 'approved',
+        approvedAt: new Date(),
+        approvedBy: req.user?._id || null,
+      },
+      { new: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'User approved successfully', user });
+  } catch (error) {
+    console.error('Approve user error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// @route   PATCH /api/admin/users/:id/reject
+// @desc    Reject user account
+// @access  Admin and Super Admin
+router.patch('/users/:id/reject', authorizeRole('admin', 'super_admin'), async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        status: 'rejected',
+        approvedAt: null,
+        approvedBy: null,
+      },
+      { new: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'User rejected successfully', user });
+  } catch (error) {
+    console.error('Reject user error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// @route   DELETE /api/admin/users/:id
+// @desc    Delete user account
+// @access  Admin and Super Admin
+router.delete('/users/:id', authorizeRole('admin', 'super_admin'), async (req, res) => {
+  try {
+    const targetUser = await User.findById(req.params.id);
+    if (!targetUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Prevent deleting self
+    if (String(req.user._id) === String(targetUser._id)) {
+      return res.status(400).json({ message: 'You cannot delete your own admin account.' });
+    }
+
+    // Prevent deleting the last admin
+    if (targetUser.role === 'admin') {
+      const adminCount = await User.countDocuments({ role: 'admin' });
+      if (adminCount <= 1) {
+        return res.status(400).json({ message: 'At least one admin user is required. You cannot delete the last admin.' });
+      }
+    }
+
+    await User.findByIdAndDelete(targetUser._id);
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Delete user error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -1108,8 +1314,8 @@ router.post('/orders/bulk', async (req, res) => {
 
 // @route   POST /api/admin/users/bulk
 // @desc    Bulk action on users (changeRole, delete). Prevent self-demotion and last-admin removal.
-// @access  Super Admin only
-router.post('/users/bulk', authorizeRole('super_admin'), async (req, res) => {
+// @access  Admin and Super Admin
+router.post('/users/bulk', authorizeRole('admin', 'super_admin'), async (req, res) => {
   try {
     const { action, ids, role } = req.body;
     if (!Array.isArray(ids) || ids.length === 0) {

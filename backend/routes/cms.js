@@ -6,7 +6,13 @@ import NavItem from '../models/NavItem.js';
 
 const router = express.Router();
 
+// Public visibility rules:
+// - Site settings & nav: must be published, visible, not deleted
+// - Pages: must be visible and not deleted (status can be draft/review/published/archived)
+// - Sections: must be published, visible, not deleted
 const PUBLIC_FILTER = { isDeleted: false, status: 'published', isVisible: true };
+const PUBLIC_PAGE_FILTER = { isDeleted: false, isVisible: true };
+const PUBLIC_SECTION_FILTER = { isDeleted: false, status: 'published', isVisible: true };
 
 // @route   GET /api/cms/site
 // @desc    Get full public site config (nav, settings, pages with sections)
@@ -17,7 +23,7 @@ router.get('/site', async (req, res) => {
     const [settingsDocs, navItems, pages] = await Promise.all([
       SiteSettings.find(PUBLIC_FILTER).sort({ order: 1, key: 1 }).lean(),
       NavItem.find(PUBLIC_FILTER).sort({ order: 1 }).lean(),
-      Page.find(PUBLIC_FILTER).sort({ order: 1, slug: 1 }).lean(),
+      Page.find(PUBLIC_PAGE_FILTER).sort({ order: 1, slug: 1 }).lean(),
     ]);
 
     const siteSettings = {};
@@ -28,7 +34,7 @@ router.get('/site', async (req, res) => {
     const pageIds = pages.map((p) => p._id);
     const sections = await Section.find({
       page: { $in: pageIds },
-      ...PUBLIC_FILTER,
+      ...PUBLIC_SECTION_FILTER,
     })
       .sort({ order: 1 })
       .lean();
