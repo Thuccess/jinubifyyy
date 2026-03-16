@@ -359,8 +359,6 @@ const AdminPortfolioPage: React.FC = () => {
         isOpen={isModalOpen}
         title={selectedId ? 'Edit portfolio item' : 'Add portfolio item'}
         onClose={() => setIsModalOpen(false)}
-        primaryActionLabel="Save"
-        onPrimaryAction={handleSubmit}
       >
         <div className="space-y-4">
           <div>
@@ -451,6 +449,22 @@ const AdminPortfolioPage: React.FC = () => {
                 Mark as featured
               </label>
             </div>
+          </div>
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="inline-flex items-center gap-2 rounded-lg border border-border-subtle px-4 py-2 text-sm font-medium text-text-secondary hover:bg-surface-muted/90"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className="inline-flex items-center gap-2 rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-text-inverted shadow-sm hover:bg-[color-mix(in_oklab,var(--accent-primary)_0.9,var(--bg-primary))]"
+            >
+              Save
+            </button>
           </div>
         </div>
       </Modal>
