@@ -74,7 +74,6 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
             { name: 'Contact', path: '/contact' },
             { name: 'FAQ', path: '/faq' },
             ...(mounted && currentUser ? [{ name: 'Dashboard', path: '/dashboard' }] : []),
-            { name: 'Admin', path: '/admin' },
         ],
         Resources: [
             { name: 'Blog', path: '/blog' },
@@ -185,13 +184,6 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
                         &copy; {new Date().getFullYear()} Jinubify, Inc. All rights reserved.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6 order-1 sm:order-2">
-                        <Link
-                            href="/admin"
-                            className="inline-flex items-center gap-2 text-sm font-medium text-text-muted hover:text-brand-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 rounded"
-                        >
-                            <CogIcon className="h-4 w-4" aria-hidden />
-                            Admin
-                        </Link>
                         <span className="text-sm text-text-muted" aria-hidden="true">
                             Made with ❤️ for your success
                         </span>
