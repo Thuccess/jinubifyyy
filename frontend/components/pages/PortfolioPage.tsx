@@ -30,6 +30,7 @@ type Project = {
   description?: string;
   imageUrl?: string;
   tags?: string[];
+  category?: string;
 };
 
 const ProjectCard: React.FC<{ project: Project; onClick: () => void }> = ({ project, onClick }) => (
