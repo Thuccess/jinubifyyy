@@ -11,7 +11,7 @@ const Growth: React.FC<{ content?: GrowthContent }> = ({ content: c }) => {
   const ctaText = c?.ctaText ?? 'Explore Services';
   const ctaHref = c?.ctaHref ?? '/services';
   return (
-    <div className="py-16 sm:py-24">
+    <div className="py-16 sm:py-24 bg-brand-soft">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative glass-surface glass-surface--card glass-interactive rounded-3xl p-8 lg:p-16 overflow-hidden border border-border-subtle shadow-xl">
 

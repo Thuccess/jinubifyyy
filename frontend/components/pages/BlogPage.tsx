@@ -36,6 +36,7 @@ const BlogPostCard: React.FC<{ post: BlogPost; formatDate: (date: string | Date)
         alt={post.title}
         fill
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
+        loading="lazy"
         className="object-cover"
       />
     </div>

@@ -7,6 +7,8 @@ import { useServiceBySlug } from '../../hooks/useServices';
 import { ArrowRightIcon } from '../icons/Icons';
 import StructuredData from '../seo/StructuredData';
 import { siteConfig } from '../../config/site';
+import SkeletonBlock from '../skeletons/SkeletonBlock';
+import SkeletonText from '../skeletons/SkeletonText';
 
 const ServiceDetailPage: React.FC = () => {
   const params = useParams();
@@ -26,8 +28,36 @@ const ServiceDetailPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="h-9 w-9 rounded-full border-2 border-border-subtle border-t-text-primary animate-spin" />
+      <div className="animate-fade-in">
+        <header className="py-16 sm:py-20 lg:py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SkeletonBlock className="h-3 w-20" rounded="full" />
+            <SkeletonBlock className="mt-4 h-8 w-64 sm:w-80 lg:w-96" rounded="full" />
+            <SkeletonText className="mt-5 max-w-xl" lines={3} />
+            <div className="mt-8 flex flex-wrap gap-3">
+              <SkeletonBlock className="h-11 w-40" rounded="xl" />
+              <SkeletonBlock className="h-11 w-36" rounded="xl" />
+            </div>
+          </div>
+        </header>
+
+        <main className="pb-16 sm:pb-20 lg:pb-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            <AnimatedSection>
+              <section className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8">
+                <SkeletonBlock className="h-5 w-56" rounded="full" />
+                <SkeletonText className="mt-4" lines={4} />
+              </section>
+            </AnimatedSection>
+
+            <AnimatedSection>
+              <section className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8">
+                <SkeletonBlock className="h-5 w-40" rounded="full" />
+                <SkeletonText className="mt-4 max-w-3xl" lines={5} />
+              </section>
+            </AnimatedSection>
+          </div>
+        </main>
       </div>
     );
   }

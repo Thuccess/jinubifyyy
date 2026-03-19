@@ -6,6 +6,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
+import compression from 'compression';
 import morgan from 'morgan';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
@@ -70,6 +71,9 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 
+// HTTP compression (gzip)
+app.use(compression());
+
 // CORS configuration
 const allowedOrigins = [
   'https://jinubifyyy-4.onrender.com',
@@ -119,7 +123,15 @@ if (process.env.NODE_ENV !== 'production') {
   console.log('STATIC SERVING FROM:', uploadsDir);
   console.log('UPLOAD DIR EXISTS:', fs.existsSync(uploadsDir));
 }
-app.use('/uploads', express.static(uploadsDir));
+app.use(
+  '/uploads',
+  express.static(uploadsDir, {
+    maxAge: '30d',
+    setHeaders(res) {
+      res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
+    },
+  }),
+);
 
 // Health check at root for Render / load balancers
 app.get('/', (req, res) => {

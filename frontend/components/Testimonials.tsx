@@ -60,7 +60,7 @@ const Testimonials: React.FC<{ content?: Record<string, unknown> }> = () => {
 
   if (loading || testimonials.length === 0) {
     return (
-      <div className="py-16 sm:py-24" id="testimonials">
+      <div className="py-16 sm:py-24 bg-brand-soft" id="testimonials">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-center min-h-[280px]">
             <div className="h-9 w-9 rounded-full border-2 border-border-subtle border-t-text-primary animate-spin" />
@@ -71,7 +71,7 @@ const Testimonials: React.FC<{ content?: Record<string, unknown> }> = () => {
   }
 
   return (
-    <div className="py-16 sm:py-24" id="testimonials">
+    <div className="py-16 sm:py-24 bg-brand-soft" id="testimonials">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           {/* Left column: heading, copy, controls */}

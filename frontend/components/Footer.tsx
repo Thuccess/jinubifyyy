@@ -93,7 +93,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
     };
 
     return (
-        <footer className="glass-surface glass-surface--bar rounded-none border-t border-[color:var(--glass-border)]">
+        <footer className="bg-[color:var(--bg-secondary)] text-text-primary border-t border-border-subtle">
              <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
                 {/* CTA Section – uses --cta-* vars for tuned light/dark mode */}
                 <div
@@ -166,7 +166,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
                                         <li key={item.name}>
                                             <Link
                                                 href={item.path}
-                                                className="text-sm text-text-secondary hover:text-brand-primary transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg-primary)] rounded"
+                                                className="text-sm text-text-secondary hover:text-brand-primary transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg-secondary)] rounded"
                                             >
                                                 {item.name}
                                             </Link>

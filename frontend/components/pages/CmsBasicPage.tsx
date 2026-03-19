@@ -4,6 +4,8 @@ import React, { useEffect, useMemo } from 'react';
 import { usePathname, useParams } from 'next/navigation';
 import { useCms } from '../../contexts/CmsContext';
 import PageSection from '../layout/PageSection';
+import SkeletonBlock from '../skeletons/SkeletonBlock';
+import SkeletonText from '../skeletons/SkeletonText';
 
 interface CmsBasicPageProps {
   slug?: string;
@@ -237,9 +239,28 @@ export const CmsBasicPage: React.FC<CmsBasicPageProps> = ({
       <main className="pb-16 sm:pb-20 lg:pb-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {isLoading && (
-            <div className="py-12 text-center text-text-secondary">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-primary mx-auto mb-4" />
-              Loading content...
+            <div className="py-8">
+              <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.2fr)]">
+                <div className="space-y-6 sm:space-y-8">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="max-w-3xl rounded-xl border border-border-subtle bg-[color:var(--surface-card)]/90 backdrop-blur-sm p-6 sm:p-8 shadow-sm"
+                    >
+                      <SkeletonBlock className="h-5 w-56" rounded="full" />
+                      <SkeletonText className="mt-4" lines={4} />
+                    </div>
+                  ))}
+                </div>
+                <aside className="hidden lg:block">
+                  <div className="sticky top-28 rounded-xl border border-border-subtle bg-[color:var(--surface-card)]/80 backdrop-blur-sm p-5 space-y-3">
+                    <SkeletonBlock className="h-4 w-40" rounded="full" />
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <SkeletonBlock key={i} className="h-3 w-full" rounded="full" />
+                    ))}
+                  </div>
+                </aside>
+              </div>
             </div>
           )}
           {!isLoading && error && (

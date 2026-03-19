@@ -13,6 +13,8 @@ import DOMPurify from 'dompurify';
 import { normalizeImageUrl } from '../../utils/image';
 import StructuredData from '../seo/StructuredData';
 import { siteConfig } from '../../config/site';
+import SkeletonBlock from '../skeletons/SkeletonBlock';
+import SkeletonText from '../skeletons/SkeletonText';
 
 interface BlogPostPageProps {
   theme?: never; // theme is read from useTheme() inside the component
@@ -109,9 +111,18 @@ const BlogPostPage: React.FC<BlogPostPageProps> = (props) => {
 
   if (loading) {
     return (
-      <div className="text-center py-20 min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-primary mx-auto" />
-        <p className="mt-4 text-text-muted">Loading article...</p>
+      <div className="py-14 sm:py-16 min-h-screen">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SkeletonBlock className="h-4 w-24" rounded="full" />
+          <SkeletonBlock className="mt-4 h-10 w-11/12" rounded="full" />
+          <SkeletonText className="mt-4" lines={3} />
+          <SkeletonBlock className="mt-8 h-[260px] sm:h-[360px] w-full" rounded="xl" />
+          <div className="mt-8 space-y-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SkeletonText key={i} lines={3} />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

@@ -163,7 +163,7 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLogi
 
   return (
     <>
-      <header className="header-fixed fixed top-0 w-full z-50 shrink-0 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 ease-out bg-[color:var(--bg-primary)]/95 backdrop-blur-sm border-b border-border-subtle shadow-[0_4px_20px_rgba(0,0,0,0.06)] rounded-none">
+      <header className="header-fixed fixed top-0 w-full z-50 shrink-0 transition-[background-color,border-color,box-shadow] duration-300 ease-out bg-[color:var(--bg-primary)] border-b border-border-subtle shadow-[0_4px_20px_rgba(0,0,0,0.06)] rounded-none">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 md:h-20">
             <Logo theme={theme} />

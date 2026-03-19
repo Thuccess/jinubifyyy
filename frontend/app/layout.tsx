@@ -2,6 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import '../src/index.css';
 import { ClientProviders } from './ClientProviders';
+import { logPerformance } from '@/components/performance/logPerformance';
 
 export const metadata: Metadata = {
   icons: {
@@ -12,6 +13,9 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  if (typeof window !== 'undefined') {
+    logPerformance();
+  }
   return (
     <html lang="en">
       <head>

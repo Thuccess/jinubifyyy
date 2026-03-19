@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes jinubify-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /*
  * Design theme: minimal, high-contrast, typography-led.
  * - Monochrome palette (black / white / neutrals); accent used sparingly (e.g. one CTA or highlight).
@@ -381,42 +390,51 @@ body {
 }
 
 /* Glassmorphism utilities
-   NOTE: Only use on cards, modals, dropdowns/popovers, sidebars, and small floating panels.
+   Global glass style, tuned for both light and dark themes.
+   Apply `glass` to any container/section/card that should feel layered and soft.
 */
 
-.glass-surface {
-  position: relative;
-  background-color: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow-soft);
-}
-
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-  .glass-surface {
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
+@layer components {
+  .glass {
+    @apply backdrop-blur-md rounded-2xl border shadow-sm;
+    @apply bg-white/60 border-gray-300/40;
+    @apply p-4 md:p-6 lg:p-8;
+    @apply transition-all duration-300;
   }
-}
 
-.glass-surface--card {
-  border-radius: 1.25rem;
-}
+  html.dark .glass {
+    @apply bg-gray-800/60 border-white/10;
+    @apply shadow-lg shadow-black/20;
+  }
 
-.glass-surface--modal {
-  border-radius: 1.5rem;
-  box-shadow: var(--glass-shadow-strong);
-}
+  .glass-hover {
+    @apply hover:shadow-lg hover:bg-opacity-80;
+  }
 
-.glass-surface--popover {
-  border-radius: 0.9rem;
-}
+  /* Adapt existing glass-surface helpers to the new glass style */
+  .glass-surface {
+    @apply glass;
+  }
 
-.glass-surface--sidebar {
-  border-radius: 1.5rem;
-}
+  .glass-surface--card {
+    @apply rounded-2xl;
+  }
 
-.glass-surface--bar {
-  border-radius: 0;
+  .glass-surface--modal {
+    @apply rounded-2xl shadow-lg;
+  }
+
+  .glass-surface--popover {
+    @apply rounded-2xl;
+  }
+
+  .glass-surface--sidebar {
+    @apply rounded-2xl;
+  }
+
+  .glass-surface--bar {
+    border-radius: 0;
+  }
 }
 
 /* Sticky header: stays at top when scrolling; fallback to fixed in older browsers */
