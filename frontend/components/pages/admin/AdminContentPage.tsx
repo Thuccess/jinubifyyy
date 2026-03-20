@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '../../layout/admin/AdminLayout';
 import { PostsIcon, CodeBracketIcon, MegaphoneIcon, LinkIcon, CogIcon, PencilSquareIcon, DeleteIcon, PlusIcon } from '../../icons/Icons';
-import { adminCmsAPI } from '../../../services/api';
+import { adminCmsAPI, siteAPI } from '../../../services/api';
 import { useCms } from '../../../contexts/CmsContext';
 import { useAuth } from '../../../contexts/AuthContext';
 
@@ -23,6 +23,15 @@ type SiteSettingRecord = {
   value: unknown;
   order?: number;
   isVisible?: boolean;
+};
+
+const DEFAULT_SOCIALS = {
+  facebook: '',
+  twitter: '',
+  instagram: '',
+  linkedin: '',
+  youtube: '',
+  tiktok: '',
 };
 
 const SECTION_TYPE_OPTIONS: Array<{ id: string; label: string; description: string }> = [
@@ -294,7 +303,11 @@ const AdminContentPage: React.FC = () => {
     try {
       const res = await adminCmsAPI.getSiteSettings();
       const data = (res.data || []) as SiteSettingRecord[];
-      setSiteSettings(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+      if (!list.some((s) => s.key === 'socials')) {
+        list.push({ key: 'socials', value: DEFAULT_SOCIALS });
+      }
+      setSiteSettings(list);
     } catch (e) {
       console.error('Load site settings error:', e);
       showError('Failed to load site settings. Please try again.');
@@ -378,7 +391,11 @@ const AdminContentPage: React.FC = () => {
   const handleSaveSiteSetting = async (key: string, value: unknown) => {
     setSaving(key);
     try {
-      await adminCmsAPI.putSiteSetting({ key, value });
+      if (key === 'socials') {
+        await siteAPI.putSocials(value as any);
+      } else {
+        await adminCmsAPI.putSiteSetting({ key, value });
+      }
       await loadSiteSettings();
       refetchCms();
     } catch (e) {
@@ -1253,21 +1270,126 @@ function SiteSettingRow({
   saving: string | null;
   onSave: (value: unknown) => void;
 }) {
+  const isSocials = item.key === 'socials';
+
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState<string>(String(item.value ?? ''));
+  const [socialForm, setSocialForm] = useState({ ...DEFAULT_SOCIALS });
+  const [socialError, setSocialError] = useState<string>('');
+
   useEffect(() => {
-    setValue(String(item.value ?? ''));
+    if (isSocials) {
+      // Accept either an object value or a JSON string.
+      const v = item.value as any;
+      if (v && typeof v === 'object') {
+        setSocialForm({ ...DEFAULT_SOCIALS, ...v });
+        return;
+      }
+      if (typeof v === 'string') {
+        try {
+          const parsed = JSON.parse(v);
+          if (parsed && typeof parsed === 'object') setSocialForm({ ...DEFAULT_SOCIALS, ...parsed });
+        } catch {
+          // ignore parse errors, fall back to defaults
+        }
+      }
+      setSocialForm({ ...DEFAULT_SOCIALS });
+      setSocialError('');
+    } else {
+      setValue(String(item.value ?? ''));
+    }
   }, [item.value]);
 
   const handleSave = () => {
+    if (isSocials) return;
     onSave(value);
+    setEditing(false);
+  };
+
+  const handleSaveSocials = () => {
+    setSocialError('');
+    const next = { ...socialForm };
+    const platforms = ['facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 'tiktok'] as const;
+
+    for (const platform of platforms) {
+      const raw = String(next[platform] ?? '').trim();
+      if (!raw) {
+        next[platform] = '';
+        continue;
+      }
+
+      try {
+        const parsed = new URL(raw);
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+          throw new Error('Unsupported protocol');
+        }
+        next[platform] = parsed.toString();
+      } catch {
+        setSocialError(`Invalid URL for ${platform}. Use http(s) URLs only.`);
+        return;
+      }
+    }
+
+    onSave(next);
     setEditing(false);
   };
 
   return (
     <li className="flex flex-wrap items-center gap-2 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
       <span className="font-mono text-sm text-slate-700 dark:text-slate-300 w-32 shrink-0">{item.key}</span>
-      {editing ? (
+
+      {isSocials ? (
+        <div className="flex-1 min-w-[320px] space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {(
+              [
+                ['twitter', 'X (Twitter)'],
+                ['instagram', 'Instagram'],
+                ['facebook', 'Facebook'],
+                ['linkedin', 'LinkedIn'],
+                ['youtube', 'YouTube'],
+                ['tiktok', 'TikTok'],
+              ] as const
+            ).map(([key, label]) => (
+              <label key={key} className="block space-y-1">
+                <span className="block text-xs font-medium text-slate-700 dark:text-slate-300">{label}</span>
+                <input
+                  type="url"
+                  value={String((socialForm as any)[key] ?? '')}
+                  onChange={(e) => {
+                    const nextVal = e.target.value;
+                    setSocialForm((p) => ({ ...p, [key]: nextVal }));
+                  }}
+                  className="w-full px-2 py-1.5 text-sm border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  placeholder="https://..."
+                />
+              </label>
+            ))}
+          </div>
+
+          {socialError && <p className="text-sm text-red-600 dark:text-red-400">{socialError}</p>}
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleSaveSocials}
+              disabled={saving === item.key}
+              className="px-3 py-1.5 text-sm btn-primary rounded-lg disabled:opacity-50"
+            >
+              {saving === item.key ? 'Saving…' : 'Save socials'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSocialForm({ ...DEFAULT_SOCIALS, ...(item.value && typeof item.value === 'object' ? (item.value as any) : {}) });
+                setSocialError('');
+              }}
+              className="px-3 py-1.5 text-sm border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
+      ) : editing ? (
         <>
           <input
             type="text"

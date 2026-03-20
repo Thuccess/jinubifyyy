@@ -186,7 +186,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-2xl overflow-hidden glass-surface glass-surface--modal border border-border-subtle transition-colors duration-300">
+              <Dialog.Panel className="w-full max-w-2xl overflow-hidden surface surface--modal border border-border-subtle transition-colors duration-300">
                 <div className="flex flex-col md:flex-row min-h-[520px] md:min-h-[560px]">
                   {/* Left: steps panel (hidden on small mobile when sign-in) */}
                   <div

@@ -14,7 +14,7 @@ const chartData = [
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="p-2 bg-surface-card/80 backdrop-blur-sm rounded-lg shadow-lg border border-border-subtle">
+      <div className="p-2 bg-[color:var(--surface-card)] rounded-lg shadow-lg border border-border-subtle">
         <p className="text-sm font-semibold text-text-primary">{label}</p>
         <p className="text-xs text-text-secondary">
           {`New followers: ${new Intl.NumberFormat().format(payload[0].value)}`}

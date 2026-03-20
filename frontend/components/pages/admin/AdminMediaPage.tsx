@@ -84,7 +84,7 @@ const AdminMediaPage: React.FC = () => {
 
   return (
     <AdminLayout title="Media Library" subtitle="Manage uploaded images across the site">
-      <div className="glass-surface glass-surface--card rounded-2xl overflow-hidden">
+      <div className="card-solid rounded-2xl overflow-hidden">
         <MediaFilters
           search={search}
           onSearchChange={setSearch}

@@ -104,7 +104,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isCollapsed, onToggle }) =>
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50
-          glass-surface glass-surface--sidebar
+          surface surface--sidebar
           transition-all duration-300 ease-in-out
           ${isCollapsed ? 'w-16' : 'w-64'}
           ${isMobile && !isCollapsed ? 'translate-x-0' : isMobile ? '-translate-x-full' : ''}

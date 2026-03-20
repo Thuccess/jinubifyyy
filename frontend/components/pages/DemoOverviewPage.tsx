@@ -97,7 +97,7 @@ const DemoOverviewPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => router.push(`/demos/${serviceSlug}`)}
-                      className="w-full text-left glass-surface glass-surface--card rounded-2xl border border-border-subtle overflow-hidden flex flex-col h-full transition-all duration-200 hover:border-border-accent hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
+                      className="w-full text-left card-solid rounded-2xl border border-border-subtle overflow-hidden flex flex-col h-full transition-all duration-200 hover:border-border-accent hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
                     >
                       <div className="aspect-[4/3] min-h-[160px] bg-surface-muted overflow-hidden relative">
                         {coverUrl ? (

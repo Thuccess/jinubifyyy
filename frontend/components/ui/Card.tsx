@@ -21,7 +21,7 @@ type PolymorphicProps<T extends AsProp> = BaseCardProps &
 function getVariantClasses(variant: CardVariant): string {
   switch (variant) {
     case 'subtle':
-      return 'border-border-subtle bg-surface-card/80';
+      return 'border-border-subtle bg-surface-card';
     case 'emphasis':
       return 'border-border-accent bg-surface-muted';
     case 'danger':
@@ -74,7 +74,7 @@ export function Card<T extends AsProp = 'div'>(
   return (
     <Component
       className={clsx(
-        'glass-surface glass-surface--card glass-interactive rounded-2xl flex flex-col transition-all duration-200',
+        'surface card-solid glass-interactive rounded-2xl flex flex-col transition-all duration-200',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg-primary)]',
         getVariantClasses(variant),
         getSizeClasses(size),

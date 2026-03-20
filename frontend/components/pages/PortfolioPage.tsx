@@ -195,11 +195,7 @@ const PortfolioPage: React.FC = () => {
                 <button
                   key={category}
                   onClick={() => setActiveCategory(category)}
-                  className={`px-4 py-2 text-sm font-semibold rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)] ${
-                    activeCategory === category
-                      ? 'bg-brand-primary text-text-inverted'
-                      : 'border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-surface-muted/90'
-                  }`}
+                      className={`btn-primary focus:outline-none ${activeCategory === category ? 'btn-primary' : 'btn-secondary'}`}
                 >
                   {category}
                 </button>

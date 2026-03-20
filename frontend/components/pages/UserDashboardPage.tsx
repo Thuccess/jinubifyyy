@@ -456,7 +456,7 @@ const RecentActivity: React.FC = () => {
 const Recommendations: React.FC = () => (
   <Card size="lg">
     <h2 className="text-xl font-bold text-text-primary mb-4">Recommended For You</h2>
-    <div className="bg-surface-muted/80 backdrop-blur-sm p-6 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-border-subtle shadow-lg">
+    <div className="bg-[color:var(--surface-muted)] p-6 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-border-subtle shadow-lg">
       <div>
         <h3 className="font-bold text-text-primary">TikTok Growth Package</h3>
         <p className="text-sm text-text-secondary mt-1">

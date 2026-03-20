@@ -1073,6 +1073,27 @@ export const cmsAPI = {
   },
 };
 
+export interface SocialLinks {
+  facebook?: string | null;
+  twitter?: string | null;
+  instagram?: string | null;
+  linkedin?: string | null;
+  youtube?: string | null;
+  tiktok?: string | null;
+}
+
+export const siteAPI = {
+  getSocials: async (): Promise<{ socials: SocialLinks }> => {
+    const response = await api.get<{ socials: SocialLinks }>('/site/socials');
+    return response.data;
+  },
+  // Admin-only (auth required via the axios interceptor)
+  putSocials: async (socials: SocialLinks): Promise<{ data: SocialLinks } | { data: unknown }> => {
+    const response = await api.put('/admin/socials', socials);
+    return response.data as any;
+  },
+};
+
 // Admin CMS API (requires admin auth)
 export const adminCmsAPI = {
   getSiteSettings: async () => {

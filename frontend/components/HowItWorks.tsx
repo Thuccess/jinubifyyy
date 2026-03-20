@@ -33,7 +33,7 @@ const HowItWorks: React.FC<{ content?: HowItWorksContent }> = ({ content: c }) =
           {steps.map((step, index) => (
             <div
               key={index}
-              className="flex gap-4 p-6 rounded-lg border border-border-subtle bg-[color:var(--surface-card)]"
+              className="flex gap-4 p-6 card-solid"
             >
               <span className="flex-shrink-0 w-12 h-12 rounded-lg bg-[color:var(--surface-muted)] flex items-center justify-center [color:var(--text-primary)]" aria-hidden>
                 {step.icon}

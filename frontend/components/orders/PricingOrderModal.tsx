@@ -334,7 +334,7 @@ export const PricingOrderModal: React.FC<PricingOrderModalProps> = ({ isOpen, on
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden glass-surface glass-surface--modal glass-interactive p-6 text-left align-middle transition-all">
+              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden surface surface--modal glass-interactive p-6 text-left align-middle transition-all">
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
                     <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-text-primary">
@@ -347,7 +347,7 @@ export const PricingOrderModal: React.FC<PricingOrderModalProps> = ({ isOpen, on
                   <button
                     type="button"
                     onClick={closeAndReset}
-                    className="p-1 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-muted/90 transition-colors duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)] transition-colors"
+                    className="p-1 rounded-lg text-text-muted hover:text-text-primary transition-colors duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
                     aria-label="Close"
                   >
                     <XMarkIcon className="h-5 w-5" />

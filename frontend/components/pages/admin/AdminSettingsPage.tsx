@@ -69,7 +69,7 @@ const AdminSettingsPage: React.FC = () => {
         </div>
 
         {/* Settings Content */}
-        <div className="glass-surface glass-surface--card rounded-2xl border border-border-subtle p-6">
+        <div className="card-solid rounded-2xl border border-border-subtle p-6">
           {activeTab === 'general' && (
             <div className="space-y-6">
               <div>

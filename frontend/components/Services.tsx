@@ -26,7 +26,7 @@ const Services: React.FC<{ content?: ServicesContent }> = ({ content: c }) => {
           {items.map((item) => (
             <div
               key={item.title}
-              className="flex gap-5 p-6 sm:p-8 rounded-lg border border-border-subtle bg-[color:var(--surface-card)]"
+              className="flex gap-5 p-6 sm:p-8 card-solid"
             >
               <span className="flex-shrink-0 w-12 h-12 rounded-lg bg-[color:var(--surface-muted)] flex items-center justify-center [color:var(--text-primary)]" aria-hidden>
                 {item.icon}

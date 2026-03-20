@@ -60,7 +60,7 @@ const FeaturePanel: React.FC<{ content?: FeaturePanelContent }> = ({ content: c 
                   {items.map((feature) => (
                     <div
                       key={feature.name}
-                      className="p-5 rounded-lg border border-border-subtle bg-[color:var(--surface-card)]"
+                      className="p-5 card-solid"
                     >
                       <span className="flex w-10 h-10 rounded-lg bg-[color:var(--surface-muted)] items-center justify-center [color:var(--text-primary)]" aria-hidden>
                         {feature.icon}

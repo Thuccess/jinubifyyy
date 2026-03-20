@@ -177,7 +177,7 @@ const BlogPage: React.FC = () => {
                           type="button"
                           disabled={page <= 1}
                           onClick={() => setPage((p) => Math.max(1, p - 1))}
-                          className="px-4 py-2 rounded-lg border border-border-subtle bg-surface-card text-text-primary disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[color:var(--surface-elevated)]"
+                          className="btn-primary"
                         >
                           Previous
                         </button>
@@ -188,7 +188,7 @@ const BlogPage: React.FC = () => {
                           type="button"
                           disabled={page >= pagination.pages}
                           onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
-                          className="px-4 py-2 rounded-lg border border-border-subtle bg-surface-card text-text-primary disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[color:var(--surface-elevated)]"
+                          className="btn-primary"
                         >
                           Next
                         </button>

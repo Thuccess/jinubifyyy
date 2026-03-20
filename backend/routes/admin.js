@@ -27,12 +27,14 @@ import Page from '../models/Page.js';
 import PricingPackage from '../models/PricingPackage.js';
 import MediaAsset from '../models/MediaAsset.js';
 import Message from '../models/Message.js';
+import SiteSettings from '../models/SiteSettings.js';
 import { addMediaUsage, removeMediaUsage } from '../utils/mediaUsage.js';
 import { body, validationResult } from 'express-validator';
 import { requireAdmin } from '../middleware/admin.js';
 import { authorizeRole } from '../middleware/authorizeRole.js';
 import { adminLimiter } from '../middleware/rateLimiter.js';
 import { formatValidationErrors } from '../middleware/errorHandler.js';
+import defaultSocials from '../data/defaultSocials.js';
 
 const router = express.Router();
 
@@ -1363,6 +1365,58 @@ router.post('/users/bulk', authorizeRole('admin', 'super_admin'), async (req, re
     return res.status(400).json({ message: 'action must be changeRole or delete' });
   } catch (error) {
     console.error('Users bulk error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// @route   PUT /api/admin/socials
+// @desc    Update global social media URLs
+// @access  Admin only
+router.put('/socials', async (req, res) => {
+  try {
+    const platforms = ['facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 'tiktok'];
+    const resultSocials = {};
+
+    for (const platform of platforms) {
+      const raw = req.body?.[platform];
+      const value = typeof raw === 'string' ? raw.trim() : '';
+
+      if (!value) {
+        resultSocials[platform] = '';
+        continue;
+      }
+
+      let parsed;
+      try {
+        parsed = new URL(value);
+      } catch {
+        return res.status(400).json({ message: `Invalid URL for ${platform}` });
+      }
+
+      if (!['http:', 'https:'].includes(parsed.protocol)) {
+        return res.status(400).json({ message: `URL protocol for ${platform} must be http or https` });
+      }
+
+      resultSocials[platform] = parsed.toString();
+    }
+
+    const doc = await SiteSettings.findOneAndUpdate(
+      { key: 'socials' },
+      {
+        $set: {
+          value: resultSocials,
+          isVisible: true,
+          isDeleted: false,
+          status: 'published',
+          updatedAt: new Date(),
+        },
+      },
+      { upsert: true, new: true }
+    );
+
+    res.json({ data: doc?.value ?? resultSocials });
+  } catch (error) {
+    console.error('Update social links error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

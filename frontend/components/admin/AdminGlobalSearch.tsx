@@ -94,7 +94,7 @@ const AdminGlobalSearch: React.FC = () => {
       </div>
 
       {open && query.trim().length >= MIN_QUERY_LENGTH && (
-        <div className="absolute top-full left-0 right-0 mt-1 max-h-[70vh] overflow-y-auto glass-surface glass-surface--popover rounded-xl shadow-lg border border-border-subtle py-2 z-50">
+        <div className="absolute top-full left-0 right-0 mt-1 max-h-[70vh] overflow-y-auto surface surface--popover rounded-xl shadow-lg border border-border-subtle py-2 z-50">
           {loading ? (
             <div className="px-4 py-3 text-sm text-text-muted">Searching…</div>
           ) : !hasResults ? (

@@ -116,7 +116,7 @@ const Testimonials: React.FC<{ content?: Record<string, unknown> }> = () => {
           </div>
 
           {/* Right column: active testimonial */}
-          <div className="relative glass-surface glass-surface--card rounded-3xl border border-border-subtle shadow-xl overflow-hidden">
+          <div className="relative card-solid rounded-3xl border border-border-subtle shadow-xl overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,var(--accent-soft)/14,transparent_60%)] pointer-events-none" />
             <div className="relative z-10 p-8 sm:p-10 lg:p-12 flex flex-col gap-8">
               <Icon icon={QuoteIcon} size="lg" tone="muted" />

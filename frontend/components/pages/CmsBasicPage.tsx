@@ -245,7 +245,7 @@ export const CmsBasicPage: React.FC<CmsBasicPageProps> = ({
                   {Array.from({ length: 3 }).map((_, i) => (
                     <div
                       key={i}
-                      className="max-w-3xl rounded-xl border border-border-subtle bg-[color:var(--surface-card)]/90 backdrop-blur-sm p-6 sm:p-8 shadow-sm"
+                      className="max-w-3xl rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8 shadow-sm"
                     >
                       <SkeletonBlock className="h-5 w-56" rounded="full" />
                       <SkeletonText className="mt-4" lines={4} />
@@ -253,7 +253,7 @@ export const CmsBasicPage: React.FC<CmsBasicPageProps> = ({
                   ))}
                 </div>
                 <aside className="hidden lg:block">
-                  <div className="sticky top-28 rounded-xl border border-border-subtle bg-[color:var(--surface-card)]/80 backdrop-blur-sm p-5 space-y-3">
+                  <div className="sticky top-28 rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-5 space-y-3">
                     <SkeletonBlock className="h-4 w-40" rounded="full" />
                     {Array.from({ length: 6 }).map((_, i) => (
                       <SkeletonBlock key={i} className="h-3 w-full" rounded="full" />
@@ -289,7 +289,7 @@ export const CmsBasicPage: React.FC<CmsBasicPageProps> = ({
 
                   return (
                     <PageSection key={section._id} id={section.sectionKey}>
-                      <article className="max-w-3xl rounded-xl border border-border-subtle bg-[color:var(--surface-card)]/90 backdrop-blur-sm p-6 sm:p-8 shadow-sm">
+                      <article className="max-w-3xl rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8 shadow-sm">
                         {heading && (
                           <h2 className="text-lg sm:text-xl font-semibold text-text-primary">
                             {heading}
@@ -307,7 +307,7 @@ export const CmsBasicPage: React.FC<CmsBasicPageProps> = ({
               </div>
 
               <aside className="hidden lg:block">
-                <div className="sticky top-28 rounded-xl border border-border-subtle bg-[color:var(--surface-card)]/80 backdrop-blur-sm p-5 space-y-3">
+                <div className="sticky top-28 rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-5 space-y-3">
                   <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">
                     On this page
                   </p>

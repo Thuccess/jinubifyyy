@@ -166,7 +166,7 @@ const AdminApplicationsPage: React.FC = () => {
         </div>
 
         {/* Filters + bulk actions */}
-        <div className="glass-surface glass-surface--card rounded-2xl border border-border-subtle px-4 py-4 sm:px-6 sm:py-5 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+        <div className="card-solid rounded-2xl border border-border-subtle px-4 py-4 sm:px-6 sm:py-5 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           <div className="flex-1 flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-text-muted" />
@@ -233,7 +233,7 @@ const AdminApplicationsPage: React.FC = () => {
         </div>
 
         {/* Table */}
-        <div className="glass-surface glass-surface--card bg-[color:var(--surface-card)] border border-border-subtle rounded-2xl overflow-hidden">
+        <div className="card-solid bg-[color:var(--surface-card)] border border-border-subtle rounded-2xl overflow-hidden">
           {isLoading ? (
             <div className="p-12 text-center text-text-secondary">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-primary mx-auto mb-4" />

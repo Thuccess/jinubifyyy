@@ -83,7 +83,7 @@ const AdminLoginPage: React.FC = () => {
   return (
     <div className="animate-fade-in flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
-        <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 shadow-sm sm:p-8 glass-surface glass-surface--modal">
+        <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 shadow-sm sm:p-8 surface surface--modal">
           <div className="mb-6 text-center">
             <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
               Admin area

@@ -90,13 +90,13 @@ const AdminDashboardPage: React.FC = () => {
       )}
 
       <div className="mb-6">
-        <div className="glass-surface glass-surface--card rounded-2xl overflow-hidden">
+        <div className="card-solid rounded-2xl overflow-hidden">
           <DashboardOverview stats={stats} onNavigate={handleNavigate} />
         </div>
       </div>
 
       {/* Activity preview: link to full activity page */}
-      <div className="glass-surface glass-surface--card rounded-2xl overflow-hidden p-6">
+      <div className="card-solid rounded-2xl overflow-hidden p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-text-primary">Recent activity</h2>
           <a

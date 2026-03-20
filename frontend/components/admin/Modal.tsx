@@ -34,7 +34,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = 
         
         {/* Modal */}
         <div 
-          className={`relative w-full ${sizeClasses[size]} glass-surface glass-surface--modal glass-interactive transform transition-all`}
+          className={`relative w-full ${sizeClasses[size]} surface surface--modal glass-interactive transform transition-all`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}

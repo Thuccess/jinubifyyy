@@ -59,8 +59,8 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
     >
       {/* Background Elements (gradients + circle lines, clipped with overflow-hidden) */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-1/4 -left-1/4 w-full h-full bg-[radial-gradient(circle_at_top_left,var(--accent-soft),transparent_60%)] rounded-full blur-3xl opacity-60 animate-aurora" style={{ animationDirection: 'alternate', animationDuration: '20s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite' }}></div>
-        <div className="absolute -bottom-1/4 -right-1/4 w-3/4 h-3/4 bg-[radial-gradient(circle_at_bottom_right,var(--accent-soft),transparent_65%)] rounded-full blur-3xl opacity-50 animate-aurora" style={{ animationDirection: 'alternate-reverse', animationDuration: '25s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite' }}></div>
+        <div className="absolute -top-1/4 -left-1/4 w-full h-full bg-[radial-gradient(circle_at_top_left,var(--accent-soft),transparent_60%)] rounded-full blur-0 opacity-60 animate-aurora" style={{ animationDirection: 'alternate', animationDuration: '20s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite' }}></div>
+        <div className="absolute -bottom-1/4 -right-1/4 w-3/4 h-3/4 bg-[radial-gradient(circle_at_bottom_right,var(--accent-soft),transparent_65%)] rounded-full blur-0 opacity-50 animate-aurora" style={{ animationDirection: 'alternate-reverse', animationDuration: '25s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite' }}></div>
 
         {/* Central Wireframe Sphere – overflow clipped by parent */}
         <div
@@ -80,14 +80,14 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
             className="absolute top-0 -left-16 lg:-left-28 hidden lg:block animate-float transition-transform duration-500 ease-out"
             style={{ transform: 'translate(var(--x, 0px), var(--y, 0px))' }}
         >
-            <div className="bg-surface-card/80 backdrop-blur-xl p-3 rounded-xl shadow-2xl border border-border-subtle ring-1 ring-[color:var(--border-subtle)]/50">
+            <div className="card-solid p-3 rounded-xl">
                 <div className="flex items-center space-x-2">
                     <Image src="https://picsum.photos/seed/person1/32/32" alt="Client avatar" width={32} height={32} className="w-8 h-8 rounded-full object-cover" />
                     <p className="text-xs text-text-secondary">New followers this week</p>
                     <span className="text-xs" aria-hidden="true">🎉</span>
                 </div>
             </div>
-            <div className="mt-4 bg-surface-card/80 backdrop-blur-xl p-4 rounded-2xl shadow-2xl border border-border-subtle w-64 ring-1 ring-[color:var(--border-subtle)]/50">
+            <div className="mt-4 card-solid p-4 rounded-2xl w-64">
                 <p className="text-xs text-text-muted">Net followers (last 90 days)</p>
                 <div className="flex items-baseline space-x-2 mt-1">
                     <p className="text-2xl font-bold text-text-primary">+1,475</p>
@@ -108,7 +108,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
             className="absolute top-12 -right-16 lg:-right-24 hidden lg:block animate-float transition-transform duration-500 ease-out" 
             style={{ animationDelay: '200ms', animationDuration: '7s', transform: 'translate(calc(var(--x, 0px) * -1), calc(var(--y, 0px) * -1))' }}
         >
-            <div className="bg-surface-card/60 backdrop-blur-md p-4 rounded-2xl shadow-2xl border border-border-subtle w-64">
+            <div className="card-solid p-4 rounded-2xl w-64">
                 <div className="flex justify-between items-start">
                     <div>
                         <p className="text-sm font-semibold text-text-primary">Campaign #1245</p>
@@ -127,7 +127,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
                     <div className="h-1 rounded-full bg-[color:var(--accent-primary)]" style={{width: '60%'}}></div>
                 </div>
             </div>
-             <div className="mt-4 bg-surface-card/80 backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-border-subtle w-64 ring-1 ring-[color:var(--border-subtle)]/50">
+             <div className="mt-4 card-solid p-4 rounded-2xl w-64">
                 <div className="flex justify-between items-center">
                     <p className="text-sm font-semibold text-text-primary">Local clothing brand</p>
                     <span className="text-xs" aria-hidden="true">📈</span>
@@ -143,7 +143,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
         <div className="max-w-3xl mx-auto text-center">
           <div className="animate-fade-in-up" style={{ animationDelay: '100ms' }}>
             <div className="flex justify-center">
-              <div className="bg-surface-card/80 backdrop-blur-sm border border-border-subtle rounded-full px-3 py-1 text-sm inline-flex items-center space-x-2">
+              <div className="bg-[color:var(--surface-card)] border border-border-subtle rounded-full px-3 py-1 text-sm inline-flex items-center space-x-2">
                 <span className="bg-brand-soft text-brand-primary font-semibold rounded-full px-2 py-0.5 text-xs">{c.badge}</span>
                 <span className="text-text-secondary">{c.badgeSub}</span>
               </div>
@@ -151,7 +151,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
           </div>
 
           <div className="relative hero-gap-heading">
-            <div className="pointer-events-none absolute -inset-x-10 -top-6 h-32 bg-[radial-gradient(circle_at_top,var(--accent-soft)_0,transparent_60%)] opacity-70 blur-3xl"></div>
+            <div className="pointer-events-none absolute -inset-x-10 -top-6 h-32 bg-[radial-gradient(circle_at_top,var(--accent-soft)_0,transparent_60%)] opacity-70 blur-0"></div>
             <h1
               className="relative hero-heading font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[color:var(--text-primary)] to-[color:var(--text-secondary)] pb-2 animate-fade-in-up"
               style={{ animationDelay: '200ms' }}

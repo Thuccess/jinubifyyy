@@ -96,11 +96,7 @@ const PricingTable: React.FC = () => {
                   <div className="mt-auto pt-8">
                     <button
                       type="button"
-                      className={`w-full text-center block px-6 py-3 text-base font-semibold rounded-lg transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)] ${
-                        pkg.isFeatured
-                          ? 'btn-primary shadow-md hover:shadow-lg hover:-translate-y-px'
-                          : 'text-brand-primary bg-brand-soft hover:bg-surface-muted/90'
-                      }`}
+                      className="btn-primary w-full text-center block"
                     >
                       Contact for this package
                     </button>

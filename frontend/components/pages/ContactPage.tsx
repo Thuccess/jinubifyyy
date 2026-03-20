@@ -2,9 +2,10 @@
 
 import React, { useState } from 'react';
 import AnimatedSection from '../AnimatedSection';
-import { TwitterIcon, InstagramIcon, FacebookIcon, YouTubeIcon, WhatsAppIcon } from '../icons/Socials';
+import { TwitterIcon, InstagramIcon, FacebookIcon, YouTubeIcon, LinkedInIcon, TikTokIcon } from '../icons/Socials';
 import { MapPinIcon, EnvelopeIcon, PhoneIcon } from '../icons/Icons';
 import { contactAPI } from '../../services/api';
+import { useSocialLinks } from '../../hooks/useSocialLinks';
 
 // --- Subcomponents ---
 
@@ -117,6 +118,17 @@ const InfoItem: React.FC<{ icon: React.ReactNode; title: string; children: React
 // --- Main Contact Page Component ---
 
 const ContactPage: React.FC = () => {
+  const { socials } = useSocialLinks();
+
+  const socialLinks = [
+    { name: 'X', href: socials?.twitter ?? '', icon: <TwitterIcon className="w-5 h-5" /> },
+    { name: 'Instagram', href: socials?.instagram ?? '', icon: <InstagramIcon className="w-5 h-5" /> },
+    { name: 'Facebook', href: socials?.facebook ?? '', icon: <FacebookIcon className="w-5 h-5" /> },
+    { name: 'YouTube', href: socials?.youtube ?? '', icon: <YouTubeIcon className="w-5 h-5" /> },
+    { name: 'LinkedIn', href: socials?.linkedin ?? '', icon: <LinkedInIcon className="w-5 h-5" /> },
+    { name: 'TikTok', href: socials?.tiktok ?? '', icon: <TikTokIcon className="w-5 h-5" /> },
+  ].filter((l) => Boolean(l.href));
+
   return (
     <div className="animate-fade-in">
       <PageHeader />
@@ -146,11 +158,18 @@ const ContactPage: React.FC = () => {
                             <div className="pt-6 border-t border-border-subtle">
                                 <h3 className="text-sm font-semibold text-text-primary">Follow Us</h3>
                                 <div className="mt-3 flex gap-4">
-                                    <a href="#" className="text-text-muted hover:text-brand-primary transition-colors" aria-label="X"><TwitterIcon className="w-5 h-5"/></a>
-                                    <a href="#" className="text-text-muted hover:text-brand-primary transition-colors" aria-label="Instagram"><InstagramIcon className="w-5 h-5"/></a>
-                                    <a href="#" className="text-text-muted hover:text-brand-primary transition-colors" aria-label="Facebook"><FacebookIcon className="w-5 h-5"/></a>
-                                    <a href="#" className="text-text-muted hover:text-brand-primary transition-colors" aria-label="YouTube"><YouTubeIcon className="w-5 h-5"/></a>
-                                    <a href="#" className="text-text-muted hover:text-brand-primary transition-colors" aria-label="WhatsApp"><WhatsAppIcon className="w-5 h-5"/></a>
+                                    {socialLinks.map((link) => (
+                                      <a
+                                        key={link.name}
+                                        href={link.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-text-muted hover:text-brand-primary transition-colors"
+                                        aria-label={`Follow us on ${link.name}`}
+                                      >
+                                        {link.icon}
+                                      </a>
+                                    ))}
                                 </div>
                             </div>
                         </div>

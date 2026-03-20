@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { TwitterIcon, InstagramIcon, YouTubeIcon, FacebookIcon, WhatsAppIcon } from './icons/Socials';
+import { TwitterIcon, InstagramIcon, YouTubeIcon, FacebookIcon, LinkedInIcon, TikTokIcon } from './icons/Socials';
 import { PaperAirplaneIcon, CogIcon } from './icons/Icons';
 import { useTheme } from '../contexts/ThemeContext';
 import { useCms } from '../contexts/CmsContext';
 import type { Theme } from '../types';
+import { useSocialLinks } from '../hooks/useSocialLinks';
 
 interface FooterProps {
     currentUser?: {
@@ -33,6 +34,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
     const [mounted, setMounted] = useState(false);
     const { theme } = useTheme();
     const { site } = useCms();
+    const { socials } = useSocialLinks();
 
     useEffect(() => {
         setMounted(true);
@@ -45,12 +47,13 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
     const ctaButtonText = (settings.footerCtaButtonText as string) ?? 'Get Started Free';
 
     const socialLinks = [
-        { name: 'X', href: '#', icon: <TwitterIcon className="w-5 h-5" /> },
-        { name: 'Instagram', href: '#', icon: <InstagramIcon className="w-5 h-5" /> },
-        { name: 'YouTube', href: '#', icon: <YouTubeIcon className="w-5 h-5" /> },
-        { name: 'Facebook', href: '#', icon: <FacebookIcon className="w-5 h-5" /> },
-        { name: 'WhatsApp', href: '#', icon: <WhatsAppIcon className="w-5 h-5" /> },
-    ];
+        { name: 'X', href: socials?.twitter ?? '', icon: <TwitterIcon className="w-5 h-5" /> },
+        { name: 'Instagram', href: socials?.instagram ?? '', icon: <InstagramIcon className="w-5 h-5" /> },
+        { name: 'YouTube', href: socials?.youtube ?? '', icon: <YouTubeIcon className="w-5 h-5" /> },
+        { name: 'Facebook', href: socials?.facebook ?? '', icon: <FacebookIcon className="w-5 h-5" /> },
+        { name: 'LinkedIn', href: socials?.linkedin ?? '', icon: <LinkedInIcon className="w-5 h-5" /> },
+        { name: 'TikTok', href: socials?.tiktok ?? '', icon: <TikTokIcon className="w-5 h-5" /> },
+    ].filter((l) => Boolean(l.href));
 
     const footerLinks = {
         Explore: [
@@ -93,7 +96,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
     };
 
     return (
-        <footer className="bg-[color:var(--bg-secondary)] text-text-primary border-t border-border-subtle">
+        <footer className="surface surface--bar text-text-primary border-t border-border-subtle">
              <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
                 {/* CTA Section – uses --cta-* vars for tuned light/dark mode */}
                 <div
@@ -103,8 +106,8 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
                     <div className="absolute inset-0 ring-1 ring-inset ring-[color:var(--cta-ring)] pointer-events-none rounded-3xl" aria-hidden="true" />
                     {/* Decorative background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-[color:var(--cta-bg)] via-[color:var(--cta-bg)] to-transparent" aria-hidden="true" />
-                    <div className="absolute -bottom-20 -right-16 w-64 h-64 bg-[color:var(--cta-glow)] rounded-full blur-3xl" aria-hidden="true" />
-                    <div className="absolute -top-16 -left-20 w-48 h-48 bg-[color:var(--cta-glow)] rounded-full blur-3xl opacity-80" style={{ animationDirection: 'reverse' }} aria-hidden="true" />
+                    <div className="absolute -bottom-20 -right-16 w-64 h-64 bg-[color:var(--cta-glow)] rounded-full blur-0" aria-hidden="true" />
+                    <div className="absolute -top-16 -left-20 w-48 h-48 bg-[color:var(--cta-glow)] rounded-full blur-0 opacity-80" style={{ animationDirection: 'reverse' }} aria-hidden="true" />
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent dark:via-black/5" aria-hidden="true" />
 
                     <div className="relative z-10 flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-8 md:gap-10 p-8 sm:p-10 md:p-12 lg:p-14">
@@ -121,7 +124,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
                         </div>
                         <Link
                             href="/contact"
-                            className="flex-shrink-0 group inline-flex items-center justify-center px-8 py-4 text-base font-semibold rounded-xl shadow-lg transition-all duration-300 ease-out hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-[color:var(--cta-bg)] bg-[color:var(--cta-btn-bg)] hover:bg-[color:var(--cta-btn-hover)]"
+                            className="btn-primary group flex-shrink-0"
                             style={{ color: 'var(--cta-btn-text)' }}
                         >
                             Get Started Free

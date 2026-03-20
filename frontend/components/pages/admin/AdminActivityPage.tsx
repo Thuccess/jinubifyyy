@@ -71,7 +71,7 @@ const AdminActivityPage: React.FC = () => {
 
   return (
     <AdminLayout title="Activity" subtitle="View admin activity log">
-      <div className="glass-surface glass-surface--card rounded-2xl overflow-hidden">
+      <div className="card-solid rounded-2xl overflow-hidden">
         {/* Filters */}
         <div className="p-4 border-b border-border-subtle bg-[color:var(--surface-muted)]/30 flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[200px]">

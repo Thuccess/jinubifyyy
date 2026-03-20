@@ -33,6 +33,7 @@ import pagesPublicRoutes from './routes/pagesPublic.js';
 import uploadRoutes from './routes/upload.js';
 import eventsRoutes from './routes/events.js';
 import portfolioRoutes from './routes/portfolio.js';
+import siteSocialsRoutes from './routes/siteSocials.js';
 import { mongoSanitizeMiddleware } from './middleware/sanitize.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
@@ -177,6 +178,7 @@ app.use('/api/investment', investmentRoutes);
 app.use('/api/pages', pagesPublicRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/portfolio', portfolioRoutes);
+app.use('/api/site', siteSocialsRoutes);
 
 // Enhanced health check endpoint
 app.get('/api/health', async (req, res) => {

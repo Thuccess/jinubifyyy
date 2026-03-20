@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (isLoading || !currentUser) {
     return (
       <div className="min-h-[calc(100vh-4rem)] bg-bg-secondary text-text-primary flex">
-        <aside className="hidden md:flex md:w-64 flex-col border-r border-border-subtle bg-[color:var(--surface-card)]">
+        <aside className="hidden md:flex md:w-64 flex-col border-r border-border-subtle surface surface--sidebar">
           <div className="px-6 py-5 border-b border-border-subtle">
             <SkeletonBlock className="h-3 w-28" rounded="full" />
             <SkeletonBlock className="mt-2 h-4 w-24" rounded="full" />
@@ -44,7 +44,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </aside>
         <div className="flex-1 flex flex-col">
-          <header className="h-14 border-b border-border-subtle bg-[color:var(--surface-card)] flex items-center justify-between px-4 md:px-6">
+          <header className="h-14 border-b border-border-subtle surface surface--bar flex items-center justify-between px-4 md:px-6">
             <SkeletonBlock className="h-4 w-56" rounded="full" />
             <div className="flex items-center gap-3">
               <SkeletonBlock className="h-9 w-9" rounded="full" />
@@ -71,7 +71,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-bg-secondary text-text-primary flex">
       {/* Sidebar */}
-      <aside className="hidden md:flex md:w-64 flex-col border-r border-border-subtle bg-[color:var(--surface-card)]">
+      <aside className="hidden md:flex md:w-64 flex-col border-r border-border-subtle surface surface--sidebar">
         <div className="px-6 py-5 border-b border-border-subtle">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-text-muted">Client Portal</p>
           <p className="mt-1 text-base font-bold">Jinubify</p>
@@ -102,7 +102,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main content */}
       <div className="flex-1 flex flex-col">
         {/* Top header */}
-        <header className="h-14 border-b border-border-subtle bg-[color:var(--surface-card)] flex items-center justify-between px-4 md:px-6">
+        <header className="h-14 border-b border-border-subtle surface surface--bar flex items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-2">
             <button
               type="button"

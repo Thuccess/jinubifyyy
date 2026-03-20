@@ -72,7 +72,7 @@ const ServiceDetailPage: React.FC = () => {
           </p>
           <button
             onClick={() => router.push('/services')}
-            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-text-inverted bg-brand-primary hover:opacity-90 rounded-md"
+            className="btn-primary inline-flex items-center gap-2"
           >
             Back to Services
             <ArrowRightIcon className="h-4 w-4" />
@@ -110,7 +110,7 @@ const ServiceDetailPage: React.FC = () => {
             <button
               type="button"
               onClick={() => router.push('/pricing')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-text-inverted bg-brand-primary hover:opacity-90 rounded-md"
+              className="btn-primary inline-flex items-center gap-2"
             >
               View Packages
               <ArrowRightIcon className="h-4 w-4" />
@@ -118,7 +118,7 @@ const ServiceDetailPage: React.FC = () => {
             <button
               type="button"
               onClick={() => router.push('/contact')}
-              className="inline-flex items-center px-5 py-2.5 text-sm font-medium text-brand-primary hover:bg-brand-soft rounded-md"
+              className="btn-primary inline-flex items-center"
             >
               Talk to us
             </button>

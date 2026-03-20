@@ -6,7 +6,7 @@ import UserManagement from './sections/UserManagement';
 
 const AdminUsersPage: React.FC = () => (
   <AdminLayout title="User Management" subtitle="Manage users and roles">
-    <div className="glass-surface glass-surface--card rounded-2xl overflow-hidden">
+    <div className="card-solid rounded-2xl overflow-hidden">
       <UserManagement />
     </div>
   </AdminLayout>

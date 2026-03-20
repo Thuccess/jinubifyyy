@@ -66,21 +66,21 @@ const ServiceSection: React.FC<{ item: ServiceDisplayItem; featured?: boolean }>
           <button
             type="button"
             onClick={handleViewDemo}
-            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-brand-primary bg-brand-soft hover:bg-surface-muted/90 rounded-md transition-colors duration-300 ease-out min-h-[44px]"
+            className="btn-primary inline-flex items-center gap-2"
           >
             View Demo <ArrowRightIcon className="h-4 w-4" />
           </button>
           <button
             type="button"
             onClick={() => router.push('/pricing')}
-            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-text-inverted bg-brand-primary hover:opacity-90 rounded-md transition-colors min-h-[44px]"
+            className="btn-primary inline-flex items-center gap-2"
           >
             View Packages <ArrowRightIcon className="h-4 w-4" />
           </button>
           <button
             type="button"
             onClick={() => router.push('/contact')}
-            className="inline-flex items-center px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary rounded-md transition-colors min-h-[44px]"
+            className="btn-primary inline-flex items-center"
           >
             Contact us
           </button>
@@ -136,13 +136,13 @@ const PricingLinkSection: React.FC = () => {
                         <div className="mt-8 flex flex-wrap gap-4">
                             <button
                                 onClick={() => router.push('/pricing')}
-                                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-text-inverted bg-brand-primary hover:opacity-90 rounded-md"
+                                className="btn-primary inline-flex items-center gap-2"
                             >
                                 View All Packages <ArrowRightIcon className="h-4 w-4" aria-hidden />
                             </button>
                             <button
                                 onClick={() => router.push('/contact')}
-                                className="inline-flex items-center px-5 py-2.5 text-sm font-medium text-brand-primary hover:bg-brand-soft rounded-md"
+                                className="btn-primary inline-flex items-center"
                             >
                                 Request Custom Quote
                             </button>

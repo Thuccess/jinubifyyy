@@ -54,7 +54,7 @@ const FAQ: React.FC<{ content?: Record<string, unknown> }> = () => {
         <div className="mt-12 max-w-3xl">
           <div className="space-y-3">
             {faqData.map((faq, index) => (
-              <div key={index} className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] overflow-hidden">
+              <div key={index} className="card-solid overflow-hidden">
                 <button
                   onClick={() => toggleFAQ(index)}
                   className="w-full flex justify-between items-center text-left p-4 sm:p-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:var(--accent-ring)] hover:bg-surface-muted/90 transition-colors duration-300 ease-out rounded-lg"

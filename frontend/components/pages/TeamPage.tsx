@@ -150,11 +150,11 @@ const TeamPage: React.FC = () => {
       <section className="relative py-8 sm:py-10 lg:py-12" aria-live="polite" aria-label={`Featured: ${featuredMember.name}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[320px] lg:min-h-[400px]">
-            <div className="order-2 lg:order-1 lg:pr-4">
+            <div className="order-2 lg:order-1 lg:pr-4 text-start sm:text-left">
               <h2 className="text-3xl font-bold tracking-tight text-text-primary sm:text-4xl lg:text-5xl">{featuredMember.name}</h2>
               <p className="mt-2 text-base text-text-primary font-normal">{featuredMember.role}</p>
-              <p className="mt-5 text-text-secondary leading-relaxed max-w-xl">{featuredMember.detailedBio || featuredMember.bio}</p>
-              <div className="mt-4 flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+              <p className="mt-5 text-sm sm:text-base text-text-secondary leading-relaxed max-w-xl">{featuredMember.detailedBio || featuredMember.bio}</p>
+              <div className="mt-4 flex items-start justify-start sm:justify-start gap-3" onClick={(e) => e.stopPropagation()}>
                 <button
                   type="button"
                   onClick={goPrev}
@@ -172,7 +172,7 @@ const TeamPage: React.FC = () => {
                   <Icon icon={ChevronRightIcon} size="md" tone="primary" />
                 </button>
               </div>
-              <div className="mt-6 flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
+              <div className="mt-6 flex flex-wrap items-start justify-start sm:justify-start gap-4" onClick={(e) => e.stopPropagation()}>
                 {featuredMember.social?.linkedin && (
                   <a href={featuredMember.social.linkedin} target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-brand-primary transition-colors p-1" aria-label={`${featuredMember.name}'s LinkedIn`}>
                     <LinkedInIcon className="w-5 h-5" />
@@ -191,7 +191,7 @@ const TeamPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="order-1 lg:order-2 relative aspect-[4/5] lg:aspect-auto lg:min-h-[400px] rounded-lg overflow-hidden bg-[color:var(--surface-muted)]">
+            <div className="order-1 lg:order-2 relative aspect-square sm:aspect-[4/5] lg:aspect-auto lg:min-h-[400px] rounded-lg overflow-hidden bg-[color:var(--surface-muted)]">
               <Image key={featuredMember.name} src={normalizeImageUrl(featuredMember.imageUrl || '') || '/logo/logo-light.png'} alt={featuredMember.name} fill className="object-cover object-top" sizes="(max-width: 1024px) 100vw, 50vw" priority />
             </div>
           </div>
@@ -211,7 +211,7 @@ const TeamPage: React.FC = () => {
                   type="button"
                   data-team-index={index}
                   onClick={() => selectMember(index)}
-                  className={`flex-shrink-0 flex flex-col items-center text-center snap-center min-w-[88px] sm:min-w-[100px] py-2 px-1 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 ${
+                  className={`flex-shrink-0 flex flex-col items-start text-start snap-start min-w-[88px] sm:min-w-[100px] py-2 px-1 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 ${
                     isActive ? 'bg-[color:var(--surface-muted)]' : 'hover:bg-[color:var(--surface-muted)]/60'
                   }`}
                   aria-pressed={isActive}
