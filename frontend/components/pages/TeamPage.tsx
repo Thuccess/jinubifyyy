@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/NextImage';
 import { TwitterIcon, LinkedInIcon, GlobeIcon } from '../icons/Socials';
 import { ChevronLeftIcon, ChevronRightIcon } from '../icons/Icons';
 import Icon from '../ui/Icon';

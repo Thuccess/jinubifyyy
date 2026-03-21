@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
+import Image from '@/components/NextImage';
 import { adminAPI } from '../../../../services/api';
 import { useNotification } from '../../../admin/useNotification';
 import ConfirmDialog from '../../../admin/ConfirmDialog';

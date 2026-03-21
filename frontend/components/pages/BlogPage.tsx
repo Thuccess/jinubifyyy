@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/NextImage';
 import AnimatedSection from '../AnimatedSection';
 import { blogsPublicAPI } from '../../services/api';
 import { SearchIcon } from '../icons/Icons';

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/NextImage';
 import { TwitterIcon, InstagramIcon, YouTubeIcon, FacebookIcon, LinkedInIcon, TikTokIcon } from './icons/Socials';
 import { PaperAirplaneIcon, CogIcon } from './icons/Icons';
 import { useTheme } from '../contexts/ThemeContext';

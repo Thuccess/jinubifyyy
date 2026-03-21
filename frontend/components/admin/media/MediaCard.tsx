@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
+import Image from '@/components/NextImage';
 import { getImageUrl } from '../../../utils/getImageUrl';
 import { TrashIcon } from '../../icons/Icons';
 

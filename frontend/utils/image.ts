@@ -81,3 +81,34 @@ export const resolveImageUrl = (url: string): string => {
 // Backwards-compatible alias used elsewhere in the codebase.
 export const normalizeImageUrl = resolveImageUrl;
 
+/**
+ * When true, use next/image with unoptimized so the browser loads the URL directly.
+ * Vercel's /_next/image proxy often returns 502 when fetching Render /uploads (cold start,
+ * slow TLS, timeouts) even though remotePatterns allow the host.
+ */
+export function shouldBypassImageOptimizer(src: string): boolean {
+  if (!src || typeof src !== 'string') return false;
+  if (!/^https?:\/\//i.test(src)) return false;
+  try {
+    const u = new URL(src);
+    if (!u.pathname.startsWith('/uploads/')) return false;
+
+    if (u.hostname.endsWith('.onrender.com')) return true;
+
+    const apiBase = (env.apiUrl || '').trim().replace(/\/api\/?$/, '');
+    if (apiBase) {
+      const api = new URL(apiBase.startsWith('http') ? apiBase : `https://${apiBase}`);
+      if (u.hostname === api.hostname) return true;
+    }
+
+    const media = (env.mediaBaseUrl || '').trim();
+    if (media) {
+      const m = new URL(media.startsWith('http') ? media : `https://${media}`);
+      if (u.hostname === m.hostname) return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import Image from '@/components/NextImage';
 import AnimatedSection from '../AnimatedSection';
 import { SparklesIcon, HeartIcon, StarIcon, CogIcon, LightBulbIcon, HandshakeIcon } from '../icons/Icons';
 import { aboutAPI } from '../../services/api';

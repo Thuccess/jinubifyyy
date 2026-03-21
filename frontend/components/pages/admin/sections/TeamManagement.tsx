@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/NextImage';
 import { adminAPI } from '../../../../services/api';
 import type { TeamPagePayload, TeamMemberPayload } from '../../../../services/api';
 import { useNotification } from '../../../admin/useNotification';

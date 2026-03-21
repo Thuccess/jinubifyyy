@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, Fragment } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/NextImage';
 import { useRouter, usePathname } from 'next/navigation';
 import { Menu, Transition } from '@headlessui/react';
 import { SunIcon, MoonIcon, UserCircleIcon, LogoutIcon, DashboardIcon, CogIcon } from './icons/Icons';

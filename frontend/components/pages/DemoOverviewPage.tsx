@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Image from 'next/image';
+import Image from '@/components/NextImage';
 import AnimatedSection from '../AnimatedSection';
 import { normalizeImageUrl } from '../../utils/image';
 import { useServiceBySlug, useDemosByServiceSlug } from '../../hooks/useServices';

@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/NextImage';
 import { PaperAirplaneIcon } from './icons/Icons';
 import type { GrowthContent } from './cms/sectionTypes';
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
+import Image from '@/components/NextImage';
 import type { User } from '../../types';
 import { ShoppingBagIcon, SparklesIcon, WalletIcon, CheckIcon, PaperAirplaneIcon, CogIcon } from '../icons/Icons';
 import Icon from '../ui/Icon';

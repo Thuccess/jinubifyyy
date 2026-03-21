@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/NextImage';
 import dynamic from 'next/dynamic';
 import { CheckIcon, StarIcon, WandIcon, PaperAirplaneIcon } from './icons/Icons';
 import Icon from './ui/Icon';
