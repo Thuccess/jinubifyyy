@@ -1,7 +1,6 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import User from '../models/User.js';
 import Contact from '../models/Contact.js';
 import BlogPost from '../models/BlogPost.js';
@@ -35,6 +34,7 @@ import { authorizeRole } from '../middleware/authorizeRole.js';
 import { adminLimiter } from '../middleware/rateLimiter.js';
 import { formatValidationErrors } from '../middleware/errorHandler.js';
 import defaultSocials from '../data/defaultSocials.js';
+import { getUploadsDir } from '../config/uploadsPath.js';
 
 const router = express.Router();
 
@@ -46,8 +46,7 @@ const runValidation = (req, res, next) => {
   next();
 };
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const UPLOAD_DIR = path.join(__dirname, '../uploads');
+const UPLOAD_DIR = getUploadsDir();
 
 // Apply rate limiting to admin routes
 router.use(adminLimiter);

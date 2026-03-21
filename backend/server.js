@@ -40,6 +40,7 @@ import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
 import { requestLogger } from './middleware/logger.js';
 import { validateEnv } from './config/env.js';
+import { ensureUploadsDir } from './config/uploadsPath.js';
 import { startPublishScheduledPostsJob } from './jobs/publishScheduledPosts.js';
 import { startCleanupUnusedMediaJob } from './jobs/cleanupUnusedMedia.js';
 import swaggerUi from 'swagger-ui-express';
@@ -55,6 +56,27 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 5000;
 let server;
+
+// Trust Render / reverse proxy (correct req.ip, req.protocol, rate limits)
+app.set('trust proxy', 1);
+
+// Serve uploads FIRST so GET /uploads/* never hits JSON 404 from API-style handlers.
+// Path must match multer + admin media delete (see config/uploadsPath.js).
+const uploadsDir = ensureUploadsDir();
+if (process.env.NODE_ENV === 'production') {
+  console.log('[uploads] Static files from:', uploadsDir);
+} else {
+  console.log('STATIC SERVING FROM:', uploadsDir, '| exists:', fs.existsSync(uploadsDir));
+}
+app.use(
+  '/uploads',
+  express.static(uploadsDir, {
+    maxAge: '30d',
+    setHeaders(res) {
+      res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
+    },
+  }),
+);
 
 // Security middleware
 app.use(helmet({
@@ -115,24 +137,6 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('combined'));
   app.use(requestLogger);
 }
-
-// Static files for uploaded images
-// In production on Render, point UPLOADS_DIR to a persistent disk (e.g. /data/uploads)
-// so files survive deploys. Locally we fall back to the ./uploads folder.
-const uploadsDir = process.env.UPLOADS_DIR || path.join(__dirname, 'uploads');
-if (process.env.NODE_ENV !== 'production') {
-  console.log('STATIC SERVING FROM:', uploadsDir);
-  console.log('UPLOAD DIR EXISTS:', fs.existsSync(uploadsDir));
-}
-app.use(
-  '/uploads',
-  express.static(uploadsDir, {
-    maxAge: '30d',
-    setHeaders(res) {
-      res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
-    },
-  }),
-);
 
 // Health check at root for Render / load balancers
 app.get('/', (req, res) => {

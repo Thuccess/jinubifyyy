@@ -1,21 +1,13 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
 import { requireAdmin } from '../middleware/admin.js';
 import MediaAsset from '../models/MediaAsset.js';
 import { getMediaUrlForFilename, getRelativeMediaPath } from '../config/media.js';
+import { ensureUploadsDir } from '../config/uploadsPath.js';
 import logger from '../utils/logger.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-// Use the same uploads directory as the static /uploads middleware in server.js.
-// In production on Render this should point to a persistent disk via UPLOADS_DIR.
-const UPLOAD_DIR = process.env.UPLOADS_DIR || path.join(__dirname, '../uploads');
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-}
+const UPLOAD_DIR = ensureUploadsDir();
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),

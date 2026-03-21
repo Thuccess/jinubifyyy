@@ -1,11 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import cron from 'node-cron';
 import MediaAsset from '../models/MediaAsset.js';
+import { getUploadsDir } from '../config/uploadsPath.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const UPLOAD_DIR = path.join(__dirname, '../uploads');
+const UPLOAD_DIR = getUploadsDir();
 
 /**
  * Remove files in uploads folder that do not exist in MediaAsset collection.
