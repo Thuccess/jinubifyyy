@@ -12,6 +12,12 @@ const UPLOAD_DIR = getUploadsDir();
  */
 async function cleanupUnusedMedia() {
   try {
+    // When using Cloudinary, images are not stored on the local filesystem.
+    // Running local cleanup would delete unrelated files (or do nothing useful).
+    if (process.env.CLOUDINARY_CLOUD_NAME) {
+      return;
+    }
+
     if (!fs.existsSync(UPLOAD_DIR)) {
       return;
     }

@@ -35,6 +35,7 @@ import { adminLimiter } from '../middleware/rateLimiter.js';
 import { formatValidationErrors } from '../middleware/errorHandler.js';
 import defaultSocials from '../data/defaultSocials.js';
 import { getUploadsDir } from '../config/uploadsPath.js';
+import cloudinary from '../config/cloudinary.js';
 
 const router = express.Router();
 
@@ -386,15 +387,36 @@ router.delete('/media/:id', async (req, res) => {
       });
     }
 
-    const filename = media.filename;
-    if (filename) {
-      const filePath = path.join(UPLOAD_DIR, filename);
+    // If Cloudinary is enabled, delete the remote asset so we don't leak storage.
+    // Otherwise, fall back to local disk deletion for legacy uploads.
+    if (process.env.CLOUDINARY_CLOUD_NAME && media.url) {
       try {
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
+        const u = new URL(media.url);
+        const folder = 'jinubify';
+        const marker = `/${folder}/`;
+        const idx = u.pathname.indexOf(marker);
+        if (idx !== -1) {
+          const after = u.pathname.slice(idx + marker.length);
+          const last = after.split('/').pop() || '';
+          const dot = last.lastIndexOf('.');
+          const base = dot !== -1 ? last.slice(0, dot) : last;
+          const publicId = `${folder}/${base}`;
+          await cloudinary.uploader.destroy(publicId);
         }
       } catch (e) {
-        console.error('Failed to delete media file from disk:', e);
+        console.error('Failed to delete media file from Cloudinary:', e);
+      }
+    } else {
+      const filename = media.filename;
+      if (filename) {
+        const filePath = path.join(UPLOAD_DIR, filename);
+        try {
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+        } catch (e) {
+          console.error('Failed to delete media file from disk:', e);
+        }
       }
     }
 

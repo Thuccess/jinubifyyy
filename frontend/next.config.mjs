@@ -39,6 +39,12 @@ const nextConfig = {
         hostname: 'jinubifyyy-2.onrender.com',
         pathname: '/uploads/**',
       },
+      // Cloudinary (uploaded images)
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
     ],
   },
 };

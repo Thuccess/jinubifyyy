@@ -68,6 +68,7 @@ if (process.env.NODE_ENV === 'production') {
 } else {
   console.log('STATIC SERVING FROM:', uploadsDir, '| exists:', fs.existsSync(uploadsDir));
 }
+
 app.use(
   '/uploads',
   express.static(uploadsDir, {
