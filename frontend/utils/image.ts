@@ -88,27 +88,29 @@ export const normalizeImageUrl = resolveImageUrl;
  */
 export function shouldBypassImageOptimizer(src: string): boolean {
   if (!src || typeof src !== 'string') return false;
-  if (!/^https?:\/\//i.test(src)) return false;
-  try {
-    const u = new URL(src);
-    if (!u.pathname.startsWith('/uploads/')) return false;
 
-    if (u.hostname.endsWith('.onrender.com')) return true;
+  // Force bypass for Render-hosted uploaded images.
+  // This prevents Vercel's `/_next/image` proxy from fetching Render /uploads and
+  // intermittently failing with 502 when Render sleeps / times out.
+  if (src.includes('onrender.com') && src.includes('/uploads/')) return true;
 
+  // If the caller passed a relative path like `/uploads/foo.webp`,
+  // decide based on the configured backend origin.
+  if (src.startsWith('/uploads/')) {
     const apiBase = (env.apiUrl || '').trim().replace(/\/api\/?$/, '');
-    if (apiBase) {
-      const api = new URL(apiBase.startsWith('http') ? apiBase : `https://${apiBase}`);
-      if (u.hostname === api.hostname) return true;
-    }
+    const mediaBase = (env.mediaBaseUrl || '').trim();
+    const candidates = [apiBase, mediaBase].filter(Boolean);
 
-    const media = (env.mediaBaseUrl || '').trim();
-    if (media) {
-      const m = new URL(media.startsWith('http') ? media : `https://${media}`);
-      if (u.hostname === m.hostname) return true;
+    for (const candidate of candidates) {
+      try {
+        const u = new URL(candidate.startsWith('http') ? candidate : `https://${candidate}`);
+        if (u.hostname.includes('onrender.com')) return true;
+      } catch {
+        // ignore parse errors, try next candidate
+      }
     }
-    return false;
-  } catch {
-    return false;
   }
+
+  return false;
 }
 

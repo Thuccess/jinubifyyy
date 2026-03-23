@@ -98,11 +98,21 @@ app.use(helmet({
 app.use(compression());
 
 // CORS configuration
-const allowedOrigins = [
-  'https://jinubifyyy-4.onrender.com',
-  'https://www.jinubify.com',
-  'http://localhost:3000',
-];
+const allowedOrigins = (() => {
+  const envList = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  // Prefer explicit FRONTEND_URL (set in Render Blueprint) instead of a stale hardcoded allowlist.
+  const frontendUrl = (process.env.FRONTEND_URL || '').trim();
+
+  // Safe defaults for your local dev + canonical domain.
+  const defaults = ['http://localhost:3000', 'https://jinubify.com', 'https://www.jinubify.com'];
+
+  const all = [...envList, ...(frontendUrl ? [frontendUrl] : []), ...defaults];
+  return Array.from(new Set(all));
+})();
 
 const corsOptions = {
   origin(origin, callback) {
