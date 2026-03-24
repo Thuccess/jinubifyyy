@@ -7,6 +7,7 @@ import { normalizeImageUrl } from '../../utils/image';
 import { ChevronLeftIcon, ChevronRightIcon, XMarkIcon } from '../icons/Icons';
 import CallToAction from '../sections/CallToAction';
 import { usePortfolio } from '../../hooks/usePortfolio';
+import { SkeletonCard } from '../ui/skeleton';
 
 // --- Subcomponents ---
 
@@ -203,9 +204,10 @@ const PortfolioPage: React.FC = () => {
             </div>
 
             {isLoading ? (
-              <div className="py-12 text-center text-text-secondary">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-primary mx-auto mb-4" />
-                Loading portfolio...
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-2 animate-fade-in-up">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))}
               </div>
             ) : isError ? (
               <div className="py-12 text-center text-text-secondary">

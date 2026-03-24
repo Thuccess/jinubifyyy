@@ -6,7 +6,10 @@ interface SignupData {
   name: string;
   email: string;
   password: string;
+  company: string;
   photoURL?: string;
+  phone?: string;
+  website?: string;
 }
 
 interface LoginData {
@@ -20,11 +23,11 @@ export const useSignup = () => {
   return useMutation({
     mutationFn: async (data: SignupData) => {
       const response = await authAPI.signup(data);
-      storeAuth(response.token, response.user, true);
       return response;
     },
-    onSuccess: (data) => {
-      queryClient.setQueryData(['currentUser'], data.user);
+    onSuccess: () => {
+      // Signup now returns only a message; user signs in after verification + approval.
+      queryClient.removeQueries({ queryKey: ['currentUser'] });
     },
   });
 };

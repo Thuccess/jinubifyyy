@@ -49,6 +49,11 @@ const createAdmin = async () => {
     if (user) {
       // Update existing user to admin (set plain password so User pre-save hashes it once)
       user.role = 'admin';
+      // Keep admin access compatible with email verification + approval login gates.
+      user.status = 'approved';
+      user.isEmailVerified = true;
+      user.emailVerificationToken = null;
+      user.emailVerificationExpires = null;
       if (password) {
         user.password = password;
       }
@@ -61,6 +66,10 @@ const createAdmin = async () => {
         email: email.toLowerCase(),
         password,
         role: 'admin',
+        status: 'approved',
+        isEmailVerified: true,
+        emailVerificationToken: null,
+        emailVerificationExpires: null,
       });
       await user.save();
       console.log(`✅ Admin user created: ${email}`);

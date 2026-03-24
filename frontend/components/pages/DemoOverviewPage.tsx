@@ -6,6 +6,7 @@ import Image from '@/components/NextImage';
 import AnimatedSection from '../AnimatedSection';
 import { normalizeImageUrl } from '../../utils/image';
 import { useServiceBySlug, useDemosByServiceSlug } from '../../hooks/useServices';
+import { Skeleton, SkeletonCard } from '../ui/skeleton';
 
 const DemoOverviewPage: React.FC = () => {
   const params = useParams();
@@ -55,8 +56,14 @@ const DemoOverviewPage: React.FC = () => {
 
   if (isLoading || !service) {
     return (
-      <div className="animate-fade-in min-h-[50vh] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-primary" aria-hidden="true" />
+      <div className="animate-fade-in-up max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <Skeleton className="h-8 w-64" rounded="rounded-full" />
+        <Skeleton className="mt-4 h-4 w-72" rounded="rounded-full" />
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonCard key={i} className="h-auto" />
+          ))}
+        </div>
       </div>
     );
   }

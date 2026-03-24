@@ -6,6 +6,7 @@ import { StarIcon, QuoteIcon, ChevronLeftIcon, ChevronRightIcon } from './icons/
 import Icon from './ui/Icon';
 import { testimonialsAPI, type TestimonialItem } from '../services/api';
 import { normalizeImageUrl } from '../utils/image';
+import SkeletonBlock from './skeletons/SkeletonBlock';
 
 const FALLBACK_TESTIMONIALS: TestimonialItem[] = [
   {
@@ -62,8 +63,19 @@ const Testimonials: React.FC<{ content?: Record<string, unknown> }> = () => {
     return (
       <div className="py-16 sm:py-24 bg-brand-soft" id="testimonials">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center min-h-[280px]">
-            <div className="h-9 w-9 rounded-full border-2 border-border-subtle border-t-text-primary animate-spin" />
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center min-h-[280px]">
+            <div className="space-y-4">
+              <SkeletonBlock className="h-4 w-24" rounded="full" />
+              <SkeletonBlock className="h-10 w-4/5" rounded="full" />
+              <SkeletonBlock className="h-3 w-full" rounded="full" />
+              <SkeletonBlock className="h-3 w-5/6" rounded="full" />
+            </div>
+            <div className="rounded-2xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8">
+              <SkeletonBlock className="h-4 w-32" rounded="full" />
+              <SkeletonBlock className="mt-4 h-3 w-full" rounded="full" />
+              <SkeletonBlock className="mt-2 h-3 w-11/12" rounded="full" />
+              <SkeletonBlock className="mt-2 h-3 w-4/5" rounded="full" />
+            </div>
           </div>
         </div>
       </div>

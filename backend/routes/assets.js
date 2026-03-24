@@ -1,12 +1,12 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import Asset from '../models/Asset.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, verifyApproved } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // All asset routes require authentication
-router.use(authenticate);
+router.use(authenticate, verifyApproved);
 
 // @route   GET /api/assets
 // @desc    List assets for the current user

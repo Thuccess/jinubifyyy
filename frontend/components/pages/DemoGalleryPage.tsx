@@ -15,6 +15,7 @@ import AnimatedSection from '../AnimatedSection';
 import { ChevronLeftIcon, ChevronRightIcon, XMarkIcon } from '../icons/Icons';
 import { useDemosByServiceSlug } from '../../hooks/useServices';
 import { normalizeImageUrl } from '../../utils/image';
+import { Skeleton } from '../ui/skeleton';
 
 const Lightbox: React.FC<{
   isOpen: boolean;
@@ -144,8 +145,14 @@ const DemoGalleryPage: React.FC = () => {
 
   if (isLoading || !demo) {
     return (
-      <div className="animate-fade-in min-h-[50vh] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-primary" aria-hidden="true" />
+      <div className="animate-fade-in-up max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <Skeleton className="h-8 w-56" rounded="rounded-full" />
+        <Skeleton className="mt-4 h-5 w-80" rounded="rounded-full" />
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-64 w-full" rounded="rounded-xl" />
+          ))}
+        </div>
       </div>
     );
   }

@@ -10,6 +10,7 @@ import { teamAPI } from '../../services/api';
 import type { TeamPagePayload, TeamMemberPayload } from '../../services/api';
 import { teamMembers as fallbackMembers } from '../data/teamData';
 import { normalizeImageUrl } from '../../utils/image';
+import { Skeleton } from '../ui/skeleton';
 
 const defaultHero = {
   eyebrow: 'Our Team',
@@ -102,8 +103,22 @@ const TeamPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="h-9 w-9 rounded-full border-2 border-border-subtle border-t-text-primary animate-spin" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 animate-fade-in-up">
+        <Skeleton className="h-8 w-48" rounded="rounded-full" />
+        <Skeleton className="mt-3 h-4 w-80" rounded="rounded-full" />
+        <div className="mt-8 grid gap-6 lg:grid-cols-3">
+          <Skeleton className="h-96 w-full" rounded="rounded-xl" />
+          <div className="lg:col-span-2 rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6">
+            <Skeleton className="h-6 w-48" rounded="rounded-full" />
+            <Skeleton className="mt-4 h-3 w-full" rounded="rounded-full" />
+            <Skeleton className="mt-2 h-3 w-5/6" rounded="rounded-full" />
+            <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-20 w-full" rounded="rounded-xl" />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

@@ -1,17 +1,18 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import AdminLoginPage from '@/components/pages/AdminLoginPage';
+import VerifyEmailPage from '@/components/pages/VerifyEmailPage';
 import PageSkeleton from '@/components/skeletons/PageSkeleton';
 
 export const metadata: Metadata = {
-  title: 'Admin Login | Jinubify',
-  description: 'Sign in to the Jinubify admin dashboard.',
+  title: 'Verify Email | Jinubify',
+  description: 'Verify your Jinubify account email address.',
 };
 
 export default function Page() {
   return (
     <Suspense fallback={<PageSkeleton compact />}>
-      <AdminLoginPage />
+      <VerifyEmailPage />
     </Suspense>
   );
 }
+

@@ -47,3 +47,15 @@ export const optionalAuth = async (req, res, next) => {
   }
 };
 
+// Enforce account readiness on already-authenticated requests.
+// Use after `authenticate` on protected route groups.
+export const verifyApproved = (req, res, next) => {
+  if (!req.user?.isEmailVerified) {
+    return res.status(403).json({ message: 'Please verify your email before accessing this resource' });
+  }
+  if (req.user?.status !== 'approved') {
+    return res.status(403).json({ message: 'Your account is pending approval' });
+  }
+  return next();
+};
+

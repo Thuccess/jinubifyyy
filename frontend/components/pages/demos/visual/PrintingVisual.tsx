@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowRightIcon } from '../../../icons/Icons';
 import type { DemoVisualProps } from './types';
 import { labelToSlug } from './slugify';
+import SmartImage from '../../../ui/SmartImage';
 
 const PRINTING_SUB_ITEMS = [
   'Business cards',
@@ -60,11 +61,12 @@ const PrintingVisual: React.FC<DemoVisualProps> = ({ slug, demoUrl, serviceName 
             className="group surface rounded-xl p-3 border border-border-subtle text-center flex flex-col transition-all duration-200 hover:border-border-accent hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
         >
             <div className="aspect-[3/4] rounded-lg mb-2 flex-shrink-0 overflow-hidden bg-surface-muted">
-              <img
+              <SmartImage
                 src={PRINTING_IMAGES[label]}
                 alt={label}
+                width={450}
+                height={600}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                loading="lazy"
               />
             </div>
             <p className="text-text-primary text-xs font-medium mt-auto pt-1 line-clamp-2">

@@ -21,13 +21,25 @@ async function publishScheduledPosts() {
 }
 
 let scheduledTask = null;
+let isRunning = false;
 
 /**
  * Start the cron job (every 5 minutes). Call after DB is connected.
  */
 export function startPublishScheduledPostsJob() {
   if (scheduledTask) return;
-  scheduledTask = cron.schedule('*/5 * * * *', publishScheduledPosts, { scheduled: true });
+  scheduledTask = cron.schedule('*/5 * * * *', async () => {
+    // Skip overlap so long-running runs never block the event loop with pileups.
+    if (isRunning) return;
+    isRunning = true;
+    try {
+      await publishScheduledPosts();
+    } catch (err) {
+      console.error('[publishScheduledPosts] Cron execution error:', err);
+    } finally {
+      isRunning = false;
+    }
+  }, { scheduled: true });
   console.log('[jobs] publishScheduledPosts cron registered (every 5 minutes).');
 }
 

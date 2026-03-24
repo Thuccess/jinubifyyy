@@ -6,6 +6,7 @@ import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CmsProvider } from './contexts/CmsContext';
 import type { User } from './types';
+import PageSkeleton from './components/skeletons/PageSkeleton';
 
 // Lazy load page components
 const HomePage = lazy(() => import('./components/pages/HomePage'));
@@ -40,11 +41,7 @@ const ServiceDetailPage = lazy(() => import('./components/pages/ServiceDetailPag
 
 
 // A fallback component to show while lazy-loaded components are loading
-const LoadingSpinner = () => (
-  <div className="flex justify-center items-center min-h-screen">
-    <div className="animate-spin rounded-full h-24 w-24 border-t-2 border-b-2 border-blue-600 dark:border-blue-400"></div>
-  </div>
-);
+const LoadingSpinner = () => <PageSkeleton />;
 
 const PublicContent: React.FC = () => {
   const { theme, toggleTheme } = useTheme();

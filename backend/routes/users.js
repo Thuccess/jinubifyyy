@@ -1,14 +1,15 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
+import QRCode from 'qrcode';
 import User from '../models/User.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, verifyApproved } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // @route   GET /api/users/profile
 // @desc    Get user profile
 // @access  Private
-router.get('/profile', authenticate, async (req, res) => {
+router.get('/profile', authenticate, verifyApproved, async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
     res.json({
@@ -37,12 +38,69 @@ router.get('/profile', authenticate, async (req, res) => {
   }
 });
 
+// @route   GET /api/users/me
+// @desc    Alias for current authenticated user profile
+// @access  Private
+router.get('/me', authenticate, verifyApproved, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    res.json({
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        photoURL: user.photoURL,
+        balance: user.balance,
+        company: user.company,
+        industry: user.industry,
+        preferredChannels: user.preferredChannels || [],
+        brandGuidelines: user.brandGuidelines || {
+          primaryColor: '',
+          secondaryColor: '',
+          logoUrl: '',
+          toneOfVoice: '',
+        },
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    });
+  } catch (error) {
+    console.error('Get me profile error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// @route   GET /api/users/me/qr
+// @desc    Generate QR code for user's public profile URL
+// @access  Private
+router.get('/me/qr', authenticate, verifyApproved, async (req, res) => {
+  try {
+    const baseUrl = (process.env.BASE_URL || process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
+    const profileUrl = `${baseUrl}/user/${req.user._id}`;
+    const qrDataUrl = await QRCode.toDataURL(profileUrl, {
+      errorCorrectionLevel: 'M',
+      margin: 1,
+      width: 320,
+    });
+
+    res.json({
+      message: 'QR code generated',
+      qrDataUrl,
+      profileUrl,
+    });
+  } catch (error) {
+    console.error('Generate profile QR error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // @route   PUT /api/users/profile
 // @desc    Update user profile
 // @access  Private
 router.put(
   '/profile',
   authenticate,
+  verifyApproved,
   [
     body('name').optional().trim().notEmpty().withMessage('Name cannot be empty'),
     body('photoURL').optional().isURL().withMessage('Photo URL must be a valid URL'),

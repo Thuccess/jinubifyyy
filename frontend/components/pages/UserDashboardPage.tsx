@@ -8,6 +8,7 @@ import Icon from '../ui/Icon';
 import AnimatedSection from '../AnimatedSection';
 import Card from '../ui/Card';
 import { userAPI, dashboardAPI, clientAPI, getStoredUser } from '../../services/api';
+import SkeletonBlock from '../skeletons/SkeletonBlock';
 
 // --- Subcomponents for the Dashboard ---
 
@@ -180,7 +181,11 @@ const ProfileCard: React.FC = () => {
     if (loading || !user || !formData) {
         return (
             <Card className="flex justify-center items-center h-64" size="lg" hover="none">
-                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600 dark:border-blue-400"></div>
+                <div className="w-full max-w-sm space-y-3">
+                  <SkeletonBlock className="h-16 w-16 mx-auto" rounded="full" />
+                  <SkeletonBlock className="h-4 w-2/3 mx-auto" rounded="full" />
+                  <SkeletonBlock className="h-3 w-full" rounded="full" />
+                </div>
             </Card>
         );
     }
@@ -371,8 +376,9 @@ const AccountOverview: React.FC = () => {
         <Card size="lg">
             <h2 className="text-xl font-bold text-text-primary mb-4">Account Overview</h2>
             {loading ? (
-                <div className="flex justify-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 dark:border-blue-400"></div>
+                <div className="py-4 space-y-3">
+                    <SkeletonBlock className="h-16 w-full" rounded="xl" />
+                    <SkeletonBlock className="h-16 w-full" rounded="xl" />
                 </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -432,8 +438,10 @@ const RecentActivity: React.FC = () => {
         <Card size="lg">
             <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Recent Activity</h2>
             {loading ? (
-                <div className="flex justify-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 dark:border-blue-400"></div>
+                <div className="py-4 space-y-3">
+                    <SkeletonBlock className="h-10 w-full" rounded="lg" />
+                    <SkeletonBlock className="h-10 w-full" rounded="lg" />
+                    <SkeletonBlock className="h-10 w-full" rounded="lg" />
                 </div>
             ) : activities.length > 0 ? (
                 <div className="divide-y divide-border-subtle">
@@ -522,8 +530,10 @@ const OrdersList: React.FC = () => {
     <Card size="lg">
       <h2 className="text-xl font-bold text-text-primary mb-4">Your Orders</h2>
       {loading ? (
-        <div className="flex justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 dark:border-blue-400"></div>
+        <div className="py-4 space-y-3">
+          <SkeletonBlock className="h-10 w-full" rounded="lg" />
+          <SkeletonBlock className="h-10 w-full" rounded="lg" />
+          <SkeletonBlock className="h-10 w-full" rounded="lg" />
         </div>
       ) : orders.length === 0 ? (
         <p className="text-sm text-text-secondary py-4">
@@ -636,6 +646,117 @@ const SummaryCards: React.FC = () => {
   );
 };
 
+const ProfileQrCard: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [qrDataUrl, setQrDataUrl] = useState('');
+  const [profileUrl, setProfileUrl] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const loadQr = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        const res = await userAPI.getMyQr();
+        if (!active) return;
+        setQrDataUrl(res.qrDataUrl || '');
+        setProfileUrl(res.profileUrl || '');
+      } catch (err: any) {
+        if (!active) return;
+        setError(err?.response?.data?.message || 'Unable to load your QR profile right now.');
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    loadQr();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const handleCopy = async () => {
+    if (!profileUrl) return;
+    try {
+      await navigator.clipboard.writeText(profileUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // no-op
+    }
+  };
+
+  const handleDownload = () => {
+    if (!qrDataUrl) return;
+    const link = document.createElement('a');
+    link.href = qrDataUrl;
+    link.download = 'jinubify-profile-qr.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleShare = async () => {
+    if (!profileUrl) return;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'My Jinubify Profile', url: profileUrl });
+      } catch {
+        // user cancelled
+      }
+      return;
+    }
+    await handleCopy();
+  };
+
+  return (
+    <Card size="lg">
+      <h3 className="text-lg font-semibold text-text-primary">Your profile QR</h3>
+      <p className="mt-1 text-sm text-text-secondary">
+        Share this QR code so clients can open your public profile quickly.
+      </p>
+
+      {loading && (
+        <div className="mt-4 flex items-center justify-center rounded-lg border border-border-subtle bg-surface-muted p-8">
+          <div className="w-full max-w-xs space-y-3">
+            <SkeletonBlock className="h-44 w-44 mx-auto" rounded="md" />
+            <SkeletonBlock className="h-3 w-3/4 mx-auto" rounded="full" />
+          </div>
+        </div>
+      )}
+
+      {!loading && error && (
+        <div className="mt-4 rounded-lg border border-border-strong bg-surface-muted p-3 text-sm text-text-primary">
+          {error}
+        </div>
+      )}
+
+      {!loading && !error && qrDataUrl && (
+        <>
+          <div className="mt-4 rounded-lg border border-border-subtle bg-surface-muted p-4 flex items-center justify-center">
+            <img src={qrDataUrl} alt="Your profile QR code" className="h-44 w-44 rounded-md bg-white p-2" />
+          </div>
+          <p className="mt-3 text-xs text-text-muted truncate" title={profileUrl}>
+            {profileUrl}
+          </p>
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            <button type="button" onClick={handleCopy} className="py-2 rounded-lg btn-secondary text-sm font-medium">
+              {copied ? 'Copied' : 'Copy Link'}
+            </button>
+            <button type="button" onClick={handleDownload} className="py-2 rounded-lg btn-secondary text-sm font-medium">
+              Download
+            </button>
+            <button type="button" onClick={handleShare} className="py-2 rounded-lg btn-primary text-sm font-medium">
+              Share
+            </button>
+          </div>
+        </>
+      )}
+    </Card>
+  );
+};
+
 const UserDashboardPage: React.FC = () => {
   return (
     <div className="animate-fade-in min-h-screen">
@@ -667,6 +788,7 @@ const UserDashboardPage: React.FC = () => {
           <AnimatedSection>
             <div className="space-y-6">
               <ProfileCard />
+              <ProfileQrCard />
               <RecentActivity />
             </div>
           </AnimatedSection>

@@ -16,6 +16,7 @@ import {
   DocumentTextIcon,
 } from '../icons/Icons';
 import { useDemos } from '../../hooks/useServices';
+import SkeletonBlock from '../skeletons/SkeletonBlock';
 
 interface DemoDisplayItem {
   id?: string;
@@ -194,8 +195,15 @@ const DemosLandingPage: React.FC = () => {
       <div className="py-10 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {isLoading ? (
-            <div className="flex justify-center py-16">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-primary" aria-hidden="true" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="rounded-2xl border border-border-subtle bg-[color:var(--surface-card)] p-4">
+                  <SkeletonBlock className="h-44 w-full" rounded="xl" />
+                  <SkeletonBlock className="mt-4 h-4 w-3/4" rounded="full" />
+                  <SkeletonBlock className="mt-2 h-3 w-full" rounded="full" />
+                  <SkeletonBlock className="mt-2 h-3 w-5/6" rounded="full" />
+                </div>
+              ))}
             </div>
           ) : (
             <>

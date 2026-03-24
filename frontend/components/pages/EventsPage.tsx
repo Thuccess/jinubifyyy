@@ -4,6 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import { useEvents } from '../../hooks/useEvents';
 import { resolveImageUrl } from '../../utils/image';
+import SkeletonBlock from '../skeletons/SkeletonBlock';
+import SmartImage from '../ui/SmartImage';
 
 const EventsPage: React.FC = () => {
   const { data, isLoading, isError } = useEvents({ page: 1, limit: 50 });
@@ -24,8 +26,15 @@ const EventsPage: React.FC = () => {
 
         <div className="mt-8">
           {isLoading ? (
-            <div className="py-12 text-center text-text-secondary">
-              Loading events...
+            <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="rounded-xl border border-border-subtle bg-surface-card/80 p-4">
+                  <SkeletonBlock className="h-40 w-full" rounded="lg" />
+                  <SkeletonBlock className="mt-4 h-3 w-24" rounded="full" />
+                  <SkeletonBlock className="mt-2 h-4 w-4/5" rounded="full" />
+                  <SkeletonBlock className="mt-2 h-3 w-full" rounded="full" />
+                </div>
+              ))}
             </div>
           ) : isError ? (
             <div className="py-12 text-center text-red-500">
@@ -44,9 +53,11 @@ const EventsPage: React.FC = () => {
                 >
                   {event.imageUrl && (
                     <div className="relative h-40 w-full overflow-hidden">
-                      <img
+                      <SmartImage
                         src={resolveImageUrl(event.imageUrl)}
                         alt={event.title}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 33vw"
                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     </div>

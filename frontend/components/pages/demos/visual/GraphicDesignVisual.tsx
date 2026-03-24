@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowRightIcon } from '../../../icons/Icons';
 import type { DemoVisualProps } from './types';
 import { labelToSlug } from './slugify';
+import SmartImage from '../../../ui/SmartImage';
 
 const GRAPHIC_DESIGN_SUB_ITEMS = [
   'Logo design',
@@ -72,11 +73,12 @@ const GraphicDesignVisual: React.FC<DemoVisualProps> = ({ slug, demoUrl, service
             className="group rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-3 text-center flex flex-col transition-colors hover:border-border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
           >
             <div className="aspect-square bg-[color:var(--surface-muted)] rounded-lg mb-2 flex-shrink-0 overflow-hidden">
-              <img
+              <SmartImage
                 src={GRAPHIC_DESIGN_IMAGES[label]}
                 alt={label}
+                width={600}
+                height={600}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                loading="lazy"
               />
             </div>
             <p className="text-text-primary text-xs font-medium mt-auto pt-1 line-clamp-3">

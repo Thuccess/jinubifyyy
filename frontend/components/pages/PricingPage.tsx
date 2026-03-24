@@ -17,6 +17,7 @@ import {
 } from '../icons/Icons';
 import { usePricingPackages } from '../../hooks/useServices';
 import PricingOrderModal, { type PricingOrderContext } from '../orders/PricingOrderModal';
+import { SkeletonCard } from '../ui/skeleton';
 // --- CMS-driven pricing data ---
 
 interface Package {
@@ -305,9 +306,12 @@ const PricingPage: React.FC = () => {
             {/* Pricing Categories (CMS-driven) */}
             {isLoading ? (
                 <section className="py-16 sm:py-20 lg:py-24">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-text-secondary">
-                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-brand-primary mx-auto" />
-                        <p className="mt-4">Loading pricing packages...</p>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in-up">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {Array.from({ length: 6 }).map((_, i) => (
+                                <SkeletonCard key={i} />
+                            ))}
+                        </div>
                     </div>
                 </section>
             ) : isError ? (

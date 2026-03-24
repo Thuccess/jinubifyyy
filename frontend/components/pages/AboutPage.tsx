@@ -8,6 +8,7 @@ import { SparklesIcon, HeartIcon, StarIcon, CogIcon, LightBulbIcon, HandshakeIco
 import { aboutAPI } from '../../services/api';
 import type { AboutPagePayload } from '../../services/api';
 import { normalizeImageUrl } from '../../utils/image';
+import SkeletonBlock from '../skeletons/SkeletonBlock';
 
 const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
   CogIcon,
@@ -151,8 +152,19 @@ const AboutPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="h-9 w-9 rounded-full border-2 border-border-subtle border-t-text-primary animate-spin" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <SkeletonBlock className="h-8 w-52" rounded="full" />
+        <SkeletonBlock className="mt-3 h-4 w-80" rounded="full" />
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <SkeletonBlock className="h-72 w-full" rounded="xl" />
+          <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6">
+            <SkeletonBlock className="h-5 w-40" rounded="full" />
+            <SkeletonBlock className="mt-4 h-3 w-full" rounded="full" />
+            <SkeletonBlock className="mt-2 h-3 w-5/6" rounded="full" />
+            <SkeletonBlock className="mt-6 h-3 w-full" rounded="full" />
+            <SkeletonBlock className="mt-2 h-3 w-4/5" rounded="full" />
+          </div>
+        </div>
       </div>
     );
   }

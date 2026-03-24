@@ -8,6 +8,7 @@ import { blogsPublicAPI } from '../../services/api';
 import { SearchIcon } from '../icons/Icons';
 import type { BlogPost } from '../../types/blog';
 import { normalizeImageUrl } from '../../utils/image';
+import { SkeletonCard } from '../ui/skeleton';
 
 const PAGE_SIZE = 12;
 
@@ -54,19 +55,7 @@ const BlogPostCard: React.FC<{ post: BlogPost; formatDate: (date: string | Date)
 );
 
 const CardSkeleton: React.FC = () => (
-  <div className="flex flex-col rounded-lg border border-border-subtle bg-[color:var(--surface-card)] overflow-hidden animate-pulse">
-    <div className="w-full h-44 bg-[color:var(--border-subtle)]" />
-    <div className="p-5 flex flex-col flex-grow space-y-3">
-      <div className="flex justify-between">
-        <div className="h-3 w-20 rounded bg-[color:var(--border-subtle)]" />
-        <div className="h-3 w-16 rounded bg-[color:var(--border-subtle)]" />
-      </div>
-      <div className="h-4 w-full rounded bg-[color:var(--border-subtle)]" />
-      <div className="h-4 w-3/4 rounded bg-[color:var(--border-subtle)]" />
-      <div className="h-3 w-full rounded bg-[color:var(--border-subtle)]" />
-      <div className="h-3 w-1/2 rounded bg-[color:var(--border-subtle)]" />
-    </div>
-  </div>
+  <SkeletonCard />
 );
 
 const BlogPage: React.FC = () => {
@@ -144,7 +133,7 @@ const BlogPage: React.FC = () => {
 
           <AnimatedSection>
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in-up">
                 {Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}
               </div>
             ) : error ? (

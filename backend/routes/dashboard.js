@@ -2,12 +2,12 @@ import express from 'express';
 import Order from '../models/Order.js';
 import Activity from '../models/Activity.js';
 import User from '../models/User.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, verifyApproved } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // All routes require authentication
-router.use(authenticate);
+router.use(authenticate, verifyApproved);
 
 // @route   GET /api/dashboard/overview
 // @desc    Get dashboard overview data

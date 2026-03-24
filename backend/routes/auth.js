@@ -1,11 +1,14 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import rateLimit from 'express-rate-limit';
 import { body, validationResult } from 'express-validator';
 import User from '../models/User.js';
 import Activity from '../models/Activity.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, verifyApproved } from '../middleware/auth.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
 import logger from '../utils/logger.js';
+import { sendVerificationEmail } from '../utils/sendEmail.js';
 
 const router = express.Router();
 
@@ -19,6 +22,28 @@ const generateToken = (userId) => {
   });
 };
 
+const hashVerificationToken = (token) =>
+  crypto.createHash('sha256').update(token).digest('hex');
+
+// Generate raw token, but only store its hash in DB for safety.
+const setEmailVerificationToken = (user) => {
+  const rawToken = crypto.randomBytes(32).toString('hex');
+  user.emailVerificationToken = hashVerificationToken(rawToken);
+  user.emailVerificationExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+  user.isEmailVerified = false;
+  return rawToken;
+};
+
+const resendVerificationLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 3, // 3 requests / minute / IP
+  message: {
+    message: 'Too many verification resend attempts. Please try again in a minute.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 const signupValidators = [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('email').isEmail().normalizeEmail().withMessage('Please provide a valid email'),
@@ -28,8 +53,9 @@ const signupValidators = [
     .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter')
     .matches(/[0-9]/).withMessage('Password must contain at least one number')
     .matches(/[^A-Za-z0-9]/).withMessage('Password must contain at least one special character'),
-  body('photoURL').isURL().withMessage('Photo URL must be a valid URL'),
-  body('phone').trim().notEmpty().withMessage('Phone number is required'),
+  // Minimal signup fields only; optional profile fields can be added later.
+  body('photoURL').optional().isURL().withMessage('Photo URL must be a valid URL'),
+  body('phone').optional().trim(),
   body('company').trim().notEmpty().withMessage('Company is required'),
   body('website').optional().isURL().withMessage('Website URL must be a valid URL'),
 ];
@@ -70,14 +96,28 @@ router.post(
         company,
         website: website || '',
         status: 'pending',
+        isEmailVerified: false,
       });
 
+      const rawVerificationToken = setEmailVerificationToken(user);
       await user.save();
-
-      res.status(201).json({
-        message:
-          'Your account has been submitted for approval. You will be able to log in once the admin approves your request.',
-      });
+      // Hardening: do not fail account creation if email delivery fails.
+      // User remains created and can request resend later.
+      try {
+        await sendVerificationEmail(user, rawVerificationToken);
+        res.status(201).json({
+          message: 'Check your email to verify your account',
+        });
+      } catch (emailError) {
+        logger.error('Register verification email send failed', {
+          error: emailError.message,
+          userId: user._id?.toString(),
+          email: user.email,
+        });
+        res.status(201).json({
+          message: 'Account created, but verification email failed. Please use resend verification.',
+        });
+      }
     } catch (error) {
       console.error('Register error:', error);
       res.status(500).json({ message: 'Server error during registration', error: error.message });
@@ -125,14 +165,28 @@ router.post(
         company,
         website: website || '',
         status: 'approved',
+        isEmailVerified: false,
       });
 
+      const rawVerificationToken = setEmailVerificationToken(user);
       await user.save();
-
-      res.status(201).json({
-        message:
-          'Your account has been created. You can log in immediately because this signup endpoint auto-approves users.',
-      });
+      // Hardening: do not fail account creation if email delivery fails.
+      // User remains created and can request resend later.
+      try {
+        await sendVerificationEmail(user, rawVerificationToken);
+        res.status(201).json({
+          message: 'Check your email to verify your account',
+        });
+      } catch (emailError) {
+        logger.error('Signup verification email send failed', {
+          error: emailError.message,
+          userId: user._id?.toString(),
+          email: user.email,
+        });
+        res.status(201).json({
+          message: 'Account created, but verification email failed. Please use resend verification.',
+        });
+      }
     } catch (error) {
       console.error('Signup error:', error);
       res.status(500).json({ message: 'Server error during signup', error: error.message });
@@ -179,17 +233,15 @@ router.post(
         return res.status(401).json({ message: 'Invalid email or password' });
       }
 
-      // Manual approval flow: check status (admins and super_admins can always log in)
-      const isAdmin = user.role === 'admin' || user.role === 'super_admin';
-      if (!isAdmin) {
-        if (user.status === 'pending') {
-          return res.status(403).json({ message: 'Your account is awaiting admin approval.' });
-        }
-        if (user.status === 'rejected') {
-          return res.status(403).json({ message: 'Your registration was not approved.' });
-        }
+      // Enforce email verification before allowing login.
+      if (user.isEmailVerified === false) {
+        return res.status(403).json({ message: 'Please verify your email before logging in' });
       }
-      // Legacy users with no status are treated as approved
+
+      // Hardening: account must also be approved (applies to all roles).
+      if (user.status !== 'approved') {
+        return res.status(403).json({ message: 'Your account is pending approval' });
+      }
 
       // Track login timestamp and activity
       user.lastLoginAt = new Date();
@@ -229,6 +281,85 @@ router.post(
     } catch (error) {
       logger.error('Login error', { error: error.message });
       res.status(500).json({ message: 'Server error during login', error: error.message });
+    }
+  }
+);
+
+// @route   GET /api/auth/verify-email?token=...
+// @desc    Verify user email address
+// @access  Public
+router.get('/verify-email', async (req, res) => {
+  try {
+    const token = String(req.query.token || '').trim();
+    if (!token) {
+      return res.status(400).json({ message: 'Verification token is required' });
+    }
+
+    const hashedToken = hashVerificationToken(token);
+    const user = await User.findOne({
+      emailVerificationToken: hashedToken,
+      emailVerificationExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired verification token' });
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerificationToken = null;
+    user.emailVerificationExpires = null;
+    await user.save();
+
+    return res.json({ message: 'Email verified successfully' });
+  } catch (error) {
+    logger.error('Verify email error', { error: error.message });
+    return res.status(500).json({ message: 'Server error during email verification', error: error.message });
+  }
+});
+
+// @route   POST /api/auth/resend-verification
+// @desc    Resend email verification link
+// @access  Public
+router.post(
+  '/resend-verification',
+  resendVerificationLimiter,
+  [body('email').isEmail().normalizeEmail().withMessage('Please provide a valid email')],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation failed',
+          errors: errors.array().map((err) => ({
+            field: err.path || err.param,
+            message: err.msg,
+          })),
+        });
+      }
+
+      const { email } = req.body;
+      const user = await User.findOne({ email });
+      // Hardening: prevent account enumeration by always returning the same message.
+      // Only send when account exists and is not verified.
+      if (user && !user.isEmailVerified) {
+        const rawVerificationToken = setEmailVerificationToken(user);
+        await user.save();
+        try {
+          await sendVerificationEmail(user, rawVerificationToken);
+        } catch (emailError) {
+          logger.error('Resend verification email send failed', {
+            error: emailError.message,
+            userId: user._id?.toString(),
+            email: user.email,
+          });
+        }
+      }
+
+      return res.json({ message: 'If an account exists, a verification email has been sent.' });
+    } catch (error) {
+      logger.error('Resend verification error', { error: error.message });
+      return res.status(500).json({ message: 'Server error during verification resend', error: error.message });
     }
   }
 );
@@ -278,7 +409,7 @@ router.post(
 // @route   GET /api/auth/me
 // @desc    Get current user
 // @access  Private
-router.get('/me', authenticate, async (req, res) => {
+router.get('/me', authenticate, verifyApproved, async (req, res) => {
   try {
     res.json({
       user: {

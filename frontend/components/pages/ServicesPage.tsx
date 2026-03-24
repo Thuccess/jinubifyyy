@@ -11,8 +11,7 @@ import {
   CurrencyDollarIcon,
 } from '../icons/Icons';
 import { useServices } from '../../hooks/useServices';
-import SkeletonBlock from '../skeletons/SkeletonBlock';
-import SkeletonText from '../skeletons/SkeletonText';
+import { Skeleton, SkeletonCard, SkeletonText } from '../ui/skeleton';
 
 /** CMS-driven service item for public display */
 type ServiceDisplayItem = {
@@ -214,26 +213,23 @@ const ServicesPage: React.FC = () => {
       <section className="py-16 sm:py-20 lg:py-24" aria-label="Services">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           {isLoading ? (
-            <div className="space-y-8">
+            <div className="space-y-8 animate-fade-in-up">
               <div className="space-y-6">
-                <SkeletonBlock className="h-6 w-44" rounded="full" />
+                <Skeleton className="h-6 w-44" rounded="rounded-full" />
                 <div className="space-y-8">
                   {Array.from({ length: 2 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="rounded-lg border p-6 sm:p-8 flex flex-col gap-4 border-border-subtle bg-[color:var(--surface-card)]"
-                    >
-                      <SkeletonBlock className="h-8 w-72" rounded="full" />
+                    <div key={i} className="rounded-lg border p-6 sm:p-8 flex flex-col gap-4 border-border-subtle bg-[color:var(--surface-card)]">
+                      <Skeleton className="h-8 w-72" rounded="rounded-full" />
                       <SkeletonText lines={3} />
-                      <SkeletonBlock className="h-4 w-40" rounded="full" />
+                      <Skeleton className="h-4 w-40" rounded="rounded-full" />
                       <div className="space-y-2">
                         {Array.from({ length: 4 }).map((_, j) => (
-                          <SkeletonBlock key={j} className="h-3 w-full" rounded="full" />
+                          <Skeleton key={j} className="h-3 w-full" rounded="rounded-full" />
                         ))}
                       </div>
                       <div className="flex flex-wrap gap-3 pt-2">
-                        <SkeletonBlock className="h-10 w-40" rounded="xl" />
-                        <SkeletonBlock className="h-10 w-36" rounded="xl" />
+                        <Skeleton className="h-10 w-40" rounded="rounded-xl" />
+                        <Skeleton className="h-10 w-36" rounded="rounded-xl" />
                       </div>
                     </div>
                   ))}
@@ -241,26 +237,10 @@ const ServicesPage: React.FC = () => {
               </div>
 
               <div className="space-y-6 pt-8">
-                <SkeletonBlock className="h-6 w-32" rounded="full" />
-                <div className="space-y-8">
+                <Skeleton className="h-6 w-32" rounded="rounded-full" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {Array.from({ length: 3 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="rounded-lg border p-6 sm:p-8 flex flex-col gap-4 border-border-subtle bg-[color:var(--surface-card)]"
-                    >
-                      <SkeletonBlock className="h-8 w-80" rounded="full" />
-                      <SkeletonText lines={3} />
-                      <SkeletonBlock className="h-4 w-44" rounded="full" />
-                      <div className="space-y-2">
-                        {Array.from({ length: 4 }).map((_, j) => (
-                          <SkeletonBlock key={j} className="h-3 w-full" rounded="full" />
-                        ))}
-                      </div>
-                      <div className="flex flex-wrap gap-3 pt-2">
-                        <SkeletonBlock className="h-10 w-40" rounded="xl" />
-                        <SkeletonBlock className="h-10 w-36" rounded="xl" />
-                      </div>
-                    </div>
+                    <SkeletonCard key={i} />
                   ))}
                 </div>
               </div>

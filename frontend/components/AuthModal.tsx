@@ -12,6 +12,12 @@ const labelClass = 'block text-sm font-medium text-text-primary mb-1';
 const oauthBtnClass =
   'flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-border-subtle bg-[color:var(--surface-muted)] text-text-primary hover:bg-[color:var(--surface-card)] text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]';
 
+const getApiErrorMessage = (err: any, fallback: string) =>
+  err?.response?.data?.errors?.[0]?.message ||
+  err?.response?.data?.errors?.[0]?.msg ||
+  err?.response?.data?.message ||
+  fallback;
+
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -30,6 +36,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [verificationEmail, setVerificationEmail] = useState('');
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   
@@ -49,6 +60,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
     setView(initialView);
     setStep(1);
     setError('');
+    setSuccessMessage('');
+    setVerificationEmail('');
+    setResendMessage('');
+    setResendCooldown(0);
     setFormData({
       firstName: '',
       lastName: '',
@@ -62,10 +77,45 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
     });
   }, [initialView, isOpen]);
 
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const id = window.setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [resendCooldown]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setError('');
+    setResendMessage('');
+  };
+
+  const handleResendVerification = async (emailOverride?: string) => {
+    const email = (emailOverride || verificationEmail || formData.email || '').trim();
+    if (!email) {
+      setError('Please provide your email to resend verification.');
+      return;
+    }
+    setResendLoading(true);
+    setResendMessage('');
+    setError('');
+    try {
+      const res = await authAPI.resendVerification(email);
+      setResendMessage(res.message || 'Verification email sent');
+      setVerificationEmail(email);
+      // Backend limit is 3/min; use a 60s UI cooldown to avoid accidental spam.
+      setResendCooldown(60);
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message ||
+          err.response?.data?.errors?.[0]?.msg ||
+          'Failed to resend verification email.'
+      );
+    } finally {
+      setResendLoading(false);
+    }
   };
 
   const handleOAuth = (provider: 'google' | 'github') => {
@@ -84,6 +134,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccessMessage('');
+    setResendMessage('');
     try {
       const response = await authAPI.login({
         email: formData.email,
@@ -102,11 +154,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
       onSuccess(normalizedUser as User);
       onClose();
     } catch (err: any) {
-      setError(
-        err.response?.data?.message ||
-          err.response?.data?.errors?.[0]?.msg ||
-          'Failed to sign in. Please try again.'
-      );
+      const backendMessage = getApiErrorMessage(err, 'Failed to sign in. Please try again.');
+      const normalizedMessage =
+        backendMessage === 'Invalid credentials'
+          ? 'Invalid email or password'
+          :
+        backendMessage === 'Your account is pending approval'
+          ? 'Verified. Waiting for admin approval.'
+          : backendMessage;
+      setError(normalizedMessage);
+      if (backendMessage === 'Please verify your email before logging in') {
+        setVerificationEmail(formData.email.trim());
+      }
     } finally {
       setLoading(false);
     }
@@ -114,47 +173,42 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
 
   const handleSignUpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (step < 3) {
-      // Before moving to final step, ensure core account fields are filled
-      if (!formData.firstName.trim() && !formData.lastName.trim()) {
-        setError('Please enter your name.');
-        return;
-      }
-      if (!formData.email.trim() || !formData.password.trim()) {
-        setError('Please fill in your email and password.');
-        return;
-      }
-      setStep((s) => s + 1);
-      setError('');
+    // Minimal signup flow: name, email, password, company.
+    if (!formData.firstName.trim() && !formData.lastName.trim()) {
+      setError('Please enter your name.');
       return;
     }
-    // Final step: require company, phone, photo
-    if (!formData.company.trim() || !formData.phone.trim() || !formData.photoURL.trim()) {
-      setError('Company, phone number, and profile photo are required.');
+    if (!formData.email.trim() || !formData.password.trim() || !formData.company.trim()) {
+      setError('Name, email, password, and company are required.');
+      return;
+    }
+    const strongPassword = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (!strongPassword.test(formData.password)) {
+      setError('Password must be 8+ chars and include uppercase, lowercase, number, and special character.');
       return;
     }
     setLoading(true);
     setError('');
+    setSuccessMessage('');
+    setResendMessage('');
     try {
       const name = [formData.firstName, formData.lastName].filter(Boolean).join(' ') || formData.email;
       const response = await authAPI.register({
         name,
         email: formData.email,
         password: formData.password,
-        photoURL: formData.photoURL,
-        phone: formData.phone,
+        photoURL: formData.photoURL || undefined,
+        phone: formData.phone || undefined,
         company: formData.company,
         website: formData.website || undefined,
       });
-      setError(response.message || 'Your account has been submitted for approval. You will be able to log in once the admin approves your request.');
+      const verificationMsg = 'Check your email to verify your account';
+      setSuccessMessage(response.message || verificationMsg);
+      setVerificationEmail(formData.email.trim());
       setView('signIn');
       setStep(1);
     } catch (err: any) {
-      setError(
-        err.response?.data?.message || 
-        err.response?.data?.errors?.[0]?.msg ||
-          'Failed to sign up. Please try again.'
-      );
+      setError(getApiErrorMessage(err, 'Failed to sign up. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -318,6 +372,30 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                             {error}
                           </div>
                         )}
+                        {successMessage && (
+                          <div className="p-3 rounded-lg text-sm bg-[color:var(--surface-muted)] border border-border-subtle text-text-primary">
+                            {successMessage}
+                          </div>
+                        )}
+                        {(successMessage || error === 'Please verify your email before logging in') && (
+                          <button
+                            type="button"
+                            onClick={() => handleResendVerification()}
+                            disabled={resendLoading || resendCooldown > 0}
+                            className="w-full py-3 rounded-xl font-semibold btn-secondary disabled:opacity-60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
+                          >
+                            {resendLoading
+                              ? 'Sending...'
+                              : resendCooldown > 0
+                                ? `Resend Verification Email (${resendCooldown}s)`
+                                : 'Resend Verification Email'}
+                          </button>
+                        )}
+                        {resendMessage && (
+                          <div className="p-3 rounded-lg text-sm bg-[color:var(--surface-muted)] border border-border-subtle text-text-primary">
+                            {resendMessage}
+                          </div>
+                        )}
                         <button
                           type="submit"
                           disabled={loading}
@@ -384,18 +462,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                                   {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
                                 </button>
                               </div>
-                              <p className="mt-1 text-xs text-text-muted">Must be at least 8 characters.</p>
+                              <p className="mt-1 text-xs text-text-muted">Must be 8+ chars with uppercase, lowercase, number, and special character.</p>
                             </div>
-                          </>
-                        )}
-                        {step === 2 && (
-                          <div>
-                            <label htmlFor="workspaceName" className={labelClass}>Workspace name</label>
-                            <input type="text" id="workspaceName" name="workspaceName" value={formData.workspaceName} onChange={handleInputChange} className={inputClass} placeholder="eg. My Company" />
-                          </div>
-                        )}
-                        {step === 3 && (
-                          <>
                             <div>
                               <label htmlFor="company" className={labelClass}>Company name</label>
                               <input
@@ -408,42 +476,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                                 placeholder="eg. Jinubify Ltd."
                               />
                             </div>
-                            <div>
-                              <label htmlFor="phone" className={labelClass}>Phone number</label>
-                              <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleInputChange}
-                                className={inputClass}
-                                placeholder="eg. +256 700 000000"
-                              />
-                            </div>
-                            <div>
-                              <label htmlFor="photoURL" className={labelClass}>Profile photo URL</label>
-                              <input
-                                type="url"
-                                id="photoURL"
-                                name="photoURL"
-                                value={formData.photoURL}
-                                onChange={handleInputChange}
-                                className={inputClass}
-                                placeholder="https://example.com/photo.jpg"
-                              />
-                            </div>
-                            <div>
-                              <label htmlFor="website" className={labelClass}>Website URL (optional)</label>
-                              <input
-                                type="url"
-                                id="website"
-                                name="website"
-                                value={formData.website}
-                                onChange={handleInputChange}
-                                className={inputClass}
-                                placeholder="https://yourcompany.com"
-                              />
-                            </div>
                           </>
                         )}
 
@@ -454,21 +486,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                   )}
 
                         <div className="flex gap-3 mt-auto pt-4">
-                          {step > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => { setStep((s) => s - 1); setError(''); }}
-                              className="flex-1 py-3 rounded-xl font-medium border border-border-subtle text-text-secondary hover:bg-surface-muted transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
-                            >
-                              Back
-                            </button>
-                          )}
                   <button
                     type="submit"
                     disabled={loading}
                             className="flex-1 py-3 rounded-xl font-semibold btn-primary disabled:opacity-60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
                   >
-                            {loading ? 'Processing...' : step < 3 ? 'Next' : 'Sign Up'}
+                            {loading ? 'Processing...' : 'Sign Up'}
                   </button>
                         </div>
                 </form>

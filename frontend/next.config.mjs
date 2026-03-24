@@ -1,10 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Note: first-route slowness is primarily dev compilation behavior.
+  // Keep this explicit for production builds (no architecture change).
+  swcMinify: true,
+  onDemandEntries: {
+    // Keep more recently visited pages in memory in dev so route switches
+    // don't trigger frequent cold recompiles.
+    maxInactiveAge: 60 * 60 * 1000,
+    pagesBufferLength: 10,
+  },
   images: {
     // Allow image optimizer to fetch from the backend uploads (Render) and other whitelisted hosts.
     dangerouslyAllowLocalIP: true,
-    domains: ['jinubifyyy-2.onrender.com', 'localhost'],
     remotePatterns: [
       // Local backend uploads (development)
       {

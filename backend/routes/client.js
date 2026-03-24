@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, verifyApproved } from '../middleware/auth.js';
 import User from '../models/User.js';
 import Order from '../models/Order.js';
 import Activity from '../models/Activity.js';
@@ -11,7 +11,7 @@ import Report from '../models/Report.js';
 const router = express.Router();
 
 // All client routes require authentication
-router.use(authenticate);
+router.use(authenticate, verifyApproved);
 
 // @route   GET /api/client/dashboard-summary
 // @desc    Get high-level dashboard metrics for the logged-in client

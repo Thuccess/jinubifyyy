@@ -31,12 +31,23 @@ const AdminLoginPage: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   useEffect(() => {
     if (currentUser?.role === 'admin') {
       router.replace(next);
     }
   }, [currentUser?.role, next, router]);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const id = window.setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [resendCooldown]);
 
   if (currentUser?.role === 'admin') {
     return (
@@ -68,15 +79,49 @@ const AdminLoginPage: React.FC = () => {
       router.push(next);
     } catch (err: unknown) {
       const ax = err as { response?: { status?: number; data?: { message?: string; errors?: Array<{ msg?: string }> } } };
-      const msg =
-        ax.response?.data?.message ||
+      const backendMessage =
+        ax.response?.data?.errors?.[0]?.message ||
         ax.response?.data?.errors?.[0]?.msg ||
+        ax.response?.data?.message ||
         (ax.response?.status === 403
           ? 'Your account cannot access the admin area. It may be pending approval.'
           : 'Sign in failed. Please check your email and password.');
-      setError(msg);
+      const normalizedMessage =
+        backendMessage === 'Invalid credentials'
+          ? 'Invalid email or password'
+          :
+        backendMessage === 'Your account is pending approval'
+          ? 'Verified. Waiting for admin approval.'
+          : backendMessage;
+      setError(normalizedMessage);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    const targetEmail = email.trim();
+    if (!targetEmail) {
+      setError('Enter your email first, then resend verification.');
+      return;
+    }
+    setResendLoading(true);
+    setResendMessage('');
+    setError('');
+    try {
+      const res = await authAPI.resendVerification(targetEmail);
+      setResendMessage(res.message || 'Verification email sent');
+      setResendCooldown(60);
+    } catch (err: unknown) {
+      const ax = err as { response?: { data?: { message?: string; errors?: Array<{ msg?: string }> } } };
+      setError(
+        ax.response?.data?.errors?.[0]?.message ||
+          ax.response?.data?.errors?.[0]?.msg ||
+          ax.response?.data?.message ||
+          'Failed to resend verification email.',
+      );
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -113,6 +158,7 @@ const AdminLoginPage: React.FC = () => {
                 onChange={(e) => {
                   setEmail(e.target.value);
                   setError('');
+                  setResendMessage('');
                 }}
                 required
                 className="block w-full px-4 py-2 border border-border-subtle rounded-lg shadow-sm bg-bg-primary dark:bg-bg-primary text-text-primary focus:ring-brand-ring focus:border-border-accent"
@@ -136,6 +182,7 @@ const AdminLoginPage: React.FC = () => {
                 onChange={(e) => {
                   setPassword(e.target.value);
                   setError('');
+                  setResendMessage('');
                 }}
                 required
                 minLength={6}
@@ -166,6 +213,25 @@ const AdminLoginPage: React.FC = () => {
                 role="alert"
               >
                 <p className="text-sm text-text-primary">{error}</p>
+              </div>
+            )}
+            {error === 'Please verify your email before logging in' && (
+              <button
+                type="button"
+                disabled={resendLoading || resendCooldown > 0}
+                onClick={handleResendVerification}
+                className="w-full flex justify-center py-2 px-4 rounded-lg border border-border-subtle text-sm font-medium text-text-primary hover:bg-surface-muted/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-ring disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+              >
+                {resendLoading
+                  ? 'Sending...'
+                  : resendCooldown > 0
+                    ? `Resend Verification Email (${resendCooldown}s)`
+                    : 'Resend Verification Email'}
+              </button>
+            )}
+            {resendMessage && (
+              <div className="p-3 bg-surface-muted border border-border-subtle rounded-lg">
+                <p className="text-sm text-text-primary">{resendMessage}</p>
               </div>
             )}
 

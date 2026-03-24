@@ -56,6 +56,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 5000;
 let server;
+let reconnectTimer = null;
+let reconnectInFlight = false;
 
 // Trust Render / reverse proxy (correct req.ip, req.protocol, rate limits)
 app.set('trust proxy', 1);
@@ -289,6 +291,27 @@ const connectDB = async (retries = 3, delay = 5000) => {
   }
 };
 
+const scheduleReconnect = () => {
+  if (reconnectInFlight || reconnectTimer) return;
+  // Short delayed retry keeps reconnect non-blocking for request handling.
+  reconnectTimer = setTimeout(async () => {
+    reconnectTimer = null;
+    if (mongoose.connection.readyState === 1 || reconnectInFlight) return;
+    reconnectInFlight = true;
+    try {
+      console.warn('🔄 MongoDB reconnect attempt starting...');
+      await connectDB(2, 3000);
+      console.log('✅ MongoDB reconnected');
+    } catch (error) {
+      console.error('❌ MongoDB reconnect failed:', error.message || error);
+      // Re-schedule instead of blocking or exiting.
+      scheduleReconnect();
+    } finally {
+      reconnectInFlight = false;
+    }
+  }, 3000);
+};
+
 // Connection event handlers (log message only to avoid huge stack traces)
 mongoose.connection.on('error', (err) => {
   console.error('MongoDB connection error:', err.message || err);
@@ -296,6 +319,7 @@ mongoose.connection.on('error', (err) => {
 
 mongoose.connection.on('disconnected', () => {
   console.warn('⚠️  MongoDB disconnected');
+  scheduleReconnect();
 });
 
 // Graceful shutdown
@@ -325,7 +349,9 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 const startServer = async () => {
   try {
     await connectDB();
-    if (process.env.NODE_ENV !== 'test') {
+    // Keep cron workloads out of local dev/test to reduce event-loop pressure
+    // and improve API responsiveness while iterating.
+    if (process.env.NODE_ENV === 'production') {
       startPublishScheduledPostsJob();
       startCleanupUnusedMediaJob();
     }

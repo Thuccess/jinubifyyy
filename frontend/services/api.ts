@@ -68,16 +68,24 @@ api.interceptors.response.use(
 
 // Auth API
 export const authAPI = {
-  signup: async (data: { name: string; email: string; password: string; photoURL?: string }): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>('/auth/signup', data);
+  signup: async (data: { name: string; email: string; password: string; company: string; photoURL?: string; phone?: string; website?: string }): Promise<{ message: string }> => {
+    const response = await api.post<{ message: string }>('/auth/signup', data);
     return response.data;
   },
-  register: async (data: { name: string; email: string; password: string; photoURL: string; phone: string; company: string; website?: string }) => {
+  register: async (data: { name: string; email: string; password: string; company: string; photoURL?: string; phone?: string; website?: string }) => {
     const response = await api.post<{ message: string }>('/auth/register', data);
     return response.data;
   },
   login: async (data: { email: string; password: string }): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>('/auth/login', data);
+    return response.data;
+  },
+  verifyEmail: async (token: string): Promise<{ message: string }> => {
+    const response = await api.get<{ message: string }>('/auth/verify-email', { params: { token } });
+    return response.data;
+  },
+  resendVerification: async (email: string): Promise<{ message: string }> => {
+    const response = await api.post<{ message: string }>('/auth/resend-verification', { email });
     return response.data;
   },
   getCurrentUser: async (): Promise<{ user: User }> => {
@@ -90,6 +98,10 @@ export const authAPI = {
 export const userAPI = {
   getProfile: async (): Promise<UserProfileResponse> => {
     const response = await api.get<UserProfileResponse>('/users/profile');
+    return response.data;
+  },
+  getMyQr: async (): Promise<{ message: string; qrDataUrl: string; profileUrl: string }> => {
+    const response = await api.get<{ message: string; qrDataUrl: string; profileUrl: string }>('/users/me/qr');
     return response.data;
   },
   updateProfile: async (data: UpdateProfileData): Promise<UserProfileResponse> => {

@@ -50,13 +50,25 @@ async function cleanupUnusedMedia() {
 }
 
 let scheduledTask = null;
+let isRunning = false;
 
 /**
  * Start the cron job (weekly, Sunday 03:00). Call after DB is connected.
  */
 export function startCleanupUnusedMediaJob() {
   if (scheduledTask) return;
-  scheduledTask = cron.schedule('0 3 * * 0', cleanupUnusedMedia, { scheduled: true });
+  scheduledTask = cron.schedule('0 3 * * 0', async () => {
+    // Prevent overlapping cleanup runs under slow I/O conditions.
+    if (isRunning) return;
+    isRunning = true;
+    try {
+      await cleanupUnusedMedia();
+    } catch (err) {
+      console.error('[cleanupUnusedMedia] Cron execution error:', err);
+    } finally {
+      isRunning = false;
+    }
+  }, { scheduled: true });
   if (process.env.NODE_ENV !== 'test') {
     console.log('[jobs] cleanupUnusedMedia cron registered (weekly, Sunday 03:00).');
   }

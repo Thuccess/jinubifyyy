@@ -40,6 +40,22 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'editor', 'admin', 'super_admin'],
     default: 'user',
   },
+  // Email verification state for signup/login gating.
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+    index: true,
+  },
+  emailVerificationToken: {
+    type: String,
+    default: null,
+    index: true,
+  },
+  emailVerificationExpires: {
+    type: Date,
+    default: null,
+    index: true,
+  },
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
@@ -124,7 +140,6 @@ userSchema.methods.toJSON = function () {
 
 // Indexes for performance
 userSchema.index({ role: 1 });
-userSchema.index({ status: 1 });
 
 const User = mongoose.model('User', userSchema);
 

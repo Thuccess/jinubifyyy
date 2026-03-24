@@ -1,12 +1,12 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import Brief from '../models/Brief.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, verifyApproved } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // All brief routes require authentication
-router.use(authenticate);
+router.use(authenticate, verifyApproved);
 
 // @route   GET /api/briefs
 // @desc    List briefs for the current user

@@ -89,10 +89,9 @@ export const normalizeImageUrl = resolveImageUrl;
 export function shouldBypassImageOptimizer(src: string): boolean {
   if (!src || typeof src !== 'string') return false;
 
-  // Force bypass for Render-hosted uploaded images.
-  // This prevents Vercel's `/_next/image` proxy from fetching Render /uploads and
-  // intermittently failing with 502 when Render sleeps / times out.
-  if (src.includes('onrender.com') && src.includes('/uploads/')) return true;
+  // Any backend /uploads asset should bypass Next optimizer.
+  // This avoids optimizer amplification when files are missing or slow.
+  if (src.includes('/uploads/')) return true;
 
   // If the caller passed a relative path like `/uploads/foo.webp`,
   // decide based on the configured backend origin.
