@@ -116,7 +116,7 @@ const DemoOverviewPage: React.FC = () => {
                             videoTitle={demo.title}
                             aspect="4/3"
                             rounded="none"
-                            sizes="(max-width: 768px) 100vw, 400px"
+                            sizesPreset="gridThree"
                           />
                         ) : coverUrl ? (
                           <button
@@ -129,7 +129,7 @@ const DemoOverviewPage: React.FC = () => {
                               alt={demo.title}
                               aspect="4/3"
                               rounded="none"
-                              sizes="(max-width: 768px) 100vw, 400px"
+                              sizesPreset="gridThree"
                               className="pointer-events-none"
                             />
                           </button>

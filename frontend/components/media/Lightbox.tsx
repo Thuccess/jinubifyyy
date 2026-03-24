@@ -11,6 +11,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { normalizeImageUrl } from '@/utils/image';
+import { SMART_IMAGE_SIZES } from '@/components/media/imageSizes';
 import { ChevronLeftIcon, ChevronRightIcon, XMarkIcon } from '@/components/icons/Icons';
 
 export type LightboxItem = {
@@ -181,7 +182,7 @@ export default function Lightbox({
               src={src}
               alt={current.alt}
               fill
-              sizes="100vw"
+              sizes={SMART_IMAGE_SIZES.modal}
               className="object-contain"
               priority
             />

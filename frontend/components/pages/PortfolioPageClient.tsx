@@ -42,7 +42,7 @@ const ProjectCard: React.FC<{ project: Project; onClick: () => void }> = ({ proj
       alt={project.title}
       aspect="4/3"
       rounded="none"
-      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
+      sizesPreset="gridFour"
       className="rounded-t-lg"
     />
     <div className="p-4 sm:p-5">

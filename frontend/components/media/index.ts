@@ -13,3 +13,8 @@ export type { AvatarMediaProps } from './AvatarMedia';
 export { MediaCardFrame } from './MediaCard';
 export type { MediaCardProps } from './MediaCard';
 export * from './utils';
+export {
+  SMART_IMAGE_SIZES,
+  resolveSmartImageSizes,
+  type SmartImageSizesPreset,
+} from './imageSizes';

@@ -37,7 +37,7 @@ const BlogPostCard: React.FC<{ post: BlogPost; formatDate: (date: string | Date)
         alt={post.title}
         aspect="16/9"
         rounded="none"
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
+        sizesPreset="gridThree"
       />
     </div>
     <div className="p-5 flex flex-col flex-grow">

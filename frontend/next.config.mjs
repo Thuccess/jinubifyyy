@@ -9,6 +9,9 @@ const nextConfig = {
     pagesBufferLength: 10,
   },
   images: {
+    // Align generated widths with common breakpoints so `sizes` + srcset match real layouts.
+    deviceSizes: [390, 640, 768, 1024, 1280, 1536, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384, 480],
     // Allow image optimizer to fetch from the backend uploads (Render) and other whitelisted hosts.
     dangerouslyAllowLocalIP: true,
     remotePatterns: [

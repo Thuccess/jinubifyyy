@@ -142,7 +142,7 @@ const DemoGalleryPage: React.FC = () => {
                       alt={`${demo.title} – demo image ${index + 1}`}
                       aspect="1/1"
                       rounded="xl"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      sizesPreset="gridFour"
                       className="pointer-events-none"
                     />
                   </button>

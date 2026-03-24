@@ -6,6 +6,12 @@ import Image from 'next/image';
 import { useMemo, useState, useEffect } from 'react';
 import { resolveImageUrl, shouldBypassImageOptimizer } from '@/utils/image';
 import { SkeletonMedia } from './SkeletonMedia';
+import {
+  resolveSmartImageSizes,
+  type SmartImageSizesPreset,
+} from './imageSizes';
+
+export type { SmartImageSizesPreset } from './imageSizes';
 import { pickImageQuality, TRANSPARENT_PLACEHOLDER } from './utils';
 
 const aspectClass: Record<string, string> = {
@@ -30,7 +36,13 @@ export type SmartImageProps = {
   aspect?: '1/1' | '4/3' | '16/9';
   rounded?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
   priority?: boolean;
+  /** Override preset — raw `sizes` string passed to `next/image`. */
   sizes?: string;
+  /**
+   * Layout-aware responsive fetch hints (ignored if `sizes` is set).
+   * Default `gridThree` matches md:2 / lg:3 cards.
+   */
+  sizesPreset?: SmartImageSizesPreset;
   /** Default cover for photos; use contain for logos / transparent artwork. */
   objectFit?: 'cover' | 'contain';
   className?: string;
@@ -39,9 +51,6 @@ export type SmartImageProps = {
   /** Forward compatible with extra next/image props (e.g. fetchPriority). */
   imageProps?: Partial<Omit<ImageProps, 'src' | 'alt' | 'fill' | 'sizes'>>;
 };
-
-const DEFAULT_SIZES =
-  '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1536px) 33vw, 25vw';
 
 /**
  * Aspect-ratio–locked image with skeleton, blur-in reveal, lazy load, and transparent-friendly container.
@@ -52,7 +61,8 @@ export default function SmartImage({
   aspect = '16/9',
   rounded = 'xl',
   priority = false,
-  sizes = DEFAULT_SIZES,
+  sizes,
+  sizesPreset = 'gridThree',
   objectFit = 'cover',
   className,
   overlay = 'none',
@@ -79,6 +89,7 @@ export default function SmartImage({
 
   const aspectCls = aspectClass[aspect] ?? 'aspect-video';
   const roundedCls = roundedMap[rounded] ?? 'rounded-xl';
+  const resolvedSizes = resolveSmartImageSizes(sizesPreset, sizes);
 
   return (
     <div
@@ -105,7 +116,7 @@ export default function SmartImage({
           src={displaySrc}
           alt={failed ? '' : alt}
           fill
-          sizes={sizes}
+          sizes={resolvedSizes}
           quality={quality}
           priority={priority}
           loading={priority ? 'eager' : 'lazy'}
