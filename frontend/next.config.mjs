@@ -1,9 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Note: first-route slowness is primarily dev compilation behavior.
-  // Keep this explicit for production builds (no architecture change).
-  swcMinify: true,
+  // Next.js 16+ always uses SWC for minification; `swcMinify` was removed.
   onDemandEntries: {
     // Keep more recently visited pages in memory in dev so route switches
     // don't trigger frequent cold recompiles.

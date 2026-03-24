@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import type { ImageProps } from 'next/image';
 import Image from 'next/image';
+import { useMemo, useState } from 'react';
 import { shouldBypassImageOptimizer } from '@/utils/image';
 
 const PLACEHOLDER_SRC = '/search-engine-logo.png';
@@ -12,10 +13,17 @@ const PLACEHOLDER_SRC = '/search-engine-logo.png';
  * - prevents infinite retry loops
  * - keeps Next Image optimizations when safe
  */
-export default function SmartImage({ src, alt, onError, unoptimized, ...rest }) {
+export default function SmartImage({
+  src,
+  alt,
+  onError,
+  unoptimized,
+  ...rest
+}: ImageProps) {
   const baseSrc = typeof src === 'string' ? src : '';
   const [hasFallback, setHasFallback] = useState(false);
-  const resolvedSrc = hasFallback || !baseSrc ? PLACEHOLDER_SRC : src;
+  const resolvedSrc =
+    hasFallback || !baseSrc ? PLACEHOLDER_SRC : (src as ImageProps['src']);
   const effectiveSrc = typeof resolvedSrc === 'string' ? resolvedSrc : '';
 
   const finalUnoptimized = useMemo(
@@ -38,4 +46,3 @@ export default function SmartImage({ src, alt, onError, unoptimized, ...rest }) 
     />
   );
 }
-

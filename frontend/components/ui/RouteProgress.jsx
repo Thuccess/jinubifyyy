@@ -1,19 +1,22 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { doneProgress, setupProgressBar, startProgress } from '@/lib/progress';
 
-export default function RouteProgress() {
+function RouteProgressSync() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     setupProgressBar();
-    // Route completed when pathname/search updates.
     doneProgress();
   }, [pathname, searchParams]);
 
+  return null;
+}
+
+export default function RouteProgress() {
   useEffect(() => {
     const clickHandler = (event) => {
       const target = event.target?.closest?.('a[href]');
@@ -31,6 +34,9 @@ export default function RouteProgress() {
     return () => window.removeEventListener('click', clickHandler);
   }, []);
 
-  return null;
+  return (
+    <Suspense fallback={null}>
+      <RouteProgressSync />
+    </Suspense>
+  );
 }
-

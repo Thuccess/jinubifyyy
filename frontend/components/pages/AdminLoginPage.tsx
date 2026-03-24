@@ -78,7 +78,7 @@ const AdminLoginPage: React.FC = () => {
 
       router.push(next);
     } catch (err: unknown) {
-      const ax = err as { response?: { status?: number; data?: { message?: string; errors?: Array<{ msg?: string }> } } };
+      const ax = err as { response?: { status?: number; data?: { message?: string; errors?: Array<{ msg?: string; message?: string }> } } };
       const backendMessage =
         ax.response?.data?.errors?.[0]?.message ||
         ax.response?.data?.errors?.[0]?.msg ||
@@ -113,7 +113,7 @@ const AdminLoginPage: React.FC = () => {
       setResendMessage(res.message || 'Verification email sent');
       setResendCooldown(60);
     } catch (err: unknown) {
-      const ax = err as { response?: { data?: { message?: string; errors?: Array<{ msg?: string }> } } };
+      const ax = err as { response?: { data?: { message?: string; errors?: Array<{ msg?: string; message?: string }> } } };
       setError(
         ax.response?.data?.errors?.[0]?.message ||
           ax.response?.data?.errors?.[0]?.msg ||
