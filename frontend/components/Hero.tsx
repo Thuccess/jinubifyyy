@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from '@/components/NextImage';
+import { AvatarMedia } from '@/components/media/AvatarMedia';
 import dynamic from 'next/dynamic';
 import { CheckIcon, StarIcon, WandIcon, PaperAirplaneIcon } from './icons/Icons';
 import Icon from './ui/Icon';
@@ -82,7 +83,13 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
         >
             <div className="card-solid p-3 rounded-xl">
                 <div className="flex items-center space-x-2">
-                    <Image src="https://picsum.photos/seed/person1/32/32" alt="Client avatar" width={32} height={32} className="w-8 h-8 rounded-full object-cover" />
+                    <AvatarMedia
+                      name="Client"
+                      src="https://picsum.photos/seed/person1/32/32"
+                      alt="Client avatar"
+                      size={32}
+                      showRing={false}
+                    />
                     <p className="text-xs text-text-secondary">New followers this week</p>
                     <span className="text-xs" aria-hidden="true">🎉</span>
                 </div>
@@ -113,7 +120,13 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
                     <div>
                         <p className="text-sm font-semibold text-text-primary">Campaign #1245</p>
                         <div className="flex items-center space-x-2 mt-2">
-                             <Image src="https://picsum.photos/seed/person2/32/32" alt="Client avatar" width={32} height={32} className="w-8 h-8 rounded-full object-cover" />
+                             <AvatarMedia
+                               name="Premium client"
+                               src="https://picsum.photos/seed/person2/32/32"
+                               alt="Client avatar"
+                               size={32}
+                               showRing={false}
+                             />
                              <div>
                                  <p className="text-xs font-semibold text-text-primary">delarestuale</p>
                                  <p className="text-xs text-text-muted">Premium client</p>
@@ -205,9 +218,9 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
             style={{ animationDelay: '500ms' }}
           >
             <div className="flex -space-x-2">
-                <Image src="https://picsum.photos/seed/avatar1/32/32" alt="Satisfied user 1" width={32} height={32} className="inline-block h-8 w-8 rounded-full object-cover ring-2 ring-[color:var(--bg-primary)]" />
-                <Image src="https://picsum.photos/seed/avatar2/32/32" alt="Satisfied user 2" width={32} height={32} className="inline-block h-8 w-8 rounded-full object-cover ring-2 ring-[color:var(--bg-primary)]" />
-                <Image src="https://picsum.photos/seed/avatar3/32/32" alt="Satisfied user 3" width={32} height={32} className="inline-block h-8 w-8 rounded-full object-cover ring-2 ring-[color:var(--bg-primary)]" />
+                <AvatarMedia name="User one" src="https://picsum.photos/seed/avatar1/32/32" alt="Satisfied user 1" size={32} className="inline-block ring-2 ring-[color:var(--bg-primary)]" />
+                <AvatarMedia name="User two" src="https://picsum.photos/seed/avatar2/32/32" alt="Satisfied user 2" size={32} className="inline-block ring-2 ring-[color:var(--bg-primary)]" />
+                <AvatarMedia name="User three" src="https://picsum.photos/seed/avatar3/32/32" alt="Satisfied user 3" size={32} className="inline-block ring-2 ring-[color:var(--bg-primary)]" />
             </div>
             <div className="flex items-center text-sm">
                 <Icon icon={StarIcon} size="sm" tone="muted" />

@@ -2,7 +2,8 @@
 
 import React, { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Image from '@/components/NextImage';
+import SmartImage from '@/components/media/SmartImage';
+import VideoThumbnail from '@/components/media/VideoThumbnail';
 import AnimatedSection from '../AnimatedSection';
 import { normalizeImageUrl } from '../../utils/image';
 import { useServiceBySlug, useDemosByServiceSlug } from '../../hooks/useServices';
@@ -23,6 +24,8 @@ const DemoOverviewPage: React.FC = () => {
     coverImageUrl?: string;
     images?: { url: string; order: number }[];
     service?: { title: string; slug: string };
+    /** Optional showcase video — when set, thumbnail opens muted modal instead of navigating. */
+    videoUrl?: string;
   }>;
 
   const isLoading = serviceLoading || demosLoading;
@@ -99,34 +102,55 @@ const DemoOverviewPage: React.FC = () => {
                 const rawCover = demo.coverImageUrl || sortedImages[0]?.url || '';
                 const coverUrl = rawCover ? normalizeImageUrl(rawCover) : '';
 
+                const hasVideo = Boolean(demo.videoUrl?.trim());
+
                 return (
                   <AnimatedSection key={demo._id}>
-                    <button
-                      type="button"
-                      onClick={() => router.push(`/demos/${serviceSlug}`)}
-                      className="w-full text-left card-solid rounded-2xl border border-border-subtle overflow-hidden flex flex-col h-full transition-all duration-200 hover:border-border-accent hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
-                    >
-                      <div className="aspect-[4/3] min-h-[160px] bg-surface-muted overflow-hidden relative">
-                        {coverUrl ? (
-                          <Image
+                    <div className="card-solid flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border-subtle text-left transition-all duration-200 hover:border-border-accent hover:shadow-lg">
+                      <div className="relative min-h-[160px] w-full bg-transparent">
+                        {hasVideo && coverUrl ? (
+                          <VideoThumbnail
                             src={coverUrl}
                             alt={demo.title}
-                            fill
+                            videoUrl={demo.videoUrl!.trim()}
+                            videoTitle={demo.title}
+                            aspect="4/3"
+                            rounded="none"
                             sizes="(max-width: 768px) 100vw, 400px"
-                            className="object-cover"
                           />
+                        ) : coverUrl ? (
+                          <button
+                            type="button"
+                            onClick={() => router.push(`/demos/${serviceSlug}`)}
+                            className="relative block w-full bg-transparent text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:var(--accent-ring)]"
+                          >
+                            <SmartImage
+                              src={coverUrl}
+                              alt={demo.title}
+                              aspect="4/3"
+                              rounded="none"
+                              sizes="(max-width: 768px) 100vw, 400px"
+                              className="pointer-events-none"
+                            />
+                          </button>
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-text-secondary text-sm">
+                          <button
+                            type="button"
+                            onClick={() => router.push(`/demos/${serviceSlug}`)}
+                            className="flex min-h-[160px] w-full items-center justify-center bg-transparent text-sm text-text-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:var(--accent-ring)]"
+                          >
                             No image
-                          </div>
+                          </button>
                         )}
                       </div>
-                      <div className="p-5 sm:p-6 flex flex-col flex-grow">
-                        <h2 className="text-lg font-bold text-text-primary">
-                          {demo.title}
-                        </h2>
-                      </div>
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => router.push(`/demos/${serviceSlug}`)}
+                        className="flex flex-grow flex-col p-5 pb-6 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:var(--accent-ring)] sm:p-6"
+                      >
+                        <h2 className="text-lg font-bold text-text-primary">{demo.title}</h2>
+                      </button>
+                    </div>
                   </AnimatedSection>
                 );
               })}

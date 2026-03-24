@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import Image from '@/components/NextImage';
+import SmartImage from '@/components/media/SmartImage';
 import AnimatedSection from '../AnimatedSection';
 import { blogsPublicAPI } from '../../services/api';
 import { SearchIcon } from '../icons/Icons';
@@ -31,14 +31,13 @@ const BlogPostCard: React.FC<{ post: BlogPost; formatDate: (date: string | Date)
     href={`/blog/${post.slug}`}
     className="group flex flex-col rounded-lg border border-border-subtle bg-[color:var(--surface-card)] overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2"
   >
-    <div className="overflow-hidden relative w-full h-44">
-      <Image
-        src={normalizeImageUrl(post.imageUrl || post.coverImage || '') || '/logo/logo-light.png'}
+    <div className="relative w-full overflow-hidden bg-transparent">
+      <SmartImage
+        src={normalizeImageUrl(post.imageUrl || post.coverImage || '')}
         alt={post.title}
-        fill
+        aspect="16/9"
+        rounded="none"
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-        loading="lazy"
-        className="object-cover"
       />
     </div>
     <div className="p-5 flex flex-col flex-grow">

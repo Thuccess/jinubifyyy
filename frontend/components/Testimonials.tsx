@@ -1,7 +1,7 @@
  'use client';
 
 import React, { useState, useEffect } from 'react';
-import Image from '@/components/NextImage';
+import { AvatarMedia } from '@/components/media/AvatarMedia';
 import { StarIcon, QuoteIcon, ChevronLeftIcon, ChevronRightIcon } from './icons/Icons';
 import Icon from './ui/Icon';
 import { testimonialsAPI, type TestimonialItem } from '../services/api';
@@ -136,12 +136,13 @@ const Testimonials: React.FC<{ content?: Record<string, unknown> }> = () => {
                 {current.text}
               </p>
               <div className="flex items-center gap-4 pt-2">
-                <Image
-                  src={normalizeImageUrl(current.avatar || '') || '/logo/logo-light.png'}
+                <AvatarMedia
+                  name={current.name}
+                  src={normalizeImageUrl(current.avatar || '')}
                   alt={current.name}
-                  width={56}
-                  height={56}
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border border-surface-card shadow"
+                  size={56}
+                  showRing={false}
+                  className="border border-surface-card shadow"
                 />
                 <div>
                   <p className="font-semibold text-text-primary">{current.name}</p>
