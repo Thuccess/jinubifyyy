@@ -361,5 +361,19 @@ router.get('/me', authenticate, verifyApproved, async (req, res) => {
   }
 });
 
+// TEMP TEST ROUTE: verify Gmail SMTP can send a message.
+router.get('/test-email', async (req, res) => {
+  try {
+    await sendVerificationEmail(
+      { email: process.env.SMTP_USER, name: 'Test User' },
+      'test-token',
+    );
+    res.json({ message: 'Test email sent' });
+  } catch (err) {
+    console.error('Test email failed:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
 

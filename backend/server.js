@@ -8,32 +8,6 @@ import dotenv from 'dotenv';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
-import authRoutes from './routes/auth.js';
-import userRoutes from './routes/users.js';
-import blogRoutes from './routes/blog.js';
-import blogsPublicRoutes from './routes/blogsPublic.js';
-import contactRoutes from './routes/contact.js';
-import dashboardRoutes from './routes/dashboard.js';
-import adminRoutes from './routes/admin.js';
-import clientRoutes from './routes/client.js';
-import serviceRoutes from './routes/services.js';
-import pricingRoutes from './routes/pricing.js';
-import orderRoutes from './routes/orders.js';
-import demoRoutes from './routes/demos.js';
-import testimonialRoutes from './routes/testimonials.js';
-import aboutRoutes from './routes/about.js';
-import teamRoutes from './routes/team.js';
-import cmsRoutes from './routes/cms.js';
-import adminCmsRoutes from './routes/adminCms.js';
-import briefRoutes from './routes/briefs.js';
-import assetRoutes from './routes/assets.js';
-import careerRoutes from './routes/career.js';
-import investmentRoutes from './routes/investment.js';
-import pagesPublicRoutes from './routes/pagesPublic.js';
-import uploadRoutes from './routes/upload.js';
-import eventsRoutes from './routes/events.js';
-import portfolioRoutes from './routes/portfolio.js';
-import siteSocialsRoutes from './routes/siteSocials.js';
 import { mongoSanitizeMiddleware } from './middleware/sanitize.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
@@ -51,6 +25,64 @@ dotenv.config();
 
 // Validate environment variables
 validateEnv();
+
+// Load routes AFTER dotenv has populated process.env.
+// This avoids any SMTP/JWT env-dependent initialization happening at import-time.
+const [
+  { default: authRoutes },
+  { default: userRoutes },
+  { default: blogRoutes },
+  { default: blogsPublicRoutes },
+  { default: contactRoutes },
+  { default: dashboardRoutes },
+  { default: adminRoutes },
+  { default: clientRoutes },
+  { default: serviceRoutes },
+  { default: pricingRoutes },
+  { default: orderRoutes },
+  { default: demoRoutes },
+  { default: testimonialRoutes },
+  { default: aboutRoutes },
+  { default: teamRoutes },
+  { default: cmsRoutes },
+  { default: adminCmsRoutes },
+  { default: briefRoutes },
+  { default: assetRoutes },
+  { default: careerRoutes },
+  { default: investmentRoutes },
+  { default: pagesPublicRoutes },
+  { default: uploadRoutes },
+  { default: eventsRoutes },
+  { default: portfolioRoutes },
+  { default: siteSocialsRoutes },
+] = await Promise.all([
+  import('./routes/auth.js'),
+  import('./routes/users.js'),
+  import('./routes/blog.js'),
+  import('./routes/blogsPublic.js'),
+  import('./routes/contact.js'),
+  import('./routes/dashboard.js'),
+  import('./routes/admin.js'),
+  import('./routes/client.js'),
+  import('./routes/services.js'),
+  import('./routes/pricing.js'),
+  import('./routes/orders.js'),
+  import('./routes/demos.js'),
+  import('./routes/testimonials.js'),
+  import('./routes/about.js'),
+  import('./routes/team.js'),
+  import('./routes/cms.js'),
+  import('./routes/adminCms.js'),
+  import('./routes/briefs.js'),
+  import('./routes/assets.js'),
+  import('./routes/career.js'),
+  import('./routes/investment.js'),
+  import('./routes/pagesPublic.js'),
+  import('./routes/upload.js'),
+  import('./routes/events.js'),
+  import('./routes/portfolio.js'),
+  import('./routes/siteSocials.js'),
+]);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
