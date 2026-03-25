@@ -36,6 +36,7 @@ import { formatValidationErrors } from '../middleware/errorHandler.js';
 import defaultSocials from '../data/defaultSocials.js';
 import { getUploadsDir } from '../config/uploadsPath.js';
 import cloudinary from '../config/cloudinary.js';
+import { authenticate, verifyApproved } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -51,6 +52,9 @@ const UPLOAD_DIR = getUploadsDir();
 
 // Apply rate limiting to admin routes
 router.use(adminLimiter);
+
+// Enforce production-grade account readiness before any admin access.
+router.use(authenticate, verifyApproved);
 
 // All admin routes require admin role
 router.use(requireAdmin);

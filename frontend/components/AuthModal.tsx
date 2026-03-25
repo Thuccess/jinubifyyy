@@ -12,11 +12,9 @@ const labelClass = 'block text-sm font-medium text-text-primary mb-1';
 const oauthBtnClass =
   'flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-border-subtle bg-[color:var(--surface-muted)] text-text-primary hover:bg-[color:var(--surface-card)] text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]';
 
-const getApiErrorMessage = (err: any, fallback: string) =>
-  err?.response?.data?.errors?.[0]?.message ||
-  err?.response?.data?.errors?.[0]?.msg ||
-  err?.response?.data?.message ||
-  fallback;
+const getApiErrorMessage = (err: any) =>
+  (typeof err?.response?.data?.message === 'string' && err.response.data.message) ||
+  'Something went wrong';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -108,11 +106,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
       // Backend limit is 3/min; use a 60s UI cooldown to avoid accidental spam.
       setResendCooldown(60);
     } catch (err: any) {
-      setError(
-        err.response?.data?.message ||
-          err.response?.data?.errors?.[0]?.msg ||
-          'Failed to resend verification email.'
-      );
+      setError(getApiErrorMessage(err));
     } finally {
       setResendLoading(false);
     }
@@ -154,11 +148,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
       onSuccess(normalizedUser as User);
       onClose();
     } catch (err: any) {
-      const backendMessage = getApiErrorMessage(err, 'Failed to sign in. Please try again.');
+      const backendMessage = getApiErrorMessage(err);
       const normalizedMessage =
-        backendMessage === 'Invalid credentials'
-          ? 'Invalid email or password'
-          :
         backendMessage === 'Your account is pending approval'
           ? 'Verified. Waiting for admin approval.'
           : backendMessage;
@@ -192,15 +183,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
     setSuccessMessage('');
     setResendMessage('');
     try {
-      const name = [formData.firstName, formData.lastName].filter(Boolean).join(' ') || formData.email;
+      const name = [formData.firstName, formData.lastName].filter(Boolean).join(' ').trim() || formData.email;
       const response = await authAPI.register({
         name,
         email: formData.email,
         password: formData.password,
-        photoURL: formData.photoURL || undefined,
-        phone: formData.phone || undefined,
         company: formData.company,
-        website: formData.website || undefined,
       });
       const verificationMsg = 'Check your email to verify your account';
       setSuccessMessage(response.message || verificationMsg);
@@ -208,7 +196,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
       setView('signIn');
       setStep(1);
     } catch (err: any) {
-      setError(getApiErrorMessage(err, 'Failed to sign up. Please try again.'));
+      setError(getApiErrorMessage(err));
     } finally {
       setLoading(false);
     }

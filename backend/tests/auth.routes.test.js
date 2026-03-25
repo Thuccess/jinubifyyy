@@ -145,25 +145,32 @@ describe('auth routes regression', () => {
   });
 
   it('blocks login before verification, then allows after verify for approved signup users', async () => {
-    const signupRes = await request(app).post('/api/auth/signup').send({
+    const registerRes = await request(app).post('/api/auth/register').send({
       name: 'Approved User',
       email: 'approved@example.com',
       password: 'Passw0rd!',
       company: 'Acme',
     });
-    expect(signupRes.status).toBe(201);
-
-    const preVerifyLogin = await request(app).post('/api/auth/login').send({
-      email: 'approved@example.com',
-      password: 'Passw0rd!',
-    });
-    expect(preVerifyLogin.status).toBe(403);
-    expect(preVerifyLogin.body.message).toBe('Please verify your email before logging in');
+    expect(registerRes.status).toBe(201);
 
     const verificationToken = sendVerificationEmailMock.mock.calls.at(-1)?.[1];
     expect(verificationToken).toBeTruthy();
-    const verifyRes = await request(app).get('/api/auth/verify-email').query({ token: verificationToken });
+    const verifyRes = await request(app)
+      .get('/api/auth/verify-email')
+      .query({ token: verificationToken });
     expect(verifyRes.status).toBe(200);
+
+    // Still pending approval by default after /register.
+    const preApproveLogin = await request(app).post('/api/auth/login').send({
+      email: 'approved@example.com',
+      password: 'Passw0rd!',
+    });
+    expect(preApproveLogin.status).toBe(403);
+    expect(preApproveLogin.body.message).toBe('Your account is pending approval');
+
+    // Simulate admin approval (admin route is tested separately).
+    const created = usersByEmail.get('approved@example.com');
+    created.status = 'approved';
 
     const postVerifyLogin = await request(app).post('/api/auth/login').send({
       email: 'approved@example.com',
@@ -213,6 +220,27 @@ describe('auth routes regression', () => {
     expect(knownRes.status).toBe(200);
     expect(knownRes.body.message).toBe('If an account exists, a verification email has been sent.');
     expect(sendVerificationEmailMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects expired verification tokens', async () => {
+    await request(app).post('/api/auth/register').send({
+      name: 'Expired User',
+      email: 'expired@example.com',
+      password: 'Passw0rd!',
+      company: 'Acme',
+    });
+
+    const token = sendVerificationEmailMock.mock.calls.at(-1)?.[1];
+    expect(token).toBeTruthy();
+
+    const created = usersByEmail.get('expired@example.com');
+    created.emailVerificationExpires = new Date(Date.now() - 60 * 1000);
+
+    const verifyRes = await request(app)
+      .get('/api/auth/verify-email')
+      .query({ token });
+    expect(verifyRes.status).toBe(400);
+    expect(verifyRes.body.message).toBe('Invalid or expired verification token');
   });
 
   it('returns /auth/me data for verified and approved users only', async () => {

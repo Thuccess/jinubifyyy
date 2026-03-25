@@ -1,4 +1,4 @@
-import { authenticate } from './auth.js';
+import { authenticate, verifyApproved } from './auth.js';
 
 // Base helper to attach a dev admin user when ALLOW_ANONYMOUS_ADMIN is enabled.
 // Returns true if it handled the request by attaching a user, false otherwise.
@@ -18,14 +18,19 @@ export const requireAdmin = (req, res, next) => {
     return next();
   }
 
-  authenticate(req, res, () => {
-    const role = req.user?.role;
-    if (role === 'admin' || role === 'super_admin') {
-      next();
-    } else {
-      res.status(403).json({ message: 'Admin access required' });
-    }
-  });
+  const check = () => {
+    verifyApproved(req, res, () => {
+      const role = req.user?.role;
+      if (role === 'admin' || role === 'super_admin') {
+        next();
+      } else {
+        res.status(403).json({ message: 'Admin access required' });
+      }
+    });
+  };
+
+  if (req.user) return check();
+  authenticate(req, res, check);
 };
 
 // Middleware to allow CMS editors (editor, admin, super_admin) for content management
@@ -34,13 +39,18 @@ export const requireCmsEditor = (req, res, next) => {
     return next();
   }
 
-  authenticate(req, res, () => {
-    const role = req.user?.role;
-    if (role === 'editor' || role === 'admin' || role === 'super_admin') {
-      next();
-    } else {
-      res.status(403).json({ message: 'CMS editor access required' });
-    }
-  });
+  const check = () => {
+    verifyApproved(req, res, () => {
+      const role = req.user?.role;
+      if (role === 'editor' || role === 'admin' || role === 'super_admin') {
+        next();
+      } else {
+        res.status(403).json({ message: 'CMS editor access required' });
+      }
+    });
+  };
+
+  if (req.user) return check();
+  authenticate(req, res, check);
 };
 

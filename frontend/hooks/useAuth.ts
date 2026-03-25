@@ -7,9 +7,6 @@ interface SignupData {
   email: string;
   password: string;
   company: string;
-  photoURL?: string;
-  phone?: string;
-  website?: string;
 }
 
 interface LoginData {
@@ -17,20 +14,7 @@ interface LoginData {
   password: string;
 }
 
-export const useSignup = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async (data: SignupData) => {
-      const response = await authAPI.signup(data);
-      return response;
-    },
-    onSuccess: () => {
-      // Signup now returns only a message; user signs in after verification + approval.
-      queryClient.removeQueries({ queryKey: ['currentUser'] });
-    },
-  });
-};
+// DEPRECATED: legacy /auth/signup client hook removed. Use AuthModal + /auth/register flow.
 
 export const useLogin = () => {
   const queryClient = useQueryClient();

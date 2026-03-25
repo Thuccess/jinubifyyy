@@ -37,9 +37,7 @@ const setEmailVerificationToken = (user) => {
 const resendVerificationLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 3, // 3 requests / minute / IP
-  message: {
-    message: 'Too many verification resend attempts. Please try again in a minute.',
-  },
+  message: 'Too many verification resend attempts. Please try again in a minute.',
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -125,74 +123,7 @@ router.post(
   }
 );
 
-// @route   POST /api/auth/signup
-// @desc    Register a new user (legacy, immediate access)
-// @access  Public
-router.post(
-  '/signup',
-  [
-    ...signupValidators,
-  ],
-  async (req, res) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          success: false,
-          message: 'Validation failed',
-          errors: errors.array().map(err => ({
-            field: err.path || err.param,
-            message: err.msg,
-          })),
-        });
-      }
-
-      const { name, email, password, photoURL, phone, company, website } = req.body;
-
-      // Check if user already exists
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.status(400).json({ message: 'User already exists with this email' });
-      }
-
-      // Create new user
-      const user = new User({
-        name,
-        email,
-        password,
-        photoURL: photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
-        phone,
-        company,
-        website: website || '',
-        status: 'approved',
-        isEmailVerified: false,
-      });
-
-      const rawVerificationToken = setEmailVerificationToken(user);
-      await user.save();
-      // Hardening: do not fail account creation if email delivery fails.
-      // User remains created and can request resend later.
-      try {
-        await sendVerificationEmail(user, rawVerificationToken);
-        res.status(201).json({
-          message: 'Check your email to verify your account',
-        });
-      } catch (emailError) {
-        logger.error('Signup verification email send failed', {
-          error: emailError.message,
-          userId: user._id?.toString(),
-          email: user.email,
-        });
-        res.status(201).json({
-          message: 'Account created, but verification email failed. Please use resend verification.',
-        });
-      }
-    } catch (error) {
-      console.error('Signup error:', error);
-      res.status(500).json({ message: 'Server error during signup', error: error.message });
-    }
-  }
-);
+// DEPRECATED: legacy /signup route removed. Use POST /register (pending approval).
 
 // @route   POST /api/auth/login
 // @desc    Login user
@@ -310,7 +241,10 @@ router.get('/verify-email', async (req, res) => {
     user.emailVerificationExpires = null;
     await user.save();
 
-    return res.json({ message: 'Email verified successfully' });
+    return res.json({
+      message: 'Email verified successfully',
+      status: user.status,
+    });
   } catch (error) {
     logger.error('Verify email error', { error: error.message });
     return res.status(500).json({ message: 'Server error during email verification', error: error.message });

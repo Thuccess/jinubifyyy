@@ -68,11 +68,7 @@ api.interceptors.response.use(
 
 // Auth API
 export const authAPI = {
-  signup: async (data: { name: string; email: string; password: string; company: string; photoURL?: string; phone?: string; website?: string }): Promise<{ message: string }> => {
-    const response = await api.post<{ message: string }>('/auth/signup', data);
-    return response.data;
-  },
-  register: async (data: { name: string; email: string; password: string; company: string; photoURL?: string; phone?: string; website?: string }) => {
+  register: async (data: { name: string; email: string; password: string; company: string }) => {
     const response = await api.post<{ message: string }>('/auth/register', data);
     return response.data;
   },
@@ -80,8 +76,8 @@ export const authAPI = {
     const response = await api.post<AuthResponse>('/auth/login', data);
     return response.data;
   },
-  verifyEmail: async (token: string): Promise<{ message: string }> => {
-    const response = await api.get<{ message: string }>('/auth/verify-email', { params: { token } });
+  verifyEmail: async (token: string): Promise<{ message: string; status?: string }> => {
+    const response = await api.get<{ message: string; status?: string }>('/auth/verify-email', { params: { token } });
     return response.data;
   },
   resendVerification: async (email: string): Promise<{ message: string }> => {

@@ -5,9 +5,11 @@ import Section from '../models/Section.js';
 import NavItem from '../models/NavItem.js';
 import { requireCmsEditor } from '../middleware/admin.js';
 import { adminLimiter } from '../middleware/rateLimiter.js';
+import { authenticate, verifyApproved } from '../middleware/auth.js';
 
 const router = express.Router();
 router.use(adminLimiter);
+router.use(authenticate, verifyApproved);
 router.use(requireCmsEditor);
 
 // ——— Site settings (key-value) ———

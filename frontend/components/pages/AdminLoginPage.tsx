@@ -78,18 +78,14 @@ const AdminLoginPage: React.FC = () => {
 
       router.push(next);
     } catch (err: unknown) {
-      const ax = err as { response?: { status?: number; data?: { message?: string; errors?: Array<{ msg?: string; message?: string }> } } };
+      const ax = err as { response?: { status?: number; data?: { message?: unknown } } };
       const backendMessage =
-        ax.response?.data?.errors?.[0]?.message ||
-        ax.response?.data?.errors?.[0]?.msg ||
-        ax.response?.data?.message ||
+        (typeof ax.response?.data?.message === 'string' && ax.response.data.message) ||
         (ax.response?.status === 403
           ? 'Your account cannot access the admin area. It may be pending approval.'
-          : 'Sign in failed. Please check your email and password.');
+          : 'Something went wrong');
+
       const normalizedMessage =
-        backendMessage === 'Invalid credentials'
-          ? 'Invalid email or password'
-          :
         backendMessage === 'Your account is pending approval'
           ? 'Verified. Waiting for admin approval.'
           : backendMessage;
@@ -113,12 +109,10 @@ const AdminLoginPage: React.FC = () => {
       setResendMessage(res.message || 'Verification email sent');
       setResendCooldown(60);
     } catch (err: unknown) {
-      const ax = err as { response?: { data?: { message?: string; errors?: Array<{ msg?: string; message?: string }> } } };
+      const ax = err as { response?: { data?: { message?: unknown } } };
       setError(
-        ax.response?.data?.errors?.[0]?.message ||
-          ax.response?.data?.errors?.[0]?.msg ||
-          ax.response?.data?.message ||
-          'Failed to resend verification email.',
+        (typeof ax.response?.data?.message === 'string' && ax.response.data.message) ||
+          'Something went wrong',
       );
     } finally {
       setResendLoading(false);

@@ -1,7 +1,7 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import BlogPost from '../models/BlogPost.js';
-import { authenticate, optionalAuth } from '../middleware/auth.js';
+import { authenticate, optionalAuth, verifyApproved } from '../middleware/auth.js';
 import { blogWriteLimiter } from '../middleware/rateLimiter.js';
 import { requireAdmin, requireCmsEditor } from '../middleware/admin.js';
 import { addMediaUsage, removeMediaUsage } from '../utils/mediaUsage.js';
@@ -116,6 +116,8 @@ router.get('/:slug', optionalAuth, async (req, res) => {
 router.post(
   '/',
   blogWriteLimiter,
+  authenticate,
+  verifyApproved,
   requireCmsEditor,
   [
     body('slug').trim().notEmpty().withMessage('Slug is required'),
@@ -177,7 +179,7 @@ router.post(
 // @route   PUT /api/blog/:slug
 // @desc    Update a blog post (supports status, featured, seo, tags, coverImage, etc.)
 // @access  Private (Admin)
-router.put('/:slug', blogWriteLimiter, requireCmsEditor, async (req, res) => {
+router.put('/:slug', blogWriteLimiter, authenticate, verifyApproved, requireCmsEditor, async (req, res) => {
   try {
     const update = { ...req.body, updatedAt: new Date() };
     if (update.audit === undefined) update.audit = {};
@@ -216,7 +218,7 @@ router.put('/:slug', blogWriteLimiter, requireCmsEditor, async (req, res) => {
 // @route   PATCH /api/blog/:slug/status
 // @desc    Update only status (draft | review | published | archived)
 // @access  Private (Admin)
-router.patch('/:slug/status', blogWriteLimiter, requireCmsEditor, async (req, res) => {
+router.patch('/:slug/status', blogWriteLimiter, authenticate, verifyApproved, requireCmsEditor, async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Admin access required' });
@@ -253,7 +255,7 @@ router.patch('/:slug/status', blogWriteLimiter, requireCmsEditor, async (req, re
 // @route   DELETE /api/blog/:slug
 // @desc    Delete a blog post
 // @access  Private (Admin)
-router.delete('/:slug', requireCmsEditor, async (req, res) => {
+router.delete('/:slug', authenticate, verifyApproved, requireCmsEditor, async (req, res) => {
   try {
     const post = await BlogPost.findOneAndDelete({ slug: req.params.slug });
 

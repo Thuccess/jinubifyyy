@@ -23,14 +23,17 @@ export function authorizeRole(...allowedRoles) {
     if (maybeAttachDevAdmin(req)) {
       return next();
     }
-    authenticate(req, res, () => {
+    const check = () => {
       const role = req.user?.role;
       if (role && set.has(role)) {
         next();
       } else {
         res.status(403).json({ message: 'Insufficient permissions' });
       }
-    });
+    };
+
+    if (req.user) return check();
+    authenticate(req, res, check);
   };
 }
 
