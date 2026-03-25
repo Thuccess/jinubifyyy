@@ -1,16 +1,21 @@
 import nodemailer from 'nodemailer';
 import logger from './logger.js';
 
-// Reuses the same SMTP configuration pattern currently used in routes/contact.js.
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: process.env.SMTP_PORT || 587,
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+// NOTE:
+// Do NOT create the transporter at module load time.
+// server.js imports routes/utilities before calling `dotenv.config()`,
+// so env vars can be undefined when this module is first evaluated.
+// Creating the transporter lazily ensures SMTP_* values are present.
+const createTransporter = () =>
+  nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: Number(process.env.SMTP_PORT || 587),
+    secure: false,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
 
 export const sendVerificationEmail = async (user, token) => {
   const baseUrl = (process.env.BASE_URL || process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
@@ -31,6 +36,25 @@ export const sendVerificationEmail = async (user, token) => {
   `;
 
   try {
+    const transporter = createTransporter();
+
+    // Temporary debug (safe): shows whether creds exist and verifies SMTP connectivity.
+    // Guarded so it won't spam production logs.
+    if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line no-console
+      console.log('[smtp debug] SMTP HOST:', process.env.SMTP_HOST || '(default)');
+      // eslint-disable-next-line no-console
+      console.log('[smtp debug] SMTP PORT:', process.env.SMTP_PORT || 587);
+      // eslint-disable-next-line no-console
+      console.log('[smtp debug] SMTP USER:', process.env.SMTP_USER || '(undefined)');
+      // eslint-disable-next-line no-console
+      console.log('[smtp debug] SMTP PASS EXISTS:', !!process.env.SMTP_PASS, 'len:', process.env.SMTP_PASS ? String(process.env.SMTP_PASS).length : 0);
+
+      await transporter.verify();
+      // eslint-disable-next-line no-console
+      console.log('[smtp debug] transporter.verify(): OK');
+    }
+
     await transporter.sendMail({
       from: process.env.SMTP_USER || process.env.CONTACT_EMAIL || 'no-reply@jinubify.com',
       to: user.email,
@@ -38,7 +62,11 @@ export const sendVerificationEmail = async (user, token) => {
       html,
     });
   } catch (error) {
-    logger.error('Verification email send failed', { error: error.message, email: user?.email });
+    logger.error('Verification email send failed', {
+      error: error?.message || String(error),
+      stack: error?.stack,
+      email: user?.email,
+    });
     throw error;
   }
 };
