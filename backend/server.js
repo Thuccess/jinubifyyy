@@ -90,6 +90,24 @@ const PORT = process.env.PORT || 5000;
 let server;
 let reconnectTimer = null;
 let reconnectInFlight = false;
+/** True only after `app.listen` — avoid process.exit during a stray post-start connect attempt. */
+let httpServerListening = false;
+/** URI that last worked — reconnect must not flip local↔Atlas without disconnect (Mongoose forbids). */
+let mongoUriLastSucceeded = null;
+/** Prevents reconnect running before initial connect finishes (would call cold connect with empty lastSucceeded). */
+let mongoDisconnectHandlerAttached = false;
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function mongooseDisconnectSafe() {
+  try {
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
+  } catch {
+    // ignore — clear stale client if any
+  }
+}
 
 // Trust Render / reverse proxy (correct req.ip, req.protocol, rate limits)
 app.set('trust proxy', 1);
@@ -269,20 +287,50 @@ const getLocalUri = () =>
 
 const isAtlasUri = (uri) => uri && uri.includes('mongodb.net');
 
-const connectDB = async (retries = 3, delay = 5000) => {
+const connectDB = async (retries = 3, delay = 5000, { reconnect = false } = {}) => {
   const atlasUri = process.env.MONGODB_URI;
   const localUri = getLocalUri();
   const options = getMongoOptions();
   const useAtlas = atlasUri && isAtlasUri(atlasUri);
+
+  if (mongoose.connection.readyState === 1) {
+    return;
+  }
+
+  // After a disconnect, reuse only the last URI — dev "local first" would call connect(local) while
+  // the driver may still hold Atlas, causing: "Can't call openUri() on an active connection with different connection strings".
+  if (reconnect) {
+    if (!mongoUriLastSucceeded) {
+      return connectDB(retries, delay, { reconnect: false });
+    }
+    await mongooseDisconnectSafe();
+    for (let i = 0; i < retries; i++) {
+      try {
+        const reconnectOpts = mongoUriLastSucceeded.includes('mongodb.net')
+          ? options
+          : { ...options, family: undefined, autoSelectFamily: undefined };
+        await mongoose.connect(mongoUriLastSucceeded, reconnectOpts);
+        console.log('✅ MongoDB reconnected');
+        return;
+      } catch (err) {
+        console.error(`❌ MongoDB reconnect attempt ${i + 1}/${retries} failed:`, err.message);
+        if (i < retries - 1) await sleep(delay);
+      }
+    }
+    throw new Error('MongoDB reconnect exhausted retries');
+  }
+
+  await mongooseDisconnectSafe();
 
   // In development: try local MongoDB first so the app works without Atlas (e.g. IP not whitelisted)
   if (process.env.NODE_ENV !== 'production' && useAtlas) {
     try {
       await mongoose.connect(localUri, { serverSelectionTimeoutMS: 3000, connectTimeoutMS: 3000 });
       console.log('✅ Connected to MongoDB (local)');
+      mongoUriLastSucceeded = localUri;
       return;
     } catch (_) {
-      // Local not running; will try Atlas below
+      await mongooseDisconnectSafe();
     }
   }
 
@@ -291,6 +339,7 @@ const connectDB = async (retries = 3, delay = 5000) => {
     try {
       await mongoose.connect(mongoUri, options);
       console.log('✅ Connected to MongoDB');
+      mongoUriLastSucceeded = mongoUri;
       return;
     } catch (error) {
       const isTlsOrNetwork =
@@ -301,12 +350,14 @@ const connectDB = async (retries = 3, delay = 5000) => {
       console.error(`❌ MongoDB connection attempt ${i + 1}/${retries} failed:`, error.message);
       if (i < retries - 1) {
         console.log(`⏳ Retrying in ${delay / 1000} seconds...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await sleep(delay);
       } else if (useAtlas) {
         console.warn('⚠️  Atlas unreachable. Trying local MongoDB...');
+        await mongooseDisconnectSafe();
         try {
           await mongoose.connect(localUri, { ...options, family: undefined, autoSelectFamily: undefined });
           console.log('✅ Connected to MongoDB (local fallback)');
+          mongoUriLastSucceeded = localUri;
           return;
         } catch (localErr) {
           console.error('❌ Local MongoDB also failed:', localErr.message);
@@ -324,6 +375,7 @@ const connectDB = async (retries = 3, delay = 5000) => {
 };
 
 const scheduleReconnect = () => {
+  if (!mongoDisconnectHandlerAttached) return;
   if (reconnectInFlight || reconnectTimer) return;
   // Short delayed retry keeps reconnect non-blocking for request handling.
   reconnectTimer = setTimeout(async () => {
@@ -332,8 +384,7 @@ const scheduleReconnect = () => {
     reconnectInFlight = true;
     try {
       console.warn('🔄 MongoDB reconnect attempt starting...');
-      await connectDB(2, 3000);
-      console.log('✅ MongoDB reconnected');
+      await connectDB(2, 3000, { reconnect: true });
     } catch (error) {
       console.error('❌ MongoDB reconnect failed:', error.message || error);
       // Re-schedule instead of blocking or exiting.
@@ -349,10 +400,14 @@ mongoose.connection.on('error', (err) => {
   console.error('MongoDB connection error:', err.message || err);
 });
 
-mongoose.connection.on('disconnected', () => {
-  console.warn('⚠️  MongoDB disconnected');
-  scheduleReconnect();
-});
+function attachMongoDisconnectHandler() {
+  if (mongoDisconnectHandlerAttached) return;
+  mongoDisconnectHandlerAttached = true;
+  mongoose.connection.on('disconnected', () => {
+    console.warn('⚠️  MongoDB disconnected');
+    scheduleReconnect();
+  });
+}
 
 // Graceful shutdown
 const gracefulShutdown = (signal) => {
@@ -381,6 +436,9 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 const startServer = async () => {
   try {
     await connectDB();
+    // Attach after first successful connect so early `disconnected` events do not schedule
+    // a parallel cold `connectDB` while `mongoUriLastSucceeded` is still null (that could process.exit after listen).
+    attachMongoDisconnectHandler();
     // Keep cron workloads out of local dev/test to reduce event-loop pressure
     // and improve API responsiveness while iterating.
     if (process.env.NODE_ENV === 'production') {
@@ -388,6 +446,7 @@ const startServer = async () => {
       startCleanupUnusedMediaJob();
     }
     server = app.listen(PORT, () => {
+      httpServerListening = true;
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
     });

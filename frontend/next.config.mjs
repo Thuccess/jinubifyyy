@@ -15,12 +15,12 @@ const nextConfig = {
     // Allow image optimizer to fetch from the backend uploads (Render) and other whitelisted hosts.
     dangerouslyAllowLocalIP: true,
     remotePatterns: [
-      // Local backend uploads (development)
+      // Local backend (development) — /uploads/** plus any root static files (e.g. team photos)
       {
         protocol: 'http',
         hostname: 'localhost',
         port: '5000',
-        pathname: '/uploads/**',
+        pathname: '/**',
       },
       {
         protocol: 'https',
