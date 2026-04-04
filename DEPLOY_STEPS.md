@@ -70,7 +70,8 @@ Follow these in order. Full details are in [RENDER_DEPLOY.md](./RENDER_DEPLOY.md
 ## If something fails
 
 - **502 Bad Gateway / "No open HTTP ports" / logs show `next dev`:** Set the frontend **Start Command** to `npm start` (not `npm run dev`) in Render → your frontend service → **Settings** → **Build & Deploy**. Save and redeploy.
-- **Backend won’t start:** Check **Logs**; usually missing or wrong `MONGODB_URI` or `JWT_SECRET`.
+- **Backend won’t start / MongoDB “IP isn’t whitelisted” or “Server selection timed out”:** In Atlas → **Network Access**, add **`0.0.0.0/0`** (or Render’s outbound IPs). This is not fixable in repo code. See [RENDER_DEPLOY.md §8](./RENDER_DEPLOY.md#8-troubleshooting-mongodb-connection-on-render).
+- **Backend won’t start (other):** Check **Logs**; usually missing or wrong `MONGODB_URI` or `JWT_SECRET`.
 - **Frontend build fails:** Ensure `NEXT_PUBLIC_API_URL` is set and has no trailing slash (e.g. `https://jinubify-api.onrender.com/api`).
 - **Frontend loads but API calls fail:** Check **NEXT_PUBLIC_API_URL** and **FRONTEND_URL** (CORS). Redeploy frontend after changing `NEXT_PUBLIC_*`.
 

@@ -29,7 +29,7 @@ This guide prepares the **Jinubify** stack (Next.js frontend + Express backend +
 
 1. Create a free cluster at [MongoDB Atlas](https://cloud.mongodb.com).
 2. Create a database user and note username/password.
-3. **Network Access**: Add `0.0.0.0/0` (allow from anywhere) so Render’s IPs can connect, or add [Render’s outbound IPs](https://render.com/docs/outbound-ip-addresses) if you restrict by IP.
+3. **Network Access** (required for Render): Add `0.0.0.0/0` (**Allow Access from Anywhere**) so Render can connect. Skipping this causes “IP isn’t whitelisted” and startup failures—see **§8 Troubleshooting**.
 4. Get the connection string (e.g. **Connect → Drivers → Node.js**). It looks like:
    ```text
    mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/jinubify?retryWrites=true&w=majority
@@ -100,7 +100,23 @@ Optional: `NEXT_PUBLIC_MEDIA_BASE_URL`, `NEXT_PUBLIC_SITE_URL` for CDN or custom
 
 ---
 
-## 8. Uploads / media
+## 8. Troubleshooting: MongoDB connection on Render
+
+This is **not fixed in application code**. Atlas blocks the connection until Network Access allows Render.
+
+**Symptoms in logs:** `Could not connect to any servers in your MongoDB Atlas cluster`, `IP that isn't whitelisted`, or `Server selection timed out after … ms`.
+
+**Fix:**
+
+1. Open [Atlas](https://cloud.mongodb.com) → **Network Access** → **Add IP Address**.
+2. Choose **Allow Access from Anywhere** (`0.0.0.0/0`), **or** add every outbound IP from [Render outbound IPs](https://render.com/docs/outbound-ip-addresses) if you refuse open access.
+3. Save; wait a minute, then **restart** or redeploy the Render backend.
+
+**Also check:** cluster is **not paused**; **Database Access** user/password matches `MONGODB_URI`; special characters in the password are **URL-encoded** in the connection string; Render **Environment** for the API service has the correct `MONGODB_URI` (no extra spaces or quotes).
+
+---
+
+## 9. Uploads / media
 
 - Backend uses a local `uploads/` directory. On Render, the filesystem is **ephemeral**: uploads are lost on redeploy.
 - For production, use a persistent store (e.g. S3, Cloudinary) and set `MEDIA_BASE_URL` (and frontend `NEXT_PUBLIC_MEDIA_BASE_URL` if applicable). The app already supports `MEDIA_BASE_URL` in backend config.
@@ -113,7 +129,7 @@ On the free tier, services spin down after a period of inactivity. The first req
 
 ---
 
-## 10. Useful links
+## 11. Useful links
 
 - [Render Blueprint spec](https://render.com/docs/blueprint-spec)
 - [Render monorepo support](https://render.com/docs/monorepo-support)
