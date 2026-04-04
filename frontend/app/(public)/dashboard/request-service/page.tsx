@@ -57,7 +57,7 @@ export default function RequestServicePage() {
               value={form.serviceType}
               onChange={handleChange}
               required
-              className="w-full rounded-lg border border-border-subtle bg-bg-primary px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
               placeholder="e.g. Website redesign, SEO, Social media campaign"
             />
           </div>
@@ -69,7 +69,7 @@ export default function RequestServicePage() {
               onChange={handleChange}
               required
               rows={5}
-              className="w-full rounded-lg border border-border-subtle bg-bg-primary px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
               placeholder="Describe your goals, target audience, and any references or links..."
             />
           </div>
@@ -82,7 +82,7 @@ export default function RequestServicePage() {
                 min={0}
                 value={form.budget}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-border-subtle bg-bg-primary px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
                 placeholder="e.g. 1500"
               />
             </div>
@@ -93,7 +93,7 @@ export default function RequestServicePage() {
                 type="date"
                 value={form.deadline}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-border-subtle bg-bg-primary px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
               />
             </div>
           </div>

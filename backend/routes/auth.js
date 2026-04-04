@@ -1,11 +1,11 @@
 import express from 'express';
-import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import rateLimit from 'express-rate-limit';
 import { body, validationResult } from 'express-validator';
 import User from '../models/User.js';
 import Activity from '../models/Activity.js';
 import { authenticate, verifyApproved } from '../middleware/auth.js';
+import { signAccessToken } from '../utils/accessToken.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
 import logger from '../utils/logger.js';
 import { sendVerificationEmail } from '../utils/sendEmail.js';
@@ -14,13 +14,6 @@ const router = express.Router();
 
 // Apply rate limiting to auth routes
 router.use(authLimiter);
-
-// Generate JWT token
-const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET || 'your-secret-key-change-in-production', {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-  });
-};
 
 const hashVerificationToken = (token) =>
   crypto.createHash('sha256').update(token).digest('hex');
@@ -148,9 +141,10 @@ router.post(
         });
       }
 
-      const { email, password } = req.body;
+      const email = String(req.body.email || '').toLowerCase().trim();
+      const { password } = req.body;
 
-      // Find user and include password for comparison
+      // Find user and include password for comparison (email stored lowercase; match explicitly)
       const user = await User.findOne({ email }).select('+password');
       if (!user) {
         logger.warn('Authentication failure: user not found', { email: email?.slice(0, 3) + '***' });
@@ -192,8 +186,7 @@ router.post(
         logger.warn('Failed to record login activity', { error: activityError.message });
       }
 
-      // Generate token
-      const token = generateToken(user._id);
+      const token = signAccessToken(user);
 
       res.json({
         message: 'Login successful',

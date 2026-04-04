@@ -142,7 +142,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats, onNavigate
       </div>
 
       {/* Quick Actions */}
-      <Card size="md" className="border border-border-subtle">
+      <Card size="md" className="border border-border-card">
         <h2 className="text-xl font-bold text-text-primary mb-2">Quick actions</h2>
         <p className="text-sm text-text-secondary mb-4">
           Jump straight into the most common admin tasks.
@@ -150,21 +150,21 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats, onNavigate
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
             onClick={() => onNavigate('blog')}
-            className="p-4 border border-border-subtle rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out text-left"
+            className="p-4 border border-border-card rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out text-left"
           >
             <h3 className="font-semibold text-text-primary">Manage Blog Posts</h3>
             <p className="text-sm text-text-secondary mt-1">Create, edit, or delete blog posts</p>
           </button>
           <button
             onClick={() => onNavigate('contacts')}
-            className="p-4 border border-border-subtle rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out text-left"
+            className="p-4 border border-border-card rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out text-left"
           >
             <h3 className="font-semibold text-text-primary">View Contacts</h3>
             <p className="text-sm text-text-secondary mt-1">Review contact form submissions</p>
           </button>
           <button
             onClick={() => onNavigate('users')}
-            className="p-4 border border-border-subtle rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out text-left"
+            className="p-4 border border-border-card rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out text-left"
           >
             <h3 className="font-semibold text-text-primary">User Management</h3>
             <p className="text-sm text-text-secondary mt-1">Manage users and roles</p>

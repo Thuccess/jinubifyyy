@@ -145,19 +145,19 @@ const AdminApplicationsPage: React.FC = () => {
       <div className="space-y-6">
         {/* Overview strip */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] px-4 py-3">
+          <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] px-4 py-3 shadow-card">
             <p className="text-xs font-medium text-text-muted uppercase tracking-wide">Total applications</p>
             <p className="mt-1 text-2xl font-semibold text-text-primary">
               {data?.pagination?.total ?? applications.length ?? 0}
             </p>
           </div>
-          <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] px-4 py-3">
+          <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] px-4 py-3 shadow-card">
             <p className="text-xs font-medium text-text-muted uppercase tracking-wide">New</p>
             <p className="mt-1 text-2xl font-semibold text-text-primary">
               {applications.filter((a) => a.status === 'new').length}
             </p>
           </div>
-          <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] px-4 py-3">
+          <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] px-4 py-3 shadow-card">
             <p className="text-xs font-medium text-text-muted uppercase tracking-wide">Shortlisted</p>
             <p className="mt-1 text-2xl font-semibold text-text-primary">
               {applications.filter((a) => a.status === 'shortlisted').length}
@@ -166,7 +166,7 @@ const AdminApplicationsPage: React.FC = () => {
         </div>
 
         {/* Filters + bulk actions */}
-        <div className="card-solid rounded-2xl border border-border-subtle px-4 py-4 sm:px-6 sm:py-5 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+        <div className="card-solid rounded-2xl border border-border-card px-4 py-4 sm:px-6 sm:py-5 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           <div className="flex-1 flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-text-muted" />
@@ -189,7 +189,7 @@ const AdminApplicationsPage: React.FC = () => {
                   setStatusFilter(e.target.value as ApplicationStatus);
                   setPage(1);
                 }}
-                className="px-3 py-2 rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-ring"
+                className="px-3 py-2 rounded-lg border border-border-card bg-[color:var(--surface-card)] text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-ring"
               >
                 <option value="all">All statuses</option>
                 <option value="new">New</option>
@@ -211,7 +211,7 @@ const AdminApplicationsPage: React.FC = () => {
                 }
               }}
               defaultValue=""
-              className="px-3 py-2 rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-ring"
+              className="px-3 py-2 rounded-lg border border-border-card bg-[color:var(--surface-card)] text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-ring"
             >
               <option value="">Bulk status...</option>
               {statusOptions.map((s) => (
@@ -233,7 +233,7 @@ const AdminApplicationsPage: React.FC = () => {
         </div>
 
         {/* Table */}
-        <div className="card-solid bg-[color:var(--surface-card)] border border-border-subtle rounded-2xl overflow-hidden">
+        <div className="card-solid bg-[color:var(--surface-card)] border border-border-card rounded-2xl overflow-hidden shadow-card">
           {isLoading ? (
             <div className="p-12 text-center text-text-secondary">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-primary mx-auto mb-4" />
@@ -304,7 +304,7 @@ const AdminApplicationsPage: React.FC = () => {
                               onChange={(e) =>
                                 handleStatusChange(app, e.target.value as ApplicationStatus)
                               }
-                              className="text-xs border border-border-subtle rounded-md px-1.5 py-0.5 bg-transparent text-text-secondary focus:outline-none focus:ring-1 focus:ring-brand-ring"
+                              className="text-xs border border-border-card rounded-md px-1.5 py-0.5 bg-transparent text-text-secondary focus:outline-none focus:ring-1 focus:ring-brand-ring"
                             >
                               {statusOptions.map((s) => (
                                 <option key={s} value={s}>
@@ -352,7 +352,7 @@ const AdminApplicationsPage: React.FC = () => {
                       type="button"
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
                       disabled={pagination.page <= 1}
-                      className="px-3 py-1 rounded-md border border-border-subtle disabled:opacity-50"
+                      className="px-3 py-1 rounded-md border border-border-card disabled:opacity-50"
                     >
                       Previous
                     </button>
@@ -360,7 +360,7 @@ const AdminApplicationsPage: React.FC = () => {
                       type="button"
                       onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
                       disabled={pagination.page >= pagination.pages}
-                      className="px-3 py-1 rounded-md border border-border-subtle disabled:opacity-50"
+                      className="px-3 py-1 rounded-md border border-border-card disabled:opacity-50"
                     >
                       Next
                     </button>

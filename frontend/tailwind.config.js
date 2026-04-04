@@ -36,6 +36,7 @@ export default {
           subtle: 'var(--border-subtle)',
           strong: 'var(--border-strong)',
           accent: 'var(--border-accent)',
+          card: 'var(--card-edge)',
         },
 
         // Design-system neutral grays (matches index.css --color-slate-*)
@@ -141,6 +142,9 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
+      },
+      boxShadow: {
+        card: 'var(--card-shadow)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out forwards',

@@ -70,7 +70,7 @@ const GraphicDesignVisual: React.FC<DemoVisualProps> = ({ slug, demoUrl, service
           <Link
             key={i}
             href={`/demos/${slug}/${labelToSlug(label)}`}
-            className="group rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-3 text-center flex flex-col transition-colors hover:border-border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
+            className="group rounded-lg border border-border-card bg-[color:var(--surface-card)] p-3 text-center flex flex-col transition-colors hover:border-border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
           >
             <div className="aspect-square bg-[color:var(--surface-muted)] rounded-lg mb-2 flex-shrink-0 overflow-hidden">
               <SmartImage

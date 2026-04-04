@@ -17,7 +17,7 @@ export const teamMembers: TeamMember[] = [
         name: 'Ruot Maliah',
         role: 'Chief Strategy & Technology Lead',
         department: 'Strategy & Vision',
-        imageUrl: '/Ruot-Maliah.jpg',
+        imageUrl: 'https://picsum.photos/seed/ruot/400/400',
         bio: 'Company vision, product direction, tech architecture, innovation, and growth strategy.',
         detailedBio: 'Ruot Maliah leads strategy and technology at Jinubify, shaping company vision, product direction, and technical architecture. With a blend of software engineering, digital marketing, and systems thinking, Ruot drives innovation, growth strategy, and partnerships while building scalable systems that deliver exceptional results for clients worldwide.',
         social: { linkedin: '#', twitter: '#', website: '#' },

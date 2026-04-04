@@ -85,13 +85,13 @@ const VerifyEmailPage: React.FC = () => {
 
   return (
     <div className="animate-fade-in flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 shadow-sm sm:p-8 surface surface--modal">
+      <div className="w-full max-w-md rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card sm:p-8 surface surface--modal">
         <p className="text-xs font-semibold uppercase tracking-wider text-text-muted text-center">Account</p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-text-primary text-center">Email verification</h1>
 
         <div className="mt-6">
           {state === 'loading' && (
-            <div className="rounded-lg border border-border-subtle bg-[color:var(--surface-muted)] px-4 py-4">
+            <div className="rounded-lg border border-border-card bg-[color:var(--surface-muted)] px-4 py-4">
               <SkeletonBlock className="h-4 w-40" rounded="full" />
               <SkeletonBlock className="mt-3 h-3 w-56" rounded="full" />
               <p className="mt-3 text-sm text-text-primary">{message}</p>
@@ -99,7 +99,7 @@ const VerifyEmailPage: React.FC = () => {
           )}
 
           {state === 'success' && (
-            <div className="rounded-lg border border-border-subtle bg-[color:var(--surface-muted)] px-4 py-4">
+            <div className="rounded-lg border border-border-card bg-[color:var(--surface-muted)] px-4 py-4">
               <p className="text-sm font-medium text-text-primary">{message}</p>
             </div>
           )}
@@ -137,7 +137,7 @@ const VerifyEmailPage: React.FC = () => {
                 </button>
 
                 {resendMessage && (
-                  <div className="rounded-lg border border-border-subtle bg-[color:var(--surface-muted)] px-4 py-3">
+                  <div className="rounded-lg border border-border-card bg-[color:var(--surface-muted)] px-4 py-3">
                     <p className="text-sm text-text-primary">
                       {resendMessage === 'If an account exists, a verification email has been sent.'
                         ? 'Verification email sent. Check your inbox.'

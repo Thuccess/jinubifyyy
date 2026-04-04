@@ -40,7 +40,6 @@ const investmentInquirySchema = new mongoose.Schema(
       type: String,
       enum: ['new', 'contacted', 'negotiating', 'closed-won', 'closed-lost'],
       default: 'new',
-      index: true,
     },
     adminNotes: {
       type: String,

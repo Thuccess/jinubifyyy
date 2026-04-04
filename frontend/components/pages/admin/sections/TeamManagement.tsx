@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from '@/components/NextImage';
 import { adminAPI } from '../../../../services/api';
-import type { TeamPagePayload, TeamMemberPayload } from '../../../../services/api';
+import type { TeamPagePayload, TeamMemberPayload, CeoFounderPayload } from '../../../../services/api';
 import { useNotification } from '../../../admin/useNotification';
 import Modal from '../../../admin/Modal';
 import ConfirmDialog from '../../../admin/ConfirmDialog';
@@ -14,12 +14,26 @@ const inputBase =
   'w-full px-3.5 py-2.5 text-sm rounded-xl border border-border-subtle bg-[color:var(--surface-card)] text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] focus:border-[color:var(--border-accent)] transition-colors';
 const labelBase = 'block text-sm font-medium text-text-primary mb-1.5';
 
+const defaultCeoFounder: CeoFounderPayload = {
+  enabled: true,
+  eyebrow: 'Leadership',
+  sectionTitle: 'CEO & Founder',
+  name: '',
+  title: 'Chief Executive Officer',
+  imageUrl: '',
+  bio: '',
+  detailedBio: '',
+  quote: '',
+  social: { linkedin: '', twitter: '', website: '' },
+};
+
 const defaultPayload: TeamPagePayload = {
   hero: {
     eyebrow: 'Our Team',
     heading: 'Meet the People Behind Jinubify',
     subtitle: 'We are a passionate team of innovators, creators, and problem-solvers dedicated to building innovative tech and creative solutions that drive success.',
   },
+  ceoFounder: { ...defaultCeoFounder },
   stripHeading: 'Browse team',
   members: [],
 };
@@ -55,6 +69,7 @@ const TeamManagement: React.FC = () => {
       const res = await adminAPI.getTeam();
       setData({
         hero: res.hero ?? defaultPayload.hero,
+        ceoFounder: { ...defaultCeoFounder, ...res.ceoFounder },
         stripHeading: res.stripHeading ?? defaultPayload.stripHeading,
         members: (res.members || []).map((m, i) => ({ ...m, order: m.order ?? i })),
       });
@@ -164,7 +179,7 @@ const TeamManagement: React.FC = () => {
   };
 
   const Section: React.FC<{ id: string; title: string; children: React.ReactNode }> = ({ id, title, children }) => (
-    <div className="border border-border-subtle rounded-2xl overflow-hidden bg-[color:var(--surface-card)]">
+    <div className="border border-border-card rounded-2xl overflow-hidden bg-[color:var(--surface-card)] shadow-card">
       <button
         type="button"
         onClick={() => setOpenSection((s) => (s === id ? '' : id))}
@@ -198,7 +213,7 @@ const TeamManagement: React.FC = () => {
             <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Site content</p>
             <h1 className="mt-1 text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">Team Page</h1>
             <p className="mt-2 text-sm text-text-secondary max-w-xl">
-              Edit the hero and team members shown on the public <strong>/team</strong> page. Changes are saved to the database when you click &quot;Save all changes&quot;.
+              Edit the hero, CEO &amp; Founder spotlight, and team members on <strong>/team</strong>. Save applies all sections together.
             </p>
             {loadError && (
               <div className="mt-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-sm flex flex-wrap items-center gap-2">
@@ -212,7 +227,7 @@ const TeamManagement: React.FC = () => {
               href="/team"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-border-subtle bg-[color:var(--surface-card)] text-text-primary text-sm font-medium hover:bg-[color:var(--surface-muted)] transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-border-card bg-[color:var(--surface-card)] text-text-primary text-sm font-medium hover:bg-[color:var(--surface-muted)] transition-colors"
             >
               View team page
               <ArrowRightIcon className="h-4 w-4" />
@@ -244,6 +259,206 @@ const TeamManagement: React.FC = () => {
               <div>
                 <label className={labelBase}>Subtitle</label>
                 <textarea value={data.hero?.subtitle || ''} onChange={(e) => updateHero('subtitle', e.target.value)} className={inputBase} rows={3} placeholder="Short intro paragraph" />
+              </div>
+            </div>
+          </Section>
+
+          <Section id="ceo" title="CEO & Founder (spotlight)">
+            <p className="text-xs text-text-muted mb-4">
+              Shown after the hero and before the rotating team spotlight and thumbnail strip. Toggle off to hide the block on the public site.
+            </p>
+            <label className="flex items-center gap-3 cursor-pointer mb-6">
+              <input
+                type="checkbox"
+                checked={data.ceoFounder?.enabled !== false}
+                onChange={(e) =>
+                  setData((p) => ({
+                    ...p,
+                    ceoFounder: { ...defaultCeoFounder, ...p.ceoFounder, enabled: e.target.checked },
+                  }))
+                }
+                className="h-4 w-4 rounded border-border-subtle text-brand-primary focus:ring-brand-ring"
+              />
+              <span className="text-sm font-medium text-text-primary">Show CEO &amp; Founder section on public page</span>
+            </label>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelBase}>Eyebrow</label>
+                  <input
+                    type="text"
+                    value={data.ceoFounder?.eyebrow || ''}
+                    onChange={(e) =>
+                      setData((p) => ({
+                        ...p,
+                        ceoFounder: { ...defaultCeoFounder, ...p.ceoFounder, eyebrow: e.target.value },
+                      }))
+                    }
+                    className={inputBase}
+                    placeholder="e.g. Leadership"
+                  />
+                </div>
+                <div>
+                  <label className={labelBase}>Section title</label>
+                  <input
+                    type="text"
+                    value={data.ceoFounder?.sectionTitle || ''}
+                    onChange={(e) =>
+                      setData((p) => ({
+                        ...p,
+                        ceoFounder: { ...defaultCeoFounder, ...p.ceoFounder, sectionTitle: e.target.value },
+                      }))
+                    }
+                    className={inputBase}
+                    placeholder="e.g. CEO & Founder"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelBase}>Name</label>
+                  <input
+                    type="text"
+                    value={data.ceoFounder?.name || ''}
+                    onChange={(e) =>
+                      setData((p) => ({
+                        ...p,
+                        ceoFounder: { ...defaultCeoFounder, ...p.ceoFounder, name: e.target.value },
+                      }))
+                    }
+                    className={inputBase}
+                    placeholder="Full name"
+                  />
+                </div>
+                <div>
+                  <label className={labelBase}>Title</label>
+                  <input
+                    type="text"
+                    value={data.ceoFounder?.title || ''}
+                    onChange={(e) =>
+                      setData((p) => ({
+                        ...p,
+                        ceoFounder: { ...defaultCeoFounder, ...p.ceoFounder, title: e.target.value },
+                      }))
+                    }
+                    className={inputBase}
+                    placeholder="e.g. Founder & CEO"
+                  />
+                </div>
+              </div>
+              <div>
+                <ImageUrlWithUpload
+                  label="Photo"
+                  value={data.ceoFounder?.imageUrl || ''}
+                  onChange={(url) =>
+                    setData((p) => ({
+                      ...p,
+                      ceoFounder: { ...defaultCeoFounder, ...p.ceoFounder, imageUrl: url },
+                    }))
+                  }
+                  placeholder="Portrait URL or upload"
+                />
+              </div>
+              <div>
+                <label className={labelBase}>Short intro</label>
+                <input
+                  type="text"
+                  value={data.ceoFounder?.bio || ''}
+                  onChange={(e) =>
+                    setData((p) => ({
+                      ...p,
+                      ceoFounder: { ...defaultCeoFounder, ...p.ceoFounder, bio: e.target.value },
+                    }))
+                  }
+                  className={inputBase}
+                  placeholder="One line under the name"
+                />
+              </div>
+              <div>
+                <label className={labelBase}>Full bio</label>
+                <textarea
+                  value={data.ceoFounder?.detailedBio || ''}
+                  onChange={(e) =>
+                    setData((p) => ({
+                      ...p,
+                      ceoFounder: { ...defaultCeoFounder, ...p.ceoFounder, detailedBio: e.target.value },
+                    }))
+                  }
+                  className={inputBase}
+                  rows={4}
+                  placeholder="Longer story for the spotlight"
+                />
+              </div>
+              <div>
+                <label className={labelBase}>Quote (optional)</label>
+                <textarea
+                  value={data.ceoFounder?.quote || ''}
+                  onChange={(e) =>
+                    setData((p) => ({
+                      ...p,
+                      ceoFounder: { ...defaultCeoFounder, ...p.ceoFounder, quote: e.target.value },
+                    }))
+                  }
+                  className={inputBase}
+                  rows={2}
+                  placeholder="Pull quote displayed in the card"
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className={labelBase}>LinkedIn</label>
+                  <input
+                    type="url"
+                    value={data.ceoFounder?.social?.linkedin || ''}
+                    onChange={(e) =>
+                      setData((p) => ({
+                        ...p,
+                        ceoFounder: {
+                          ...defaultCeoFounder,
+                          ...p.ceoFounder,
+                          social: { ...defaultCeoFounder.social, ...p.ceoFounder?.social, linkedin: e.target.value },
+                        },
+                      }))
+                    }
+                    className={inputBase}
+                  />
+                </div>
+                <div>
+                  <label className={labelBase}>Twitter / X</label>
+                  <input
+                    type="url"
+                    value={data.ceoFounder?.social?.twitter || ''}
+                    onChange={(e) =>
+                      setData((p) => ({
+                        ...p,
+                        ceoFounder: {
+                          ...defaultCeoFounder,
+                          ...p.ceoFounder,
+                          social: { ...defaultCeoFounder.social, ...p.ceoFounder?.social, twitter: e.target.value },
+                        },
+                      }))
+                    }
+                    className={inputBase}
+                  />
+                </div>
+                <div>
+                  <label className={labelBase}>Website</label>
+                  <input
+                    type="url"
+                    value={data.ceoFounder?.social?.website || ''}
+                    onChange={(e) =>
+                      setData((p) => ({
+                        ...p,
+                        ceoFounder: {
+                          ...defaultCeoFounder,
+                          ...p.ceoFounder,
+                          social: { ...defaultCeoFounder.social, ...p.ceoFounder?.social, website: e.target.value },
+                        },
+                      }))
+                    }
+                    className={inputBase}
+                  />
+                </div>
               </div>
             </div>
           </Section>
@@ -285,7 +500,7 @@ const TeamManagement: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <div className="rounded-xl border border-border-subtle overflow-hidden bg-[color:var(--surface-card)]">
+              <div className="rounded-xl border border-border-card overflow-hidden bg-[color:var(--surface-card)] shadow-card">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-border-subtle bg-[color:var(--surface-muted)]/60">

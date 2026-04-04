@@ -81,7 +81,7 @@ const AdminDashboardPage: React.FC = () => {
       subtitle="Overview of your website"
     >
       {error && (
-        <div className="mb-6 p-4 bg-surface-muted border border-border-subtle rounded-xl">
+        <div className="mb-6 p-4 bg-surface-muted border border-border-card rounded-xl">
           <p className="text-sm text-text-primary">
             <strong>Note:</strong>{' '}
             <span className="text-text-secondary">{error} Please log in as an admin to access full functionality.</span>

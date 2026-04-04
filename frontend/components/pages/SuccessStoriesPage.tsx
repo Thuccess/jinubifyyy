@@ -61,7 +61,7 @@ const SuccessStoriesPage: React.FC = () => {
                 {stories.map((story) => (
                   <article
                     key={story.title}
-                    className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-7 flex flex-col justify-between"
+                    className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-7 flex flex-col justify-between"
                   >
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
@@ -93,7 +93,7 @@ const SuccessStoriesPage: React.FC = () => {
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
-              <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10">
+              <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10 shadow-card">
                 <h2
                   id="engagement-heading"
                   className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl"

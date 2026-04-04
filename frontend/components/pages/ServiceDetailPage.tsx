@@ -44,14 +44,14 @@ const ServiceDetailPage: React.FC = () => {
         <main className="pb-16 sm:pb-20 lg:pb-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
             <AnimatedSection>
-              <section className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8">
+              <section className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 shadow-card">
                 <SkeletonBlock className="h-5 w-56" rounded="full" />
                 <SkeletonText className="mt-4" lines={4} />
               </section>
             </AnimatedSection>
 
             <AnimatedSection>
-              <section className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8">
+              <section className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 shadow-card">
                 <SkeletonBlock className="h-5 w-40" rounded="full" />
                 <SkeletonText className="mt-4 max-w-3xl" lines={5} />
               </section>
@@ -130,7 +130,7 @@ const ServiceDetailPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           {(service.bulletsLabel || bullets.length > 0) && (
             <AnimatedSection>
-              <section className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8">
+              <section className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 shadow-card">
                 {service.bulletsLabel && (
                   <h2 className="text-lg font-semibold text-text-primary sm:text-xl">
                     {service.bulletsLabel}
@@ -149,7 +149,7 @@ const ServiceDetailPage: React.FC = () => {
 
           {service.description && (
             <AnimatedSection>
-              <section className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8">
+              <section className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 shadow-card">
                 <h2 className="text-lg font-semibold text-text-primary sm:text-xl">
                   Overview
                 </h2>

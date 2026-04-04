@@ -46,7 +46,7 @@ const FaqItemRow: React.FC<{ item: FaqItem }> = ({ item }) => {
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div className="border border-border-subtle rounded-xl bg-[color:var(--surface-card)]">
+    <div className="border border-border-card rounded-xl bg-[color:var(--surface-card)] shadow-card">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -100,7 +100,7 @@ const FaqPage: React.FC = () => {
             </AnimatedSection>
 
             <AnimatedSection>
-              <div className="mt-12 rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8 text-center">
+              <div className="mt-12 rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 text-center shadow-card">
                 <h2 className="text-lg sm:text-xl font-semibold text-text-primary">
                   Still have a question?
                 </h2>

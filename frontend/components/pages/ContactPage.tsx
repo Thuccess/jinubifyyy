@@ -105,7 +105,7 @@ const ContactForm: React.FC = () => {
 
 const InfoItem: React.FC<{ icon: React.ReactNode; title: string; children: React.ReactNode }> = ({ icon, title, children }) => (
     <div className="flex items-start gap-4">
-        <span className="flex-shrink-0 w-10 h-10 rounded-lg bg-[color:var(--surface-card)] border border-border-subtle flex items-center justify-center [color:var(--text-primary)]" aria-hidden>
+        <span className="flex-shrink-0 w-10 h-10 rounded-lg bg-[color:var(--surface-card)] border border-border-card flex items-center justify-center [color:var(--text-primary)]" aria-hidden>
             {icon}
         </span>
         <div>
@@ -136,7 +136,7 @@ const ContactPage: React.FC = () => {
       <section className="py-16 sm:py-20 lg:py-24" aria-label="Contact">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
-                <div className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] overflow-hidden">
+                <div className="rounded-lg border border-border-card bg-[color:var(--surface-card)] overflow-hidden shadow-card">
                     <div className="grid grid-cols-1 lg:grid-cols-2">
                         <div className="p-6 sm:p-8 lg:p-10">
                             <h2 className="text-xl font-bold text-text-primary sm:text-2xl">Send us a Message</h2>

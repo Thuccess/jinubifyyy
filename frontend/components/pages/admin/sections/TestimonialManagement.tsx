@@ -162,7 +162,7 @@ const TestimonialManagement: React.FC = () => {
           </button>
         </div>
 
-        <div className="rounded-2xl border border-border-subtle bg-[color:var(--surface-card)] overflow-hidden shadow-sm">
+        <div className="rounded-2xl border border-border-card bg-[color:var(--surface-card)] overflow-hidden shadow-sm">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20">
               <div className="h-9 w-9 rounded-full border-2 border-border-subtle border-t-text-primary animate-spin" />

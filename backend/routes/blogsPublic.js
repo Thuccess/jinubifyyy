@@ -27,13 +27,14 @@ router.get('/', async (req, res) => {
     if (category) query.category = new RegExp(`^${String(category).trim()}$`, 'i');
     if (tag) query.tags = { $in: [new RegExp(`^${String(tag).trim()}$`, 'i')] };
     if (featured === 'true' || featured === true) query.featured = true;
+    // Do not scan `content` (large HTML); list endpoint excludes it anyway. Full-text search can use a text index later.
     if (search && String(search).trim()) {
+      const s = String(search).trim();
       query.$or = [
-        { title: { $regex: String(search).trim(), $options: 'i' } },
-        { excerpt: { $regex: String(search).trim(), $options: 'i' } },
-        { content: { $regex: String(search).trim(), $options: 'i' } },
-        { category: { $regex: String(search).trim(), $options: 'i' } },
-        { tags: { $regex: String(search).trim(), $options: 'i' } },
+        { title: { $regex: s, $options: 'i' } },
+        { excerpt: { $regex: s, $options: 'i' } },
+        { category: { $regex: s, $options: 'i' } },
+        { tags: { $regex: s, $options: 'i' } },
       ];
     }
 

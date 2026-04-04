@@ -287,7 +287,7 @@ const UserManagement: React.FC = () => {
         </div>
 
         {/* Users Table */}
-        <div className="bg-surface-card rounded-xl border border-border-subtle overflow-hidden">
+        <div className="bg-surface-card rounded-xl border border-border-card overflow-hidden shadow-card">
           {loading ? (
             <div className="p-12 text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-primary mx-auto"></div>
@@ -302,8 +302,8 @@ const UserManagement: React.FC = () => {
             <>
               <div className="overflow-x-auto">
                 <AdminBulkToolbar selectedCount={selectedIds.size} onClearSelection={() => setSelectedIds(new Set())}>
-                <button type="button" disabled={bulkSubmitting} onClick={() => handleBulkAction('changeRole', 'admin')} className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50">Change to Admin</button>
-                <button type="button" disabled={bulkSubmitting} onClick={() => handleBulkAction('changeRole', 'user')} className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50">Change to User</button>
+                <button type="button" disabled={bulkSubmitting} onClick={() => handleBulkAction('changeRole', 'admin')} className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-card bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50">Change to Admin</button>
+                <button type="button" disabled={bulkSubmitting} onClick={() => handleBulkAction('changeRole', 'user')} className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-card bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50">Change to User</button>
                 <button type="button" disabled={bulkSubmitting} onClick={() => handleBulkAction('delete')} className="px-3 py-1.5 text-sm font-medium rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50">Delete</button>
               </AdminBulkToolbar>
                 <table className="w-full">
@@ -437,14 +437,14 @@ const UserManagement: React.FC = () => {
                     <button
                       onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                       disabled={currentPage === 1}
-                      className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-card border border-border-subtle rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-card border border-border-card rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Previous
                     </button>
                     <button
                       onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                       disabled={currentPage === totalPages}
-                      className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-card border border-border-subtle rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-card border border-border-card rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Next
                     </button>
@@ -512,7 +512,7 @@ const UserManagement: React.FC = () => {
                 setSelectedUser(null);
                 setFormData({ name: '', email: '', role: 'user' });
               }}
-              className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-muted border border-border-subtle hover:bg-surface-card rounded-lg transition-colors"
+              className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-muted border border-border-card hover:bg-surface-card rounded-lg transition-colors"
             >
               Cancel
             </button>
@@ -538,7 +538,7 @@ const UserManagement: React.FC = () => {
         size="lg"
       >
         <div className="flex flex-col gap-4 max-h-[480px]">
-          <div className="flex-1 overflow-y-auto border border-border-subtle rounded-lg p-3 bg-surface-muted/40">
+          <div className="flex-1 overflow-y-auto border border-border-card rounded-lg p-3 bg-surface-muted/40">
             {loadingMessages ? (
               <div className="h-24 flex items-center justify-center text-sm text-text-secondary">
                 Loading messages...
@@ -579,7 +579,7 @@ const UserManagement: React.FC = () => {
               value={messageInput}
               onChange={(e) => setMessageInput(e.target.value)}
               rows={3}
-              className="w-full rounded-lg border border-border-subtle bg-bg-primary px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
               placeholder={messageUser ? `Message ${messageUser.name}...` : 'Type a message...'}
             />
             <div className="flex justify-end">

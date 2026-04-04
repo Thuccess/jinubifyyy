@@ -5,6 +5,10 @@
 import mongoose from 'mongoose';
 import User from '../models/User.js';
 import dotenv from 'dotenv';
+import {
+  DEV_ADMIN_DEFAULT_EMAIL,
+  DEV_ADMIN_DEFAULT_PASSWORD,
+} from '../config/devAdminDefaults.js';
 
 dotenv.config();
 
@@ -33,13 +37,13 @@ const createAdmin = async () => {
   try {
     await connectWithFallback();
 
-    const email = process.argv[2];
-    const password = process.argv[3];
-    const name = process.argv[4] || 'Admin User';
+    const email = (process.argv[2] || process.env.DEV_ADMIN_EMAIL || DEV_ADMIN_DEFAULT_EMAIL).toLowerCase().trim();
+    const password = process.argv[3] || process.env.DEV_ADMIN_PASSWORD || DEV_ADMIN_DEFAULT_PASSWORD;
+    const name = process.argv[4] || process.env.DEV_ADMIN_NAME || 'Admin User';
 
     if (!email || !password) {
-      console.error('❌ Usage: node scripts/createAdmin.js <email> <password> [name]');
-      console.error('   Example: node scripts/createAdmin.js admin@example.com MySecurePass123! Admin');
+      console.error('❌ Missing email or password. Usage: node scripts/createAdmin.js [email] [password] [name]');
+      console.error('   Defaults: email/password from config/devAdminDefaults.js or DEV_ADMIN_* env vars.');
       process.exit(1);
     }
 

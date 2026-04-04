@@ -63,7 +63,7 @@ export default function SettingsPage() {
                 value={form.name}
                 onChange={handleChange}
                 required
-                className="w-full rounded-lg border border-border-subtle bg-bg-primary px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
               />
             </div>
             <div>
@@ -74,7 +74,7 @@ export default function SettingsPage() {
                 value={form.email}
                 onChange={handleChange}
                 required
-                className="w-full rounded-lg border border-border-subtle bg-bg-primary px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
               />
             </div>
           </div>
@@ -86,7 +86,7 @@ export default function SettingsPage() {
                 name="phone"
                 value={form.phone}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-border-subtle bg-bg-primary px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
               />
             </div>
             <div>
@@ -95,7 +95,7 @@ export default function SettingsPage() {
                 name="company"
                 value={form.company}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-border-subtle bg-bg-primary px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
               />
             </div>
           </div>
@@ -107,7 +107,7 @@ export default function SettingsPage() {
               type="password"
               value={form.password}
               onChange={handleChange}
-              className="w-full rounded-lg border border-border-subtle bg-bg-primary px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
               placeholder="Leave blank to keep current password"
             />
           </div>

@@ -73,14 +73,14 @@ const DemoCard: React.FC<{ item: DemoDisplayItem }> = ({ item }) => {
 
   return (
     <AnimatedSection>
-      <div className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] overflow-hidden flex flex-col h-full">
+      <div className="rounded-lg border border-border-card bg-[color:var(--surface-card)] overflow-hidden flex flex-col h-full shadow-card">
         <div className="aspect-[4/3] min-h-[120px] bg-[color:var(--surface-muted)] flex items-center justify-center p-6" aria-hidden="true">
           {icon ? (
-            <span className="w-14 h-14 rounded-lg bg-[color:var(--surface-card)] border border-border-subtle flex items-center justify-center [color:var(--text-primary)]">
+            <span className="w-14 h-14 rounded-lg bg-[color:var(--surface-card)] border border-border-card flex items-center justify-center [color:var(--text-primary)]">
               {icon}
             </span>
           ) : (
-            <div className="w-14 h-14 rounded-lg bg-[color:var(--surface-card)] border border-border-subtle" />
+            <div className="w-14 h-14 rounded-lg bg-[color:var(--surface-card)] border border-border-card shadow-card" />
           )}
         </div>
         <div className="p-5 sm:p-6 flex flex-col gap-3 flex-grow">
@@ -141,7 +141,7 @@ const PricingLinkSection: React.FC = () => {
     <section className="py-16 sm:py-20 lg:py-24" aria-labelledby="demos-pricing-heading">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection>
-          <div className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8">
+          <div className="rounded-lg border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 shadow-card">
             <span className="flex w-12 h-12 rounded-lg bg-brand-primary items-center justify-center text-[color:var(--text-inverted)]" aria-hidden>
               <CurrencyDollarIcon className="h-6 w-6" />
             </span>
@@ -197,7 +197,7 @@ const DemosLandingPage: React.FC = () => {
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-2">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="rounded-2xl border border-border-subtle bg-[color:var(--surface-card)] p-4">
+                <div key={i} className="rounded-2xl border border-border-card bg-[color:var(--surface-card)] p-4 shadow-card">
                   <SkeletonBlock className="h-44 w-full" rounded="xl" />
                   <SkeletonBlock className="mt-4 h-4 w-3/4" rounded="full" />
                   <SkeletonBlock className="mt-2 h-3 w-full" rounded="full" />

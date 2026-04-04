@@ -288,7 +288,7 @@ const BlogManagement: React.FC = () => {
         </div>
 
         {/* Table card */}
-        <div className="rounded-2xl border border-border-subtle bg-[color:var(--surface-card)] overflow-hidden shadow-sm">
+        <div className="rounded-2xl border border-border-card bg-[color:var(--surface-card)] overflow-hidden shadow-sm">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20">
               <div className="h-9 w-9 rounded-full border-2 border-border-subtle border-t-text-primary animate-spin" />
@@ -332,7 +332,7 @@ const BlogManagement: React.FC = () => {
                   type="button"
                   disabled={bulkSubmitting}
                   onClick={() => handleBulkAction('unpublish')}
-                  className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50"
+                  className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-card bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50"
                 >
                   Bulk unpublish
                 </button>
@@ -448,7 +448,7 @@ const BlogManagement: React.FC = () => {
                       type="button"
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
-                      className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50 disabled:pointer-events-none"
+                      className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-card bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50 disabled:pointer-events-none"
                     >
                       Previous
                     </button>
@@ -456,7 +456,7 @@ const BlogManagement: React.FC = () => {
                       type="button"
                       onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50 disabled:pointer-events-none"
+                      className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-card bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50 disabled:pointer-events-none"
                     >
                       Next
                     </button>
@@ -609,7 +609,7 @@ const BlogManagement: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsFormOpen(false)}
-              className="px-4 py-2.5 text-sm font-medium rounded-xl border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]"
+              className="px-4 py-2.5 text-sm font-medium rounded-xl border border-border-card bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]"
             >
               Cancel
             </button>

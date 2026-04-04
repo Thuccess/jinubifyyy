@@ -10,6 +10,7 @@ const DEMO_PAGE_SIZE = 100;
 
 // List demos (optionally filtered by service)
 router.get('/', async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=3600');
   try {
     const {
       page = 1,
@@ -65,6 +66,7 @@ router.get('/', async (req, res) => {
 
 // Public: get demo by slug (only active)
 router.get('/by-slug/:slug', async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=3600');
   try {
     const demo = await Demo.findOne({ slug: req.params.slug, isActive: true })
       .populate('service', 'title slug description')
@@ -83,6 +85,7 @@ router.get('/by-slug/:slug', async (req, res) => {
 
 // Public: get demos by service slug (for overview page)
 router.get('/by-service-slug/:serviceSlug', async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=3600');
   try {
     const service = await Service.findOne({ slug: req.params.serviceSlug, isActive: true }).lean();
     if (!service) {

@@ -68,7 +68,7 @@ const MissionVisionPage: React.FC = () => {
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
-              <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10">
+              <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10 shadow-card">
                 <div className="flex flex-col sm:flex-row sm:items-start gap-6">
                   <span
                     className="flex-shrink-0 w-12 h-12 rounded-xl bg-surface-muted flex items-center justify-center [color:var(--text-primary)]"
@@ -109,7 +109,7 @@ const MissionVisionPage: React.FC = () => {
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
-              <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10">
+              <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10 shadow-card">
                 <div className="flex flex-col sm:flex-row sm:items-start gap-6">
                   <span
                     className="flex-shrink-0 w-12 h-12 rounded-xl bg-surface-muted flex items-center justify-center [color:var(--text-primary)]"

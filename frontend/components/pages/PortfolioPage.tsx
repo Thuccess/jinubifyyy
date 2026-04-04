@@ -38,7 +38,7 @@ const ProjectCard: React.FC<{ project: Project; onClick: () => void }> = ({ proj
     <button
         type="button"
         onClick={onClick}
-        className="group relative block w-full text-left rounded-lg overflow-hidden border border-border-subtle bg-[color:var(--surface-card)] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
+        className="group relative block w-full text-left rounded-lg overflow-hidden border border-border-card bg-[color:var(--surface-card)] shadow-card focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
     >
         <div className="aspect-[4/3] overflow-hidden relative">
             <Image
@@ -96,7 +96,7 @@ const Lightbox: React.FC<{
               className="object-contain rounded-xl shadow-2xl ring-2 ring-white/10"
             />
         </div>
-        <div className="mt-4 max-w-3xl mx-auto rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-6 text-left">
+        <div className="mt-4 max-w-3xl mx-auto rounded-lg border border-border-card bg-[color:var(--surface-card)] p-6 text-left shadow-card">
             <h3 id="lightbox-title" className="text-xl font-bold text-text-primary">{project.title}</h3>
             <p className="mt-2 text-sm text-text-secondary leading-relaxed">{project.description}</p>
         </div>

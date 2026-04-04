@@ -15,7 +15,11 @@ const getEnvVar = (key: string, defaultValue?: string): string => {
   return value;
 };
 
-const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? '').trim();
+const rawApiUrl = (process.env.NEXT_PUBLIC_API_URL ?? '').trim();
+// Local dev works without .env.local when the API runs on the default port.
+const apiUrl =
+  rawApiUrl ||
+  (process.env.NODE_ENV !== 'production' ? 'http://localhost:5000/api' : '');
 
 export const env: EnvConfig = {
   // API base URL (include /api).

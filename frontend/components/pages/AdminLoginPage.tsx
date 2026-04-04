@@ -7,9 +7,13 @@ import { useAuth } from '../../contexts/AuthContext';
 import { authAPI, storeAuth, clearAuth } from '../../services/api';
 import type { User } from '../../types';
 
+/** Keep roles the admin shell understands; AdminGuard allows editor | admin | super_admin. */
 const normalizeUserWithRole = (raw: User): User => {
-  const r = raw.role && String(raw.role).toLowerCase();
-  const role = r === 'admin' || r === 'super_admin' ? 'admin' : 'user';
+  const r = String(raw.role || '').toLowerCase();
+  const role: User['role'] =
+    r === 'super_admin' || r === 'admin' || r === 'editor'
+      ? (r as User['role'])
+      : 'user';
   return {
     _id: raw._id,
     name: raw.name,
@@ -36,7 +40,8 @@ const AdminLoginPage: React.FC = () => {
   const [resendCooldown, setResendCooldown] = useState(0);
 
   useEffect(() => {
-    if (currentUser?.role === 'admin') {
+    const adminish = ['admin', 'super_admin', 'editor'].includes(String(currentUser?.role || ''));
+    if (adminish) {
       router.replace(next);
     }
   }, [currentUser?.role, next, router]);
@@ -68,7 +73,7 @@ const AdminLoginPage: React.FC = () => {
       storeAuth(response.token, normalizedUser, rememberMe);
       setCurrentUser(normalizedUser);
 
-      if (normalizedUser.role !== 'admin') {
+      if (!['admin', 'super_admin', 'editor'].includes(String(normalizedUser.role || ''))) {
         clearAuth();
         setCurrentUser(null);
         setError('This account does not have admin access.');
@@ -122,7 +127,7 @@ const AdminLoginPage: React.FC = () => {
   return (
     <div className="animate-fade-in flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
-        <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 shadow-sm sm:p-8 surface surface--modal">
+        <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card sm:p-8 surface surface--modal">
           <div className="mb-6 text-center">
             <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
               Admin area
@@ -224,7 +229,7 @@ const AdminLoginPage: React.FC = () => {
               </button>
             )}
             {resendMessage && (
-              <div className="p-3 bg-surface-muted border border-border-subtle rounded-lg">
+              <div className="p-3 bg-surface-muted border border-border-card rounded-lg">
                 <p className="text-sm text-text-primary">{resendMessage}</p>
               </div>
             )}

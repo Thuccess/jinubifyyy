@@ -148,7 +148,13 @@ app.use(helmet({
 }));
 
 // HTTP compression (gzip)
-app.use(compression());
+app.use(
+  compression({
+    threshold: 1024,
+    level: 6,
+    memLevel: 8,
+  }),
+);
 
 // CORS configuration
 const allowedOrigins = (() => {
@@ -270,9 +276,12 @@ app.use(errorHandler);
 // MongoDB connection options that improve Atlas connectivity (TLS/IPv4)
 const getMongoOptions = () => {
   const base = {
-    maxPoolSize: 10,
-    serverSelectionTimeoutMS: 15000,
-    connectTimeoutMS: 15000,
+    maxPoolSize: Math.min(200, Math.max(10, parseInt(process.env.MONGO_MAX_POOL_SIZE || '50', 10) || 50)),
+    minPoolSize: Math.min(20, Math.max(0, parseInt(process.env.MONGO_MIN_POOL_SIZE || '2', 10) || 2)),
+    maxIdleTimeMS: parseInt(process.env.MONGO_MAX_IDLE_MS || '60000', 10) || 60_000,
+    serverSelectionTimeoutMS: parseInt(process.env.MONGO_SERVER_SELECTION_MS || '15000', 10) || 15_000,
+    connectTimeoutMS: parseInt(process.env.MONGO_CONNECT_TIMEOUT_MS || '15000', 10) || 15_000,
+    retryWrites: true,
   };
   // Avoid TLS/SSL handshake errors with Atlas (Node 17+ may prefer IPv6; Atlas can reject)
   if (process.env.MONGODB_URI?.includes('mongodb.net')) {
@@ -413,13 +422,15 @@ function attachMongoDisconnectHandler() {
 const gracefulShutdown = (signal) => {
   console.log(`\n${signal} received. Starting graceful shutdown...`);
   
-  server.close(() => {
+  server.close(async () => {
     console.log('✅ HTTP server closed');
-    
-    mongoose.connection.close(false, () => {
+    try {
+      await mongoose.connection.close();
       console.log('✅ MongoDB connection closed');
-      process.exit(0);
-    });
+    } catch (e) {
+      console.error('MongoDB close error:', e.message || e);
+    }
+    process.exit(0);
   });
 
   // Force close after 10 seconds
@@ -439,6 +450,10 @@ const startServer = async () => {
     // Attach after first successful connect so early `disconnected` events do not schedule
     // a parallel cold `connectDB` while `mongoUriLastSucceeded` is still null (that could process.exit after listen).
     attachMongoDisconnectHandler();
+    if (process.env.NODE_ENV === 'development') {
+      const { ensureDevAdminIfMissing } = await import('./utils/ensureDevAdmin.js');
+      await ensureDevAdminIfMissing();
+    }
     // Keep cron workloads out of local dev/test to reduce event-loop pressure
     // and improve API responsiveness while iterating.
     if (process.env.NODE_ENV === 'production') {
@@ -450,6 +465,8 @@ const startServer = async () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
+    server.keepAliveTimeout = 75_000;
+    server.headersTimeout = 76_000;
   } catch (error) {
     console.error('❌ Failed to start server:', error);
     process.exit(1);

@@ -67,7 +67,7 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ sections, activeSecti
       <div className="lg:hidden mb-6">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-4 flex items-center justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
+          className="w-full rounded-lg border border-border-card bg-[color:var(--surface-card)] p-4 flex items-center justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
         >
           <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">
             Table of Contents
@@ -82,7 +82,7 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ sections, activeSecti
           </svg>
         </button>
         {isOpen && (
-          <div className="mt-2 rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-4">
+          <div className="mt-2 rounded-lg border border-border-card bg-[color:var(--surface-card)] p-4 shadow-card">
             <nav className="space-y-1">
               {sections.map((section) => (
                 <button
@@ -105,7 +105,7 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ sections, activeSecti
 
       {/* Desktop TOC */}
       <div className="sticky top-20 sm:top-24 hidden lg:block">
-        <div className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-4 lg:p-6">
+        <div className="rounded-lg border border-border-card bg-[color:var(--surface-card)] p-4 lg:p-6 shadow-card">
           <h3 className="text-xs lg:text-sm font-bold text-text-primary uppercase tracking-wider mb-3 lg:mb-4">
             Table of Contents
           </h3>
@@ -140,7 +140,7 @@ interface SectionCardProps {
 
 const SectionCard: React.FC<SectionCardProps> = ({ id, icon, title, children }) => (
   <section id={id} className="scroll-mt-20 sm:scroll-mt-24 mb-6 sm:mb-8 md:mb-10 lg:mb-12">
-    <div className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-4 sm:p-6 md:p-8">
+    <div className="rounded-lg border border-border-card bg-[color:var(--surface-card)] p-4 sm:p-6 md:p-8 shadow-card">
       <div className="flex items-center gap-2 sm:gap-3 md:gap-4 mb-4 sm:mb-5 md:mb-6 pb-3 sm:pb-4 border-b border-border-subtle">
         <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg bg-[color:var(--surface-muted)] flex items-center justify-center">
           <div className="w-5 h-5 sm:w-6 sm:h-6">{icon}</div>

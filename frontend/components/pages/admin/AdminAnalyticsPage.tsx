@@ -50,7 +50,7 @@ const AdminAnalyticsPage: React.FC = () => {
   if (error || !data) {
     return (
       <AdminLayout title="Analytics" subtitle="Traffic, leads, and conversions">
-        <div className="rounded-2xl border border-border-subtle bg-[color:var(--surface-card)] p-8 text-center">
+        <div className="rounded-2xl border border-border-card bg-[color:var(--surface-card)] p-8 text-center shadow-card">
           <p className="text-text-secondary">{error || 'No data available.'}</p>
         </div>
       </AdminLayout>
@@ -66,7 +66,7 @@ const AdminAnalyticsPage: React.FC = () => {
             <select
               value={days}
               onChange={(e) => setDays(Number(e.target.value))}
-              className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] px-3 py-2 text-text-primary"
+              className="rounded-lg border border-border-card bg-[color:var(--surface-card)] px-3 py-2 text-text-primary"
             >
               <option value={7}>Last 7 days</option>
               <option value={30}>Last 30 days</option>

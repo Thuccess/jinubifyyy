@@ -167,7 +167,7 @@ export default function Lightbox({
         <button
           type="button"
           onClick={onClose}
-          className="absolute -top-0 right-2 z-30 flex h-11 min-h-[44px] w-11 min-w-[44px] items-center justify-center rounded-full border border-border-subtle bg-[color:var(--surface-card)] text-text-primary shadow-lg transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] sm:right-4"
+          className="absolute -top-0 right-2 z-30 flex h-11 min-h-[44px] w-11 min-w-[44px] items-center justify-center rounded-full border border-border-card bg-[color:var(--surface-card)] text-text-primary shadow-lg dark:shadow-sm transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] sm:right-4"
           aria-label="Close"
         >
           <XMarkIcon className="h-6 w-6" />
@@ -192,7 +192,7 @@ export default function Lightbox({
         {(current.title || current.description) && (
           <div
             id={titleId}
-            className="mt-4 w-full max-w-3xl rounded-lg border border-border-subtle bg-[color:var(--surface-card)] px-4 py-3 text-left sm:px-6 sm:py-4"
+            className="mt-4 w-full max-w-3xl rounded-lg border border-border-card bg-[color:var(--surface-card)] px-4 py-3 text-left sm:px-6 sm:py-4"
           >
             {current.title && (
               <h2 className="text-lg font-bold text-text-primary sm:text-xl">
@@ -217,7 +217,7 @@ export default function Lightbox({
               go(-1);
             }}
             className={clsx(
-              'absolute left-2 top-1/2 z-20 flex h-12 w-12 min-h-[48px] min-w-[48px] -translate-y-1/2 items-center justify-center rounded-full border border-border-subtle bg-[color:var(--surface-card)] text-text-primary shadow-lg transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] sm:left-4',
+              'absolute left-2 top-1/2 z-20 flex h-12 w-12 min-h-[48px] min-w-[48px] -translate-y-1/2 items-center justify-center rounded-full border border-border-card bg-[color:var(--surface-card)] text-text-primary shadow-lg dark:shadow-sm transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] sm:left-4',
             )}
             aria-label="Previous"
           >
@@ -229,7 +229,7 @@ export default function Lightbox({
               e.stopPropagation();
               go(1);
             }}
-            className="absolute right-2 top-1/2 z-20 flex h-12 w-12 min-h-[48px] min-w-[48px] -translate-y-1/2 items-center justify-center rounded-full border border-border-subtle bg-[color:var(--surface-card)] text-text-primary shadow-lg transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] sm:right-4"
+            className="absolute right-2 top-1/2 z-20 flex h-12 w-12 min-h-[48px] min-w-[48px] -translate-y-1/2 items-center justify-center rounded-full border border-border-card bg-[color:var(--surface-card)] text-text-primary shadow-lg dark:shadow-sm transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] sm:right-4"
             aria-label="Next"
           >
             <ChevronRightIcon className="h-8 w-8" />

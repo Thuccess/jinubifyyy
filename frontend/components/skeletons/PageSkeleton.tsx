@@ -36,7 +36,7 @@ export default function PageSkeleton({ compact = false }: PageSkeletonProps) {
           </div>
         )}
 
-        <div className="rounded-2xl border border-border-subtle bg-[color:var(--surface-card)] p-4 sm:p-6">
+        <div className="rounded-2xl border border-border-card bg-[color:var(--surface-card)] p-4 sm:p-6 shadow-card">
           <div className="mb-4 flex items-center gap-3">
             <SkeletonAvatar size={44} />
             <div className="min-w-0 flex-1">

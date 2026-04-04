@@ -28,7 +28,7 @@ const EventsPage: React.FC = () => {
           {isLoading ? (
             <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="rounded-xl border border-border-subtle bg-surface-card/80 p-4">
+                <div key={i} className="rounded-xl border border-border-card bg-surface-card/80 p-4 shadow-card">
                   <SkeletonBlock className="h-40 w-full" rounded="lg" />
                   <SkeletonBlock className="mt-4 h-3 w-24" rounded="full" />
                   <SkeletonBlock className="mt-2 h-4 w-4/5" rounded="full" />
@@ -49,7 +49,7 @@ const EventsPage: React.FC = () => {
               {events.map((event: any) => (
                 <article
                   key={event._id}
-                  className="group rounded-xl border border-border-subtle bg-surface-card/80 shadow-sm overflow-hidden flex flex-col hover:border-brand-soft hover:shadow-md transition-all duration-200"
+                  className="group rounded-xl border border-border-card bg-surface-card/80 shadow-sm overflow-hidden flex flex-col hover:border-brand-soft hover:shadow-md transition-all duration-200"
                 >
                   {event.imageUrl && (
                     <div className="relative h-40 w-full overflow-hidden">

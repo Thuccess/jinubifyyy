@@ -685,8 +685,22 @@ export interface TeamMemberPayload {
   order?: number;
 }
 
+export interface CeoFounderPayload {
+  enabled?: boolean;
+  eyebrow?: string;
+  sectionTitle?: string;
+  name?: string;
+  title?: string;
+  imageUrl?: string;
+  bio?: string;
+  detailedBio?: string;
+  quote?: string;
+  social?: { linkedin?: string; twitter?: string; website?: string };
+}
+
 export interface TeamPagePayload {
   hero?: { eyebrow?: string; heading?: string; subtitle?: string };
+  ceoFounder?: CeoFounderPayload;
   stripHeading?: string;
   members?: TeamMemberPayload[];
 }

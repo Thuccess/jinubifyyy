@@ -31,7 +31,6 @@ const orderSchema = new mongoose.Schema(
       type: String,
       enum: ['pending', 'processing', 'confirmed', 'completed', 'cancelled'],
       default: 'pending',
-      index: true,
     },
     completedAt: {
       type: Date,
@@ -50,7 +49,7 @@ const orderSchema = new mongoose.Schema(
     },
     order: {
       service: { type: String, trim: true },
-      serviceSlug: { type: String, trim: true, index: true },
+      serviceSlug: { type: String, trim: true },
       packageName: { type: String, trim: true },
       price: { type: Number, min: 0 },
       currency: { type: String, trim: true, default: 'USD' },
@@ -74,7 +73,6 @@ const orderSchema = new mongoose.Schema(
     createdAt: {
       type: Date,
       default: Date.now,
-      index: true,
     },
     updatedAt: {
       type: Date,
@@ -112,6 +110,7 @@ orderSchema.pre('save', function (next) {
 orderSchema.index({ userId: 1 });
 orderSchema.index({ status: 1 });
 orderSchema.index({ createdAt: -1 });
+orderSchema.index({ status: 1, createdAt: -1 });
 orderSchema.index({ 'order.serviceSlug': 1 });
 
 const Order = mongoose.model('Order', orderSchema);

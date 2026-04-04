@@ -63,7 +63,7 @@ export default function VideoModal({
 
       <div
         className={clsx(
-          'relative z-10 flex w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-border-subtle bg-[color:var(--surface-card)] shadow-2xl animate-zoom-in',
+          'relative z-10 flex w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-border-card bg-[color:var(--surface-card)] shadow-2xl dark:shadow-sm animate-zoom-in',
         )}
         onClick={(e) => e.stopPropagation()}
       >

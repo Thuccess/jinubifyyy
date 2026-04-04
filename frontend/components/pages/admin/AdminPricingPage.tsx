@@ -164,7 +164,7 @@ const AdminPricingPage: React.FC = () => {
                 showNotification(msg, r.created + r.updated > 0 ? 'success' : 'error');
               }).catch((e: any) => showNotification(e.response?.data?.message || 'Import failed', 'error'))}
               disabled={seedDefaultPricing.isPending}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-surface-muted hover:bg-surface-muted/80 text-text-primary border border-border-subtle rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-surface-muted hover:bg-surface-muted/80 text-text-primary border border-border-card rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
             >
               {seedDefaultPricing.isPending ? 'Importing…' : 'Import default pricing'}
             </button>
@@ -193,7 +193,7 @@ const AdminPricingPage: React.FC = () => {
         </div>
 
         {/* Packages Table */}
-        <div className="bg-surface-card rounded-xl border border-border-subtle shadow-sm overflow-hidden">
+        <div className="bg-surface-card rounded-xl border border-border-card shadow-sm overflow-hidden">
           {pricingLoading ? (
             <div className="p-12 text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-primary mx-auto"></div>

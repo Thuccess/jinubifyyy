@@ -72,7 +72,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({ item, onDelete, onUpdateTa
   const normalizedUrl = getImageUrl(item.url || item.filename);
 
   return (
-    <div className="flex flex-col rounded-xl border border-border-subtle bg-[color:var(--surface-card)] overflow-hidden shadow-sm">
+    <div className="flex flex-col rounded-xl border border-border-card bg-[color:var(--surface-card)] overflow-hidden shadow-card">
       <div className="relative aspect-[4/3] bg-[color:var(--surface-muted)]">
         {normalizedUrl ? (
           <Image

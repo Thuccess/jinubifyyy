@@ -199,11 +199,11 @@ const ProfileCard: React.FC = () => {
                         <form onSubmit={handleSave} className="space-y-6">
                             <div>
                                 <label htmlFor="name" className="sr-only">Name</label>
-                                <input type="text" id="name" name="name" value={formData.name} onChange={handleInputChange} required className="block w-full text-center px-3 py-2 bg-bg-secondary border border-border-subtle rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]" />
+                                <input type="text" id="name" name="name" value={formData.name} onChange={handleInputChange} required className="block w-full text-center px-3 py-2 bg-bg-secondary border border-border-card rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]" />
                             </div>
                             <div>
                                 <label htmlFor="photoURL" className="sr-only">Photo URL</label>
-                                <input type="text" id="photoURL" name="photoURL" value={formData.photoURL} onChange={handleInputChange} required className="block w-full text-center px-3 py-2 bg-bg-secondary border border-border-subtle rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]" />
+                                <input type="text" id="photoURL" name="photoURL" value={formData.photoURL} onChange={handleInputChange} required className="block w-full text-center px-3 py-2 bg-bg-secondary border border-border-card rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]" />
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
                               <div>
@@ -216,7 +216,7 @@ const ProfileCard: React.FC = () => {
                                   name="company"
                                   value={formData.company || ''}
                                   onChange={handleInputChange}
-                                  className="block w-full px-3 py-2 bg-bg-secondary border border-border-subtle rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-sm"
+                                  className="block w-full px-3 py-2 bg-bg-secondary border border-border-card rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-sm"
                                 />
                               </div>
                               <div>
@@ -229,7 +229,7 @@ const ProfileCard: React.FC = () => {
                                   name="industry"
                                   value={formData.industry || ''}
                                   onChange={handleInputChange}
-                                  className="block w-full px-3 py-2 bg-bg-secondary border border-border-subtle rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-sm"
+                                  className="block w-full px-3 py-2 bg-bg-secondary border border-border-card rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-sm"
                                 />
                               </div>
                             </div>
@@ -268,7 +268,7 @@ const ProfileCard: React.FC = () => {
                                   placeholder="Primary color (e.g. #1D4ED8)"
                                   value={formData.brandGuidelines?.primaryColor || ''}
                                   onChange={handleInputChange}
-                                  className="block w-full px-3 py-2 bg-bg-secondary border border-border-subtle rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-xs"
+                                  className="block w-full px-3 py-2 bg-bg-secondary border border-border-card rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-xs"
                                 />
                                 <input
                                   type="text"
@@ -276,7 +276,7 @@ const ProfileCard: React.FC = () => {
                                   placeholder="Secondary color"
                                   value={formData.brandGuidelines?.secondaryColor || ''}
                                   onChange={handleInputChange}
-                                  className="block w-full px-3 py-2 bg-bg-secondary border border-border-subtle rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-xs"
+                                  className="block w-full px-3 py-2 bg-bg-secondary border border-border-card rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-xs"
                                 />
                                 <input
                                   type="text"
@@ -284,7 +284,7 @@ const ProfileCard: React.FC = () => {
                                   placeholder="Logo URL"
                                   value={formData.brandGuidelines?.logoUrl || ''}
                                   onChange={handleInputChange}
-                                  className="block w-full px-3 py-2 bg-bg-secondary border border-border-subtle rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-xs"
+                                  className="block w-full px-3 py-2 bg-bg-secondary border border-border-card rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-xs"
                                 />
                               </div>
                               <div className="space-y-2">
@@ -300,7 +300,7 @@ const ProfileCard: React.FC = () => {
                                   rows={4}
                                   value={formData.brandGuidelines?.toneOfVoice || ''}
                                   onChange={handleInputChange}
-                                  className="block w-full px-3 py-2 bg-bg-secondary border border-border-subtle rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-xs"
+                                  className="block w-full px-3 py-2 bg-bg-secondary border border-border-card rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-xs"
                                   placeholder="Describe how your brand should sound in copy and captions."
                                 />
                               </div>
@@ -464,7 +464,7 @@ const RecentActivity: React.FC = () => {
 const Recommendations: React.FC = () => (
   <Card size="lg">
     <h2 className="text-xl font-bold text-text-primary mb-4">Recommended For You</h2>
-    <div className="bg-[color:var(--surface-muted)] p-6 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-border-subtle shadow-lg">
+    <div className="bg-[color:var(--surface-muted)] p-6 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-border-card shadow-lg">
       <div>
         <h3 className="font-bold text-text-primary">TikTok Growth Package</h3>
         <p className="text-sm text-text-secondary mt-1">
@@ -582,7 +582,7 @@ const OrdersList: React.FC = () => {
                   type="button"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="px-3 py-1.5 text-xs font-medium rounded-lg border border-border-subtle bg-surface-card text-text-primary disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-muted/90 transition-colors duration-300 ease-out"
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg border border-border-card bg-surface-card text-text-primary disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-muted/90 transition-colors duration-300 ease-out"
                 >
                   Previous
                 </button>
@@ -590,7 +590,7 @@ const OrdersList: React.FC = () => {
                   type="button"
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="px-3 py-1.5 text-xs font-medium rounded-lg border border-border-subtle bg-surface-card text-text-primary disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-muted/90 transition-colors duration-300 ease-out"
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg border border-border-card bg-surface-card text-text-primary disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-muted/90 transition-colors duration-300 ease-out"
                 >
                   Next
                 </button>
@@ -718,7 +718,7 @@ const ProfileQrCard: React.FC = () => {
       </p>
 
       {loading && (
-        <div className="mt-4 flex items-center justify-center rounded-lg border border-border-subtle bg-surface-muted p-8">
+        <div className="mt-4 flex items-center justify-center rounded-lg border border-border-card bg-surface-muted p-8">
           <div className="w-full max-w-xs space-y-3">
             <SkeletonBlock className="h-44 w-44 mx-auto" rounded="md" />
             <SkeletonBlock className="h-3 w-3/4 mx-auto" rounded="full" />
@@ -734,7 +734,7 @@ const ProfileQrCard: React.FC = () => {
 
       {!loading && !error && qrDataUrl && (
         <>
-          <div className="mt-4 rounded-lg border border-border-subtle bg-surface-muted p-4 flex items-center justify-center">
+          <div className="mt-4 rounded-lg border border-border-card bg-surface-muted p-4 flex items-center justify-center">
             <img src={qrDataUrl} alt="Your profile QR code" className="h-44 w-44 rounded-md bg-white p-2" />
           </div>
           <p className="mt-3 text-xs text-text-muted truncate" title={profileUrl}>

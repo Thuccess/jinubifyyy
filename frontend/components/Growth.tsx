@@ -13,7 +13,7 @@ const Growth: React.FC<{ content?: GrowthContent }> = ({ content: c }) => {
   return (
     <div className="py-16 sm:py-24 bg-brand-soft">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative card-solid glass-interactive rounded-3xl p-8 lg:p-16 overflow-hidden border border-border-subtle shadow-xl">
+        <div className="relative card-solid glass-interactive rounded-3xl p-8 lg:p-16 overflow-hidden border border-border-card shadow-xl">
 
             <Image src="https://picsum.photos/seed/face1/48/48" alt="Happy customer SovaRiver" width={48} height={48} className="absolute top-12 left-8 w-12 h-12 rounded-full shadow-lg border-2 border-surface-card object-cover" />
             <Image src="https://picsum.photos/seed/face2/48/48" alt="Happy customer Sidanbrook" width={48} height={48} className="absolute top-20 right-8 w-12 h-12 rounded-full shadow-lg border-2 border-surface-card object-cover" />

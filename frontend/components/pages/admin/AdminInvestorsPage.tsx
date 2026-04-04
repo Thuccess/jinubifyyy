@@ -155,7 +155,7 @@ const AdminInvestorsPage: React.FC = () => {
                   setStageFilter(e.target.value as InvestorStage);
                   setPage(1);
                 }}
-                className="px-3 py-2 rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-ring"
+                className="px-3 py-2 rounded-lg border border-border-card bg-[color:var(--surface-card)] text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-ring"
               >
                 <option value="all">All stages</option>
                 <option value="new">New</option>
@@ -171,7 +171,7 @@ const AdminInvestorsPage: React.FC = () => {
             type="button"
             onClick={handleExport}
             disabled={!investors.length}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-sm font-medium text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border-card bg-[color:var(--surface-card)] text-sm font-medium text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50"
           >
             <ArrowRightIcon className="h-4 w-4" />
             Export JSON
@@ -179,7 +179,7 @@ const AdminInvestorsPage: React.FC = () => {
         </div>
 
         {/* Table */}
-        <div className="bg-[color:var(--surface-card)] border border-border-subtle rounded-xl overflow-hidden">
+        <div className="bg-[color:var(--surface-card)] border border-border-card rounded-xl overflow-hidden shadow-card">
           {isLoading ? (
             <div className="p-12 text-center text-text-secondary">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-primary mx-auto mb-4" />
@@ -230,7 +230,7 @@ const AdminInvestorsPage: React.FC = () => {
                               onChange={(e) =>
                                 handleStageChange(inv, e.target.value as InvestorStage)
                               }
-                              className="text-xs border border-border-subtle rounded-md px-1.5 py-0.5 bg-transparent text-text-secondary focus:outline-none focus:ring-1 focus:ring-brand-ring"
+                              className="text-xs border border-border-card rounded-md px-1.5 py-0.5 bg-transparent text-text-secondary focus:outline-none focus:ring-1 focus:ring-brand-ring"
                             >
                               {stageOptions.map((s) => (
                                 <option key={s} value={s}>
@@ -269,7 +269,7 @@ const AdminInvestorsPage: React.FC = () => {
                       type="button"
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
                       disabled={pagination.page <= 1}
-                      className="px-3 py-1 rounded-md border border-border-subtle disabled:opacity-50"
+                      className="px-3 py-1 rounded-md border border-border-card disabled:opacity-50"
                     >
                       Previous
                     </button>
@@ -277,7 +277,7 @@ const AdminInvestorsPage: React.FC = () => {
                       type="button"
                       onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
                       disabled={pagination.page >= pagination.pages}
-                      className="px-3 py-1 rounded-md border border-border-subtle disabled:opacity-50"
+                      className="px-3 py-1 rounded-md border border-border-card disabled:opacity-50"
                     >
                       Next
                     </button>

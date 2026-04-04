@@ -28,7 +28,7 @@ const ResourcesPage: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
-                <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6">
+                <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
                   <DocumentTextIcon className="h-8 w-8 text-text-primary" aria-hidden />
                   <h3 className="mt-4 text-base font-semibold text-text-primary">Planning templates</h3>
                   <p className="mt-2 text-sm text-text-secondary leading-relaxed">
@@ -36,7 +36,7 @@ const ResourcesPage: React.FC = () => {
                     before you commit to building.
                   </p>
                 </div>
-                <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6">
+                <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
                   <LightBulbIcon className="h-8 w-8 text-text-primary" aria-hidden />
                   <h3 className="mt-4 text-base font-semibold text-text-primary">Strategy guides</h3>
                   <p className="mt-2 text-sm text-text-secondary leading-relaxed">
@@ -44,7 +44,7 @@ const ResourcesPage: React.FC = () => {
                     with confidence.
                   </p>
                 </div>
-                <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6">
+                <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
                   <ServerStackIcon className="h-8 w-8 text-text-primary" aria-hidden />
                   <h3 className="mt-4 text-base font-semibold text-text-primary">Downloadable assets</h3>
                   <p className="mt-2 text-sm text-text-secondary leading-relaxed">
@@ -60,7 +60,7 @@ const ResourcesPage: React.FC = () => {
         <section className="py-16 sm:py-20 lg:py-24 bg-[color:var(--bg-secondary)]" aria-labelledby="how-to-use-heading">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
-              <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10">
+              <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10 shadow-card">
                 <h2
                   id="how-to-use-heading"
                   className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl"

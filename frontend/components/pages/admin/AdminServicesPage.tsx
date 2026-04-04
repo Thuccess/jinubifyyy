@@ -250,7 +250,7 @@ const AdminServicesPage: React.FC = () => {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-3 py-2 border border-border-subtle rounded-lg bg-surface-card text-text-primary focus:ring-2 focus:ring-[color:var(--accent-ring)] min-w-[160px]"
+            className="px-3 py-2 border border-border-card rounded-lg bg-surface-card text-text-primary focus:ring-2 focus:ring-[color:var(--accent-ring)] min-w-[160px]"
           >
             <option value="">All categories</option>
             {categories.map((c) => (
@@ -260,7 +260,7 @@ const AdminServicesPage: React.FC = () => {
         </div>
 
         {/* Services Table */}
-        <div className="bg-surface-card rounded-xl border border-border-subtle shadow-sm overflow-hidden">
+        <div className="bg-surface-card rounded-xl border border-border-card shadow-sm overflow-hidden">
           {isLoading ? (
             <div className="p-12 text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-primary mx-auto"></div>
@@ -684,7 +684,7 @@ const AdminServicesPage: React.FC = () => {
                 });
                 setSelectedServiceId(null);
               }}
-              className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-muted border border-border-subtle hover:bg-surface-card rounded-lg transition-colors"
+              className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-muted border border-border-card hover:bg-surface-card rounded-lg transition-colors"
             >
               Cancel
             </button>

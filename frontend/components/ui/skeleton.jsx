@@ -39,7 +39,7 @@ export function SkeletonText({ lines = 3, className = '' }) {
 
 export function SkeletonCard({ className = '' }) {
   return (
-    <div className={`rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-5 ${className}`} aria-hidden="true">
+    <div className={`rounded-xl border border-border-card bg-[color:var(--surface-card)] p-5 ${className} shadow-card`} aria-hidden="true">
       <Skeleton className="h-40 w-full" rounded="rounded-lg" />
       <Skeleton className="mt-4 h-5 w-2/3" rounded="rounded-full" />
       <SkeletonText lines={3} className="mt-3" />

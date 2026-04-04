@@ -54,7 +54,7 @@ const SocialMediaVisual: React.FC<DemoVisualProps> = ({ slug, demoUrl, serviceNa
           <Link
             key={i}
             href={`/demos/${slug}`}
-            className="group surface rounded-xl p-3 border border-border-subtle text-center flex flex-col transition-all duration-200 hover:border-border-accent hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
+            className="group surface rounded-xl p-3 border border-border-card text-center flex flex-col transition-all duration-200 hover:border-border-accent hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
           >
             <div className="aspect-square rounded-lg mb-2 overflow-hidden flex-shrink-0 bg-surface-muted">
               <SmartImage

@@ -115,7 +115,7 @@ const AdminTopbar: React.FC<AdminTopbarProps> = ({ title, subtitle, actions, onM
 
           {/* Dropdown Menu */}
           {isUserMenuOpen && (
-            <div className="absolute right-0 mt-2 w-56 surface surface--popover rounded-xl shadow-lg border border-border-subtle py-1 z-50">
+            <div className="absolute right-0 mt-2 w-56 surface surface--popover rounded-xl shadow-lg border border-border-card py-1 z-50">
               {/* User Info */}
               <div className="px-4 py-3 border-b border-border-subtle">
                 <p className="text-sm font-medium text-text-primary">

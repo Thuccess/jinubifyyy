@@ -106,7 +106,7 @@ const DemoOverviewPage: React.FC = () => {
 
                 return (
                   <AnimatedSection key={demo._id}>
-                    <div className="card-solid flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border-subtle text-left transition-all duration-200 hover:border-border-accent hover:shadow-lg">
+                    <div className="card-solid flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border-card text-left transition-all duration-200 hover:border-border-accent hover:shadow-lg">
                       <div className="relative min-h-[160px] w-full bg-transparent">
                         {hasVideo && coverUrl ? (
                           <VideoThumbnail

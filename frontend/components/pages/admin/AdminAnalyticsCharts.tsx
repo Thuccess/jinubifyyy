@@ -39,7 +39,7 @@ const AdminAnalyticsCharts: React.FC<AdminAnalyticsChartsProps> = ({ data }) => 
 
   return (
     <div className="space-y-8">
-      <div className="rounded-2xl border border-border-subtle bg-[color:var(--surface-card)] p-4 sm:p-6">
+      <div className="rounded-2xl border border-border-card bg-[color:var(--surface-card)] p-4 sm:p-6 shadow-card">
         <h3 className="text-lg font-semibold text-text-primary mb-4">Traffic (activity events)</h3>
         <div className="h-64 sm:h-80">
           <ResponsiveContainer width="100%" height="100%">
@@ -47,7 +47,7 @@ const AdminAnalyticsCharts: React.FC<AdminAnalyticsChartsProps> = ({ data }) => 
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
               <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} />
               <YAxis stroke="var(--text-muted)" fontSize={12} />
-              <Tooltip contentStyle={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: 8 }} />
+              <Tooltip contentStyle={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--card-edge)', borderRadius: 8, boxShadow: 'var(--card-shadow)' }} />
               <Legend />
               <Line type="monotone" dataKey="count" name="Events" stroke="var(--brand-primary)" strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
@@ -56,7 +56,7 @@ const AdminAnalyticsCharts: React.FC<AdminAnalyticsChartsProps> = ({ data }) => 
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="rounded-2xl border border-border-subtle bg-[color:var(--surface-card)] p-4 sm:p-6">
+        <div className="rounded-2xl border border-border-card bg-[color:var(--surface-card)] p-4 sm:p-6 shadow-card">
           <h3 className="text-lg font-semibold text-text-primary mb-4">Leads (contacts)</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -64,13 +64,13 @@ const AdminAnalyticsCharts: React.FC<AdminAnalyticsChartsProps> = ({ data }) => 
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
                 <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} />
                 <YAxis stroke="var(--text-muted)" fontSize={12} />
-                <Tooltip contentStyle={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: 8 }} />
+                <Tooltip contentStyle={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--card-edge)', borderRadius: 8, boxShadow: 'var(--card-shadow)' }} />
                 <Bar dataKey="count" name="Leads" fill="var(--brand-primary)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="rounded-2xl border border-border-subtle bg-[color:var(--surface-card)] p-4 sm:p-6">
+        <div className="rounded-2xl border border-border-card bg-[color:var(--surface-card)] p-4 sm:p-6 shadow-card">
           <h3 className="text-lg font-semibold text-text-primary mb-4">Conversions (orders)</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -78,7 +78,7 @@ const AdminAnalyticsCharts: React.FC<AdminAnalyticsChartsProps> = ({ data }) => 
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
                 <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} />
                 <YAxis stroke="var(--text-muted)" fontSize={12} />
-                <Tooltip contentStyle={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: 8 }} />
+                <Tooltip contentStyle={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--card-edge)', borderRadius: 8, boxShadow: 'var(--card-shadow)' }} />
                 <Bar dataKey="count" name="Orders" fill="#10b981" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -87,7 +87,7 @@ const AdminAnalyticsCharts: React.FC<AdminAnalyticsChartsProps> = ({ data }) => 
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="rounded-2xl border border-border-subtle bg-[color:var(--surface-card)] p-4 sm:p-6">
+        <div className="rounded-2xl border border-border-card bg-[color:var(--surface-card)] p-4 sm:p-6 shadow-card">
           <h3 className="text-lg font-semibold text-text-primary mb-4">Service popularity</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -107,12 +107,12 @@ const AdminAnalyticsCharts: React.FC<AdminAnalyticsChartsProps> = ({ data }) => 
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: 8 }} />
+                <Tooltip contentStyle={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--card-edge)', borderRadius: 8, boxShadow: 'var(--card-shadow)' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="rounded-2xl border border-border-subtle bg-[color:var(--surface-card)] p-4 sm:p-6">
+        <div className="rounded-2xl border border-border-card bg-[color:var(--surface-card)] p-4 sm:p-6 shadow-card">
           <h3 className="text-lg font-semibold text-text-primary mb-4">Top blog posts (by views)</h3>
           <ul className="space-y-3 max-h-64 overflow-y-auto">
             {data.topBlogPosts.length === 0 ? (

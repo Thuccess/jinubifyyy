@@ -3,6 +3,9 @@ import HomePage from '@/components/pages/HomePage';
 import StructuredData from '@/components/seo/StructuredData';
 import { siteConfig } from '@/config/site';
 
+/** ISR shell for Edge cache; homepage body is client-heavy but metadata + shell refresh on schedule. */
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: 'Jinubify | Digital Solutions for Businesses Across East Africa',
   description:

@@ -31,7 +31,7 @@ export const AdminPagination: React.FC<AdminPaginationProps> = ({
           type="button"
           onClick={onPrevious}
           disabled={currentPage === 1}
-          className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50 disabled:pointer-events-none"
+          className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-card bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50 disabled:pointer-events-none"
         >
           Previous
         </button>
@@ -39,7 +39,7 @@ export const AdminPagination: React.FC<AdminPaginationProps> = ({
           type="button"
           onClick={onNext}
           disabled={currentPage === totalPages}
-          className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50 disabled:pointer-events-none"
+          className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-card bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50 disabled:pointer-events-none"
         >
           Next
         </button>

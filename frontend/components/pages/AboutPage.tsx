@@ -99,7 +99,7 @@ const StatCard: React.FC<{ value: number; label: string }> = ({ value, label }) 
   const count = useCountUp(ref, value);
   const displayLabel = label.replace(' (%)', '');
   return (
-    <div className="flex flex-col items-center p-8 rounded-lg border border-border-subtle bg-[color:var(--surface-card)]">
+    <div className="flex flex-col items-center p-8 rounded-lg border border-border-card bg-[color:var(--surface-card)] shadow-card">
       <span ref={ref} className="text-3xl sm:text-4xl font-bold tracking-tight text-text-primary">
         {count}{label.includes('%') && '%'}
       </span>
@@ -157,7 +157,7 @@ const AboutPage: React.FC = () => {
         <SkeletonBlock className="mt-3 h-4 w-80" rounded="full" />
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
           <SkeletonBlock className="h-72 w-full" rounded="xl" />
-          <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6">
+          <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
             <SkeletonBlock className="h-5 w-40" rounded="full" />
             <SkeletonBlock className="mt-4 h-3 w-full" rounded="full" />
             <SkeletonBlock className="mt-2 h-3 w-5/6" rounded="full" />
@@ -210,7 +210,7 @@ const AboutPage: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 lg:items-center">
-                <div className="aspect-[4/3] lg:aspect-auto lg:min-h-[360px] rounded-lg overflow-hidden border border-border-subtle bg-[color:var(--surface-card)]">
+                <div className="aspect-[4/3] lg:aspect-auto lg:min-h-[360px] rounded-lg overflow-hidden border border-border-card bg-[color:var(--surface-card)] shadow-card">
                   <Image
                     src={normalizeImageUrl(ourStory.imageUrl || 'https://picsum.photos/seed/office/600/400')}
                     alt="A modern and collaborative office space"

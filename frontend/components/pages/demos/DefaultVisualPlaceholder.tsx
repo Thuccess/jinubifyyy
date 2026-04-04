@@ -13,7 +13,7 @@ const DefaultVisualPlaceholder: React.FC<DefaultVisualPlaceholderProps> = ({
 }) => {
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="surface rounded-2xl p-8 sm:p-12 border border-border-subtle min-h-[280px] flex items-center justify-center">
+      <div className="surface rounded-2xl p-8 sm:p-12 border border-border-card min-h-[280px] flex items-center justify-center">
         {demoUrl ? (
           <a
             href={demoUrl}

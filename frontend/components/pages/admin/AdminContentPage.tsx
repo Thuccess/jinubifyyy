@@ -156,7 +156,7 @@ const PageMetaEditor: React.FC<PageMetaEditorProps> = ({ page, saving, role, onC
         )}
       </div>
 
-      <div className="pt-2 border-t border-slate-200 dark:border-slate-700 space-y-2">
+      <div className="pt-2 border-t border-gray-200 dark:border-white/5 space-y-2">
         <p className="text-xs font-medium text-slate-700 dark:text-slate-200">SEO</p>
         <div className="space-y-1">
           <label className="block text-xs font-medium text-slate-600 dark:text-slate-300">Meta title</label>
@@ -579,7 +579,7 @@ const AdminContentPage: React.FC = () => {
         </nav>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+      <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-white/5 shadow-sm p-6">
         {activeSection === 'site' && (
           <div className="space-y-8">
             <div>
@@ -599,7 +599,7 @@ const AdminContentPage: React.FC = () => {
                       <li
                         key={item._id}
                         className={`flex flex-wrap items-center gap-2 p-3 rounded-lg border ${
-                          item.isDeleted ? 'border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10' : 'border-slate-200 dark:border-slate-700'
+                          item.isDeleted ? 'border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10' : 'border-gray-200 dark:border-white/5'
                         }`}
                       >
                         {navEditId === item._id ? (
@@ -797,9 +797,9 @@ const AdminContentPage: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                  <div className="lg:col-span-2 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+                  <div className="lg:col-span-2 border border-gray-200 dark:border-white/5 rounded-lg overflow-hidden">
                     <table className="min-w-full text-sm">
-                      <thead className="bg-slate-50 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-700">
+                      <thead className="bg-slate-50 dark:bg-slate-900/40 border-b border-gray-200 dark:border-white/5">
                         <tr>
                           <th className="px-3 py-2 text-left font-medium text-slate-600 dark:text-slate-300">Slug</th>
                           <th className="px-3 py-2 text-left font-medium text-slate-600 dark:text-slate-300">Title</th>
@@ -845,7 +845,7 @@ const AdminContentPage: React.FC = () => {
                     </table>
                   </div>
 
-                  <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
+                  <div className="border border-gray-200 dark:border-white/5 rounded-lg p-4 space-y-4">
                     <h4 className="font-medium text-slate-900 dark:text-white text-sm">Page details</h4>
                     {editingPage ? (
                       <PageMetaEditor
@@ -908,7 +908,7 @@ const AdminContentPage: React.FC = () => {
                 </div>
 
                 {selectedPageId && pageDetail && (
-                  <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
+                  <div className="border border-gray-200 dark:border-white/5 rounded-lg p-4 space-y-4">
                     <h4 className="font-medium text-slate-900 dark:text-white">
                       Sections for: {String(pageDetail.page?.slug ?? '')}
                     </h4>
@@ -936,7 +936,7 @@ const AdminContentPage: React.FC = () => {
                         </div>
                       </div>
                       {showAddSectionForm && (
-                        <div className="mb-4 p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 space-y-2">
+                        <div className="mb-4 p-3 rounded-lg border border-gray-200 dark:border-white/5 bg-slate-50 dark:bg-slate-800/50 space-y-2">
                           <h6 className="text-xs font-medium text-slate-700 dark:text-slate-200">New section</h6>
                           <div className="grid grid-cols-2 gap-2">
                             <label className="col-span-2 sm:col-span-1">
@@ -1031,7 +1031,7 @@ const AdminContentPage: React.FC = () => {
                                   setDraggingSectionId(null);
                                   setDragOverSectionId(null);
                                 }}
-                                className={`flex flex-col gap-2 p-2 rounded-lg border bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 ${
+                                className={`flex flex-col gap-2 p-2 rounded-lg border bg-slate-50 dark:bg-slate-800/50 border-gray-200 dark:border-white/5 ${
                                   isDragging ? 'opacity-60' : ''
                                 } ${isDragOver ? 'ring-2 ring-brand-primary/60' : ''}`}
                               >
@@ -1098,7 +1098,7 @@ const AdminContentPage: React.FC = () => {
                                   </button>
                                 </div>
                                 {editingSectionId === sec._id && (
-                                  <div className="mt-1 border-t border-slate-200 dark:border-slate-700 pt-2 space-y-2">
+                                  <div className="mt-1 border-t border-gray-200 dark:border-white/5 pt-2 space-y-2">
                                     <div className="grid grid-cols-2 gap-2">
                                       <label className="block text-xs font-medium text-slate-600 dark:text-slate-300">
                                         Section type
@@ -1225,7 +1225,7 @@ const AdminContentPage: React.FC = () => {
               {['Hero Section', 'Features', 'Testimonials', 'FAQ', 'CTA Banner', 'Footer Content'].map((section) => (
                 <div
                   key={section}
-                  className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-brand-primary transition-colors cursor-pointer"
+                  className="p-4 border border-gray-200 dark:border-white/5 rounded-lg hover:border-brand-primary transition-colors cursor-pointer"
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -1335,7 +1335,7 @@ function SiteSettingRow({
   };
 
   return (
-    <li className="flex flex-wrap items-center gap-2 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+    <li className="flex flex-wrap items-center gap-2 p-3 rounded-lg border border-gray-200 dark:border-white/5">
       <span className="font-mono text-sm text-slate-700 dark:text-slate-300 w-32 shrink-0">{item.key}</span>
 
       {isSocials ? (
@@ -1360,7 +1360,7 @@ function SiteSettingRow({
                     const nextVal = e.target.value;
                     setSocialForm((p) => ({ ...p, [key]: nextVal }));
                   }}
-                  className="w-full px-2 py-1.5 text-sm border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="w-full px-2 py-1.5 text-sm border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-zinc-800 text-slate-900 dark:text-white"
                   placeholder="https://..."
                 />
               </label>

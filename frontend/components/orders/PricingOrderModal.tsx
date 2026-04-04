@@ -541,7 +541,7 @@ export const PricingOrderModal: React.FC<PricingOrderModalProps> = ({ isOpen, on
                             placeholder="Search industry..."
                             value={industrySearch}
                             onChange={(e) => setIndustrySearch(e.target.value)}
-                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-border-subtle bg-surface-card text-text-primary focus:outline-none focus:ring-1 focus:ring-[color:var(--accent-ring)]"
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-border-card bg-surface-card text-text-primary focus:outline-none focus:ring-1 focus:ring-[color:var(--accent-ring)]"
                           />
                           <select
                             id="industry"

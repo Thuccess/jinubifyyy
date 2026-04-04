@@ -34,9 +34,11 @@ import { authorizeRole } from '../middleware/authorizeRole.js';
 import { adminLimiter } from '../middleware/rateLimiter.js';
 import { formatValidationErrors } from '../middleware/errorHandler.js';
 import defaultSocials from '../data/defaultSocials.js';
+import { defaultTeamPublicPayload } from '../data/defaultTeamPublic.js';
 import { getUploadsDir } from '../config/uploadsPath.js';
 import cloudinary from '../config/cloudinary.js';
 import { authenticate, verifyApproved } from '../middleware/auth.js';
+import { invalidatePublicSocialsCache } from '../utils/shortCache.js';
 
 const router = express.Router();
 
@@ -1197,11 +1199,7 @@ router.get('/team', async (req, res) => {
   try {
     const doc = await TeamPage.findOne().lean();
     if (doc) return res.json(doc);
-    res.json({
-      hero: { eyebrow: 'Our Team', heading: 'Meet the People Behind Jinubify', subtitle: 'We are a passionate team of innovators, creators, and problem-solvers dedicated to building innovative tech and creative solutions that drive success.' },
-      stripHeading: 'Browse team',
-      members: [],
-    });
+    res.json(defaultTeamPublicPayload);
   } catch (error) {
     console.error('Get admin team error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -1219,6 +1217,7 @@ router.put('/team', async (req, res) => {
       doc = await TeamPage.create({
         slug: 'team',
         hero: body.hero || {},
+        ceoFounder: body.ceoFounder != null ? body.ceoFounder : undefined,
         stripHeading: body.stripHeading != null ? body.stripHeading : 'Browse team',
         members: body.members || [],
       });
@@ -1226,6 +1225,7 @@ router.put('/team', async (req, res) => {
     }
     const update = {};
     if (body.hero != null) update.hero = body.hero;
+    if (body.ceoFounder != null) update.ceoFounder = body.ceoFounder;
     if (body.stripHeading != null) update.stripHeading = body.stripHeading;
     if (body.members != null) update.members = body.members;
     const updated = await TeamPage.findByIdAndUpdate(doc._id, { $set: update }, { new: true }).lean();
@@ -1439,6 +1439,7 @@ router.put('/socials', async (req, res) => {
       { upsert: true, new: true }
     );
 
+    invalidatePublicSocialsCache();
     res.json({ data: doc?.value ?? resultSocials });
   } catch (error) {
     console.error('Update social links error:', error);

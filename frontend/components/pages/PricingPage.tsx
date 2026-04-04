@@ -125,8 +125,8 @@ const PackageCard: React.FC<PackageCardProps> = ({
     const router = useRouter();
     const currency = inferCurrency(price);
     return (
-        <div className={`relative flex flex-col p-6 sm:p-8 rounded-lg border bg-[color:var(--surface-card)] ${
-            isPopular ? 'border-brand-primary' : 'border-border-subtle'
+        <div className={`relative flex flex-col p-6 sm:p-8 rounded-lg border bg-[color:var(--surface-card)] shadow-card ${
+            isPopular ? 'border-brand-primary' : 'border-border-card'
         }`}>
             {isPopular && (
                 <span className="absolute top-0 left-0 right-0 text-center -translate-y-1/2">

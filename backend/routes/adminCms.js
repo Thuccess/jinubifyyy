@@ -6,6 +6,10 @@ import NavItem from '../models/NavItem.js';
 import { requireCmsEditor } from '../middleware/admin.js';
 import { adminLimiter } from '../middleware/rateLimiter.js';
 import { authenticate, verifyApproved } from '../middleware/auth.js';
+import {
+  invalidateCmsPublicSiteCache,
+  invalidatePublicSocialsCache,
+} from '../utils/shortCache.js';
 
 const router = express.Router();
 router.use(adminLimiter);
@@ -45,6 +49,8 @@ router.put('/site-settings', async (req, res) => {
       },
       { upsert: true, new: true }
     );
+    invalidateCmsPublicSiteCache();
+    if (key === 'socials') invalidatePublicSocialsCache();
     res.json({ data: doc });
   } catch (e) {
     console.error('Admin CMS site-settings put:', e);
@@ -104,6 +110,7 @@ router.put('/nav/:id', async (req, res) => {
       { new: true }
     );
     if (!doc) return res.status(404).json({ message: 'Nav item not found' });
+    invalidateCmsPublicSiteCache();
     res.json({ data: doc });
   } catch (e) {
     console.error('Admin CMS nav update:', e);
@@ -176,6 +183,7 @@ router.post('/pages', async (req, res) => {
       lastPublishedAt: desiredStatus === 'published' ? now : undefined,
       lastPublishedBy: desiredStatus === 'published' ? req.user?._id : undefined,
     });
+    invalidateCmsPublicSiteCache();
     res.status(201).json({ data: doc });
   } catch (e) {
     console.error('Admin CMS pages create:', e);
@@ -233,6 +241,7 @@ router.put('/pages/:id', async (req, res) => {
       { new: true }
     );
     if (!doc) return res.status(404).json({ message: 'Page not found' });
+    invalidateCmsPublicSiteCache();
     res.json({ data: doc });
   } catch (e) {
     console.error('Admin CMS page update:', e);
@@ -248,6 +257,7 @@ router.delete('/pages/:id', async (req, res) => {
       { new: true }
     );
     if (!doc) return res.status(404).json({ message: 'Page not found' });
+    invalidateCmsPublicSiteCache();
     res.json({ data: doc });
   } catch (e) {
     console.error('Admin CMS page delete:', e);
@@ -282,6 +292,7 @@ router.post('/pages/:pageId/sections', async (req, res) => {
       status: status || 'draft',
       order: orderNum,
     });
+    invalidateCmsPublicSiteCache();
     res.status(201).json({ data: doc });
   } catch (e) {
     console.error('Admin CMS section create:', e);
@@ -322,6 +333,7 @@ router.delete('/pages/:pageId/sections/:id', async (req, res) => {
       { new: true }
     );
     if (!doc) return res.status(404).json({ message: 'Section not found' });
+    invalidateCmsPublicSiteCache();
     res.json({ data: doc });
   } catch (e) {
     console.error('Admin CMS section delete:', e);

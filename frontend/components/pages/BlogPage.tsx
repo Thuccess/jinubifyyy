@@ -29,7 +29,7 @@ const PageHeader: React.FC = () => (
 const BlogPostCard: React.FC<{ post: BlogPost; formatDate: (date: string | Date) => string }> = ({ post, formatDate }) => (
   <Link
     href={`/blog/${post.slug}`}
-    className="group flex flex-col rounded-lg border border-border-subtle bg-[color:var(--surface-card)] overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2"
+    className="group flex flex-col rounded-lg border border-border-card bg-[color:var(--surface-card)] shadow-card overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2"
   >
     <div className="relative w-full overflow-hidden bg-transparent">
       <SmartImage

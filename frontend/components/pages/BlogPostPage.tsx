@@ -42,7 +42,7 @@ const ShareButtons: React.FC<{ slug: string; title: string; excerpt: string }> =
         href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-sm px-3 py-1.5 rounded-md border border-border-subtle bg-surface-card text-text-secondary hover:bg-[color:var(--surface-elevated)]"
+        className="text-sm px-3 py-1.5 rounded-md border border-border-card bg-surface-card text-text-secondary hover:bg-[color:var(--surface-elevated)]"
       >
         X (Twitter)
       </a>
@@ -50,14 +50,14 @@ const ShareButtons: React.FC<{ slug: string; title: string; excerpt: string }> =
         href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-sm px-3 py-1.5 rounded-md border border-border-subtle bg-surface-card text-text-secondary hover:bg-[color:var(--surface-elevated)]"
+        className="text-sm px-3 py-1.5 rounded-md border border-border-card bg-surface-card text-text-secondary hover:bg-[color:var(--surface-elevated)]"
       >
         LinkedIn
       </a>
       <button
         type="button"
         onClick={copyLink}
-        className="text-sm px-3 py-1.5 rounded-md border border-border-subtle bg-surface-card text-text-secondary hover:bg-[color:var(--surface-elevated)]"
+        className="text-sm px-3 py-1.5 rounded-md border border-border-card bg-surface-card text-text-secondary hover:bg-[color:var(--surface-elevated)]"
       >
         {copied ? 'Copied!' : 'Copy link'}
       </button>
@@ -196,7 +196,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = (props) => {
             </header>
 
             {imageUrl && (
-              <div className="mt-8 relative w-full aspect-video rounded-lg border border-border-subtle overflow-hidden">
+              <div className="mt-8 relative w-full aspect-video rounded-lg border border-border-card overflow-hidden">
                 <Image
                   src={imageUrl}
                   alt={post.seo?.title || post.title}

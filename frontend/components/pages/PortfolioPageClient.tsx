@@ -35,7 +35,7 @@ const ProjectCard: React.FC<{ project: Project; onClick: () => void }> = ({ proj
   <button
     type="button"
     onClick={onClick}
-    className="group relative block w-full overflow-hidden rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
+    className="group relative block w-full overflow-hidden rounded-lg border border-border-card bg-[color:var(--surface-card)] shadow-card text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
   >
     <SmartImage
       src={normalizeImageUrl(project.imageUrl || '') || project.imageUrl || ''}
@@ -113,7 +113,7 @@ const PortfolioPageClient: React.FC<PortfolioPageClientProps> = ({ initialProjec
                 className={`rounded-md px-4 py-2 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)] ${
                   activeCategory === category
                     ? 'bg-brand-primary text-text-inverted'
-                    : 'border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-surface-muted/90'
+                    : 'border border-border-card bg-[color:var(--surface-card)] text-text-primary hover:bg-surface-muted/90'
                 }`}
               >
                 {category}

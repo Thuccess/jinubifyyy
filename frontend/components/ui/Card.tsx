@@ -21,14 +21,14 @@ type PolymorphicProps<T extends AsProp> = BaseCardProps &
 function getVariantClasses(variant: CardVariant): string {
   switch (variant) {
     case 'subtle':
-      return 'border-border-subtle bg-surface-card';
+      return '';
     case 'emphasis':
-      return 'border-border-accent bg-surface-muted';
+      return 'bg-surface-muted';
     case 'danger':
-      return 'border-border-strong bg-surface-card';
+      return '';
     case 'default':
     default:
-      return 'border-border-subtle';
+      return '';
   }
 }
 
@@ -152,7 +152,7 @@ function CardBadge({ tone = 'default', className, ...rest }: BadgeProps) {
         'inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide',
         tone === 'emphasis'
           ? 'bg-brand-primary text-text-inverted'
-          : 'bg-surface-muted text-text-secondary border border-border-subtle',
+          : 'bg-surface-muted text-text-secondary border border-border-card',
         className,
       )}
       {...rest}

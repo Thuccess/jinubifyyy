@@ -228,7 +228,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-2xl overflow-hidden surface surface--modal border border-border-subtle transition-colors duration-300">
+              <Dialog.Panel className="w-full max-w-2xl overflow-hidden surface surface--modal border border-border-card transition-colors duration-300">
                 <div className="flex flex-col md:flex-row min-h-[520px] md:min-h-[560px]">
                   {/* Left: steps panel (hidden on small mobile when sign-in) */}
                   <div
@@ -250,7 +250,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                             key={s.id}
                             className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-colors duration-200 ${
                               active
-                                ? 'bg-[color:var(--surface-card)] border border-border-subtle text-text-primary'
+                                ? 'bg-[color:var(--surface-card)] border border-border-card text-text-primary'
                                 : 'bg-[color:var(--surface-muted)] text-text-secondary'
                             }`}
                           >
@@ -361,7 +361,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                           </div>
                         )}
                         {successMessage && (
-                          <div className="p-3 rounded-lg text-sm bg-[color:var(--surface-muted)] border border-border-subtle text-text-primary">
+                          <div className="p-3 rounded-lg text-sm bg-[color:var(--surface-muted)] border border-border-card text-text-primary">
                             {successMessage}
                           </div>
                         )}
@@ -380,7 +380,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                           </button>
                         )}
                         {resendMessage && (
-                          <div className="p-3 rounded-lg text-sm bg-[color:var(--surface-muted)] border border-border-subtle text-text-primary">
+                          <div className="p-3 rounded-lg text-sm bg-[color:var(--surface-muted)] border border-border-card text-text-primary">
                             {resendMessage}
                           </div>
                         )}

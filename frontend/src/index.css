@@ -78,6 +78,10 @@
   --surface-card: #ffffff;
   --surface-muted: var(--color-slate-100);
 
+  /* Raised card/panel edge + shadow (light: gray-200 + shadow-md; dark: white/5 + shadow-sm via html.dark) */
+  --card-edge: #e5e7eb;
+  --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
   --text-primary: var(--color-slate-800); /* dark gray */
   --text-secondary: var(--color-slate-600); /* 4.5:1+ on white */
   --text-muted: var(--color-slate-500);
@@ -134,8 +138,11 @@ html.dark {
   --bg-secondary: var(--color-slate-900); /* subtle step for sections */
   --bg-elevated: var(--color-slate-800); /* cards/panels */
 
-  --surface-card: var(--color-slate-900);
+  --surface-card: #27272a; /* zinc-800: primary card surface */
   --surface-muted: var(--color-slate-800);
+
+  --card-edge: rgba(255, 255, 255, 0.05);
+  --card-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 
   --text-primary: var(--color-slate-100); /* high contrast on dark */
   --text-secondary: var(--color-slate-200);
@@ -430,40 +437,40 @@ body {
 @layer components {
   .surface {
     border-radius: 16px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    background: #ffffff;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--card-edge);
+    background: var(--surface-card);
+    box-shadow: var(--card-shadow);
     transition: all 0.2s ease;
   }
 
   html.dark .surface {
-    background: #111111;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    background: var(--surface-card);
+    border: 1px solid var(--card-edge);
+    box-shadow: var(--card-shadow);
   }
 
   .card-solid {
     border-radius: 16px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    background: #fafafa;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--card-edge);
+    background: var(--surface-card);
+    box-shadow: var(--card-shadow);
     transition: all 0.2s ease;
   }
 
   html.dark .card-solid {
-    background: #161616;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    background: var(--surface-card);
+    border: 1px solid var(--card-edge);
+    box-shadow: var(--card-shadow);
   }
 
   /* Surface modifiers (solid, no blur) */
   .surface--modal {
     border-radius: 18px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--card-shadow);
   }
 
   html.dark .surface--modal {
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--card-shadow);
   }
 
   .surface--popover {
@@ -482,39 +489,39 @@ body {
   /* Prevent hover background/opacity changes on surface containers.
      Keep only border color / shadow / transform feedback. */
   .surface:hover {
-    background-color: #ffffff !important;
+    background-color: var(--surface-card) !important;
     opacity: 1 !important;
   }
 
   .card-solid:hover {
-    background-color: #fafafa !important;
+    background-color: var(--surface-card) !important;
     opacity: 1 !important;
   }
 
   html.dark .surface:hover {
-    background-color: #111111 !important;
+    background-color: var(--surface-card) !important;
   }
 
   html.dark .card-solid:hover {
-    background-color: #161616 !important;
+    background-color: var(--surface-card) !important;
   }
 
   /* Back-compat: old glass class names should remain visually solid. */
   .glass-surface:hover {
     opacity: 1 !important;
-    background-color: #fafafa !important;
+    background-color: var(--surface-card) !important;
   }
   html.dark .glass-surface:hover {
     opacity: 1 !important;
-    background-color: #161616 !important;
+    background-color: var(--surface-card) !important;
   }
 
   /* Back-compat: existing class names now render as solid surfaces */
   .glass {
     border-radius: 16px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    background: #ffffff;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--card-edge);
+    background: var(--surface-card);
+    box-shadow: var(--card-shadow);
     transition: all 0.2s ease;
   }
 
@@ -524,16 +531,16 @@ body {
 
   .glass-surface {
     border-radius: 16px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    background: #fafafa;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--card-edge);
+    background: var(--surface-card);
+    box-shadow: var(--card-shadow);
     transition: all 0.2s ease;
   }
 
   html.dark .glass-surface {
-    background: #161616;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    background: var(--surface-card);
+    border: 1px solid var(--card-edge);
+    box-shadow: var(--card-shadow);
   }
 
   .glass-surface--card {
@@ -542,11 +549,11 @@ body {
 
   .glass-surface--modal {
     border-radius: 18px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--card-shadow);
   }
 
   html.dark .glass-surface--modal {
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--card-shadow);
   }
 
   .glass-surface--popover {

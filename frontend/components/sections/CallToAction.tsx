@@ -20,7 +20,7 @@ const CallToAction: React.FC<CallToActionProps> = ({
   return (
     <AnimatedSection>
       <section
-        className={`rounded-2xl border border-border-subtle bg-[color:var(--surface-card)] p-8 sm:p-10 lg:p-12 text-center ${className}`}
+        className={`rounded-2xl border border-border-card bg-[color:var(--surface-card)] p-8 sm:p-10 lg:p-12 text-center ${className}`}
         aria-labelledby="cta-heading"
       >
         <h2

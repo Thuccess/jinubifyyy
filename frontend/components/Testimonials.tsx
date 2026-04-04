@@ -70,7 +70,7 @@ const Testimonials: React.FC<{ content?: Record<string, unknown> }> = () => {
               <SkeletonBlock className="h-3 w-full" rounded="full" />
               <SkeletonBlock className="h-3 w-5/6" rounded="full" />
             </div>
-            <div className="rounded-2xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8">
+            <div className="rounded-2xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 shadow-card">
               <SkeletonBlock className="h-4 w-32" rounded="full" />
               <SkeletonBlock className="mt-4 h-3 w-full" rounded="full" />
               <SkeletonBlock className="mt-2 h-3 w-11/12" rounded="full" />
@@ -111,7 +111,7 @@ const Testimonials: React.FC<{ content?: Record<string, unknown> }> = () => {
               <button
                 type="button"
                 onClick={goPrev}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-subtle bg-surface-card text-text-secondary hover:bg-surface-muted/90 hover:text-text-primary transition-colors duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-card bg-surface-card text-text-secondary hover:bg-surface-muted/90 hover:text-text-primary transition-colors duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2"
                 aria-label="Previous testimonial"
               >
                 <Icon icon={ChevronLeftIcon} size="md" tone="primary" />
@@ -119,7 +119,7 @@ const Testimonials: React.FC<{ content?: Record<string, unknown> }> = () => {
               <button
                 type="button"
                 onClick={goNext}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-subtle bg-surface-card text-text-secondary hover:bg-surface-muted/90 hover:text-text-primary transition-colors duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-card bg-surface-card text-text-secondary hover:bg-surface-muted/90 hover:text-text-primary transition-colors duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2"
                 aria-label="Next testimonial"
               >
                 <Icon icon={ChevronRightIcon} size="md" tone="primary" />
@@ -128,7 +128,7 @@ const Testimonials: React.FC<{ content?: Record<string, unknown> }> = () => {
           </div>
 
           {/* Right column: active testimonial */}
-          <div className="relative card-solid rounded-3xl border border-border-subtle shadow-xl overflow-hidden">
+          <div className="relative card-solid rounded-3xl border border-border-card shadow-xl overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,var(--accent-soft)/14,transparent_60%)] pointer-events-none" />
             <div className="relative z-10 p-8 sm:p-10 lg:p-12 flex flex-col gap-8">
               <Icon icon={QuoteIcon} size="lg" tone="muted" />

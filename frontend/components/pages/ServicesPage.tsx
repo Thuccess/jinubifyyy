@@ -49,7 +49,7 @@ const ServiceSection: React.FC<{ item: ServiceDisplayItem; featured?: boolean }>
   const handleViewDemo = () => router.push(`/demos/${item.slug}`);
   return (
     <AnimatedSection>
-      <div className={`rounded-lg border p-6 sm:p-8 flex flex-col gap-4 ${featured ? 'border-brand-primary bg-brand-soft/30' : 'border-border-subtle bg-[color:var(--surface-card)]'}`}>
+      <div className={`rounded-lg border p-6 sm:p-8 flex flex-col gap-4 ${featured ? 'border-brand-primary bg-brand-soft/30 shadow-card' : 'border-border-card bg-[color:var(--surface-card)] shadow-card'}`}>
         {featured && (
           <span className="text-xs font-semibold uppercase tracking-wider text-brand-primary">Featured</span>
         )}
@@ -104,7 +104,7 @@ const PageHeader: React.FC = () => (
 );
 
 const ProcessStep: React.FC<typeof processSteps[0]> = ({ icon, title, description }) => (
-    <div className="flex gap-4 p-6 rounded-lg border border-border-subtle bg-[color:var(--surface-card)]">
+    <div className="flex gap-4 p-6 rounded-lg border border-border-card bg-[color:var(--surface-card)] shadow-card">
         <span className="flex-shrink-0 w-12 h-12 rounded-lg bg-[color:var(--surface-muted)] flex items-center justify-center [color:var(--text-primary)]" aria-hidden>
             {icon}
         </span>
@@ -122,7 +122,7 @@ const PricingLinkSection: React.FC = () => {
         <section className="py-16 sm:py-20 lg:py-24 bg-[color:var(--bg-secondary)]" aria-labelledby="pricing-link-heading">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <AnimatedSection>
-                    <div className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-8 sm:p-10">
+                    <div className="rounded-lg border border-border-card bg-[color:var(--surface-card)] p-8 sm:p-10 shadow-card">
                         <span className="flex w-12 h-12 rounded-lg bg-brand-primary items-center justify-center text-[color:var(--text-inverted)]" aria-hidden>
                             <CurrencyDollarIcon className="h-6 w-6" />
                         </span>
@@ -218,7 +218,7 @@ const ServicesPage: React.FC = () => {
                 <Skeleton className="h-6 w-44" rounded="rounded-full" />
                 <div className="space-y-8">
                   {Array.from({ length: 2 }).map((_, i) => (
-                    <div key={i} className="rounded-lg border p-6 sm:p-8 flex flex-col gap-4 border-border-subtle bg-[color:var(--surface-card)]">
+                    <div key={i} className="rounded-lg border p-6 sm:p-8 flex flex-col gap-4 border-border-card bg-[color:var(--surface-card)] shadow-card">
                       <Skeleton className="h-8 w-72" rounded="rounded-full" />
                       <SkeletonText lines={3} />
                       <Skeleton className="h-4 w-40" rounded="rounded-full" />

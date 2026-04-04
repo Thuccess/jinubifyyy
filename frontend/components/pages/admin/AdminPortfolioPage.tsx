@@ -196,7 +196,7 @@ const AdminPortfolioPage: React.FC = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-border-subtle rounded-lg bg-surface-card text-text-primary focus:ring-2 focus:ring-[color:var(--accent-ring)] min-w-[160px]"
+            className="px-3 py-2 border border-border-card rounded-lg bg-surface-card text-text-primary focus:ring-2 focus:ring-[color:var(--accent-ring)] min-w-[160px]"
           >
             <option value="">All statuses</option>
             <option value="published">Published</option>
@@ -204,7 +204,7 @@ const AdminPortfolioPage: React.FC = () => {
           </select>
         </div>
 
-        <div className="bg-surface-card rounded-xl border border-border-subtle shadow-sm overflow-hidden">
+        <div className="bg-surface-card rounded-xl border border-border-card shadow-sm overflow-hidden">
           {isLoading ? (
             <div className="p-12 text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-primary mx-auto" />
@@ -262,7 +262,7 @@ const AdminPortfolioPage: React.FC = () => {
                                 type="button"
                                 disabled={!canMoveUp}
                                 onClick={() => handleMove(item._id, 'up')}
-                                className="inline-flex items-center justify-center rounded-md border border-border-subtle bg-surface-card p-1 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-default"
+                                className="inline-flex items-center justify-center rounded-md border border-border-card bg-surface-card p-1 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-default"
                               >
                                 <ChevronUpIcon className="h-4 w-4" />
                               </button>
@@ -270,7 +270,7 @@ const AdminPortfolioPage: React.FC = () => {
                                 type="button"
                                 disabled={!canMoveDown}
                                 onClick={() => handleMove(item._id, 'down')}
-                                className="inline-flex items-center justify-center rounded-md border border-border-subtle bg-surface-card p-1 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-default"
+                                className="inline-flex items-center justify-center rounded-md border border-border-card bg-surface-card p-1 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-default"
                               >
                                 <ChevronDownIcon className="h-4 w-4" />
                               </button>
@@ -327,7 +327,7 @@ const AdminPortfolioPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => openEditModal(item)}
-                              className="inline-flex items-center gap-1 rounded-md border border-border-subtle px-2 py-1 text-xs text-text-primary hover:bg-surface-muted"
+                              className="inline-flex items-center gap-1 rounded-md border border-border-card px-2 py-1 text-xs text-text-primary hover:bg-surface-muted"
                             >
                               <EditIcon className="h-3.5 w-3.5" />
                               Edit
@@ -454,7 +454,7 @@ const AdminPortfolioPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="inline-flex items-center gap-2 rounded-lg border border-border-subtle px-4 py-2 text-sm font-medium text-text-secondary hover:bg-surface-muted/90"
+              className="inline-flex items-center gap-2 rounded-lg border border-border-card px-4 py-2 text-sm font-medium text-text-secondary hover:bg-surface-muted/90"
             >
               Cancel
             </button>

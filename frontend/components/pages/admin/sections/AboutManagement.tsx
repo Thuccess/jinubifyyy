@@ -207,7 +207,7 @@ const AboutManagement: React.FC = () => {
   };
 
   const Section: React.FC<{ id: string; title: string; children: React.ReactNode }> = ({ id, title, children }) => (
-    <div className="border border-border-subtle rounded-xl overflow-hidden">
+    <div className="border border-border-card rounded-xl overflow-hidden">
       <button
         type="button"
         onClick={() => setOpenSection((s) => (s === id ? '' : id))}
@@ -309,7 +309,7 @@ const AboutManagement: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between mb-2"><span className="font-medium text-text-primary">Differentiators</span><button type="button" onClick={addDifferentiator} className="text-sm text-brand-primary hover:underline">+ Add</button></div>
                 {(data.whyJinubify?.differentiators || []).map((item, i) => (
-                  <div key={i} className="p-4 border border-border-subtle rounded-lg space-y-2 mb-2">
+                  <div key={i} className="p-4 border border-border-card rounded-lg space-y-2 mb-2">
                     <div className="flex justify-between"><span className="text-xs text-text-muted">Item {i + 1}</span><button type="button" onClick={() => removeDifferentiator(i)} className="text-red-500 hover:underline text-xs">Remove</button></div>
                     <select value={item.iconKey} onChange={(e) => setDifferentiator(i, 'iconKey', e.target.value)} className={inputBase}>
                       {ICON_KEYS.map((k) => (<option key={k} value={k}>{k}</option>))}
@@ -322,7 +322,7 @@ const AboutManagement: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between mb-2"><span className="font-medium text-text-primary">Core values</span><button type="button" onClick={addCoreValue} className="text-sm text-brand-primary hover:underline">+ Add</button></div>
                 {(data.whyJinubify?.coreValues || []).map((item, i) => (
-                  <div key={i} className="p-4 border border-border-subtle rounded-lg space-y-2 mb-2">
+                  <div key={i} className="p-4 border border-border-card rounded-lg space-y-2 mb-2">
                     <div className="flex justify-between"><span className="text-xs text-text-muted">Value {i + 1}</span><button type="button" onClick={() => removeCoreValue(i)} className="text-red-500 hover:underline text-xs">Remove</button></div>
                     <select value={item.iconKey} onChange={(e) => setCoreValue(i, 'iconKey', e.target.value)} className={inputBase}>
                       {ICON_KEYS.map((k) => (<option key={k} value={k}>{k}</option>))}

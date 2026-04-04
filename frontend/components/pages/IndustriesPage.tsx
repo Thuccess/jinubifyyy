@@ -99,7 +99,7 @@ const IndustriesPage: React.FC = () => {
                 {industries.map((industry) => (
                   <article
                     key={industry.name}
-                    className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-7 flex flex-col justify-between"
+                    className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-7 flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center gap-3">
@@ -143,7 +143,7 @@ const IndustriesPage: React.FC = () => {
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
-              <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10 flex flex-col md:flex-row gap-8 md:items-center">
+              <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10 flex flex-col md:flex-row gap-8 md:items-center shadow-card">
                 <div className="flex-shrink-0">
                   <span
                     className="flex w-12 h-12 rounded-xl bg-[color:var(--surface-muted)] items-center justify-center [color:var(--text-primary)]"

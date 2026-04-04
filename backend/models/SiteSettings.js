@@ -39,6 +39,8 @@ const siteSettingsSchema = new mongoose.Schema(
 );
 
 siteSettingsSchema.index({ isDeleted: 1, status: 1, isVisible: 1 });
+// Covers public CMS list: filter + sort({ order: 1, key: 1 })
+siteSettingsSchema.index({ isDeleted: 1, status: 1, isVisible: 1, order: 1, key: 1 });
 
 const SiteSettings = mongoose.model('SiteSettings', siteSettingsSchema);
 export default SiteSettings;

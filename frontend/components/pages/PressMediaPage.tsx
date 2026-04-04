@@ -26,7 +26,7 @@ const PressMediaPage: React.FC = () => {
         <section className="py-0 sm:py-4" aria-labelledby="about-jinubify-heading">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
-              <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10">
+              <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10 shadow-card">
                 <h2
                   id="about-jinubify-heading"
                   className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl"
@@ -54,7 +54,7 @@ const PressMediaPage: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
-                <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6">
+                <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
                   <MegaphoneIcon className="h-8 w-8 text-text-primary" aria-hidden />
                   <h3 className="mt-4 text-base font-semibold text-text-primary">Key messages</h3>
                   <p className="mt-2 text-sm text-text-secondary leading-relaxed">
@@ -62,7 +62,7 @@ const PressMediaPage: React.FC = () => {
                     clarity, accountability, and practical value for clients.
                   </p>
                 </div>
-                <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6">
+                <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
                   <DocumentTextIcon className="h-8 w-8 text-text-primary" aria-hidden />
                   <h3 className="mt-4 text-base font-semibold text-text-primary">Company facts</h3>
                   <p className="mt-2 text-sm text-text-secondary leading-relaxed">
@@ -70,7 +70,7 @@ const PressMediaPage: React.FC = () => {
                     engineering, and growth across multiple industries.
                   </p>
                 </div>
-                <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6">
+                <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
                   <CameraIcon className="h-8 w-8 text-text-primary" aria-hidden />
                   <h3 className="mt-4 text-base font-semibold text-text-primary">Brand assets</h3>
                   <p className="mt-2 text-sm text-text-secondary leading-relaxed">
@@ -86,7 +86,7 @@ const PressMediaPage: React.FC = () => {
         <section className="py-16 sm:py-20 lg:py-24" aria-labelledby="press-contact-heading">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
-              <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8 text-center">
+              <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 text-center shadow-card">
                 <h2
                   id="press-contact-heading"
                   className="text-xl sm:text-2xl font-bold tracking-tight text-text-primary"

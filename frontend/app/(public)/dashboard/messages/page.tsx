@@ -119,7 +119,7 @@ export default function MessagesPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               rows={4}
-              className="w-full rounded-lg border border-border-subtle bg-bg-primary px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
               placeholder="Ask a question, share an update, or request support..."
             />
             <button

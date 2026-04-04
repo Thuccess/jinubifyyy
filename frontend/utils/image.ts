@@ -56,7 +56,15 @@ export const resolveImageUrl = (url: string): string => {
   const apiPrefix = base.endsWith('/') ? base.slice(0, -1) : base;
   let path = url.startsWith('/') ? url : `/${url}`;
 
-  // If this looks like just a filename (no slash and no explicit /uploads),
+  // Legacy: "/photo.jpg" hit the API origin root; uploads are under /uploads.
+  if (
+    /^\/[^/]+\.(jpe?g|png|webp|gif|svg|avif)$/i.test(path) &&
+    !path.startsWith('/uploads/')
+  ) {
+    path = `/uploads${path}`;
+  }
+
+  // If this looks like just a filename (no slash and no explicit /uploads/),
   // treat it as an uploads path.
   if (!url.includes('/') && !url.startsWith('/uploads/')) {
     path = `/uploads/${url}`;
@@ -112,4 +120,3 @@ export function shouldBypassImageOptimizer(src: string): boolean {
 
   return false;
 }
-

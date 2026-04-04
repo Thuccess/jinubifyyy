@@ -87,7 +87,7 @@ const AdminActivityPage: React.FC = () => {
           <select
             value={entityTypeFilter}
             onChange={(e) => setEntityTypeFilter(e.target.value)}
-            className="px-3 py-2 text-sm rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]"
+            className="px-3 py-2 text-sm rounded-lg border border-border-card bg-[color:var(--surface-card)] text-text-primary focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]"
           >
             <option value="">All entity types</option>
             <option value="blog">Blog</option>
@@ -100,14 +100,14 @@ const AdminActivityPage: React.FC = () => {
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="px-3 py-2 text-sm rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]"
+            className="px-3 py-2 text-sm rounded-lg border border-border-card bg-[color:var(--surface-card)] text-text-primary focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]"
             title="From date"
           />
           <input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="px-3 py-2 text-sm rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]"
+            className="px-3 py-2 text-sm rounded-lg border border-border-card bg-[color:var(--surface-card)] text-text-primary focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]"
             title="To date"
           />
           <button
@@ -178,7 +178,7 @@ const AdminActivityPage: React.FC = () => {
                     type="button"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50 disabled:pointer-events-none"
+                    className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-card bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50 disabled:pointer-events-none"
                   >
                     Previous
                   </button>
@@ -186,7 +186,7 @@ const AdminActivityPage: React.FC = () => {
                     type="button"
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
-                    className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50 disabled:pointer-events-none"
+                    className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border-card bg-[color:var(--surface-card)] text-text-primary hover:bg-[color:var(--surface-muted)] disabled:opacity-50 disabled:pointer-events-none"
                   >
                     Next
                   </button>

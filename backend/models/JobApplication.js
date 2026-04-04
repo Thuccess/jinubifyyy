@@ -36,7 +36,6 @@ const jobApplicationSchema = new mongoose.Schema(
       type: String,
       enum: ['new', 'reviewing', 'shortlisted', 'rejected', 'hired'],
       default: 'new',
-      index: true,
     },
     source: {
       type: String,

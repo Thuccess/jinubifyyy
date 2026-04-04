@@ -68,7 +68,7 @@ const CloudHostingDemo: React.FC = () => {
                 'Cloud storage setup and data backup',
                 'Basic security configuration and optimization'
               ].map((feature, index) => (
-                <div key={index} className="flex items-start gap-3 p-4 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+                <div key={index} className="flex items-start gap-3 p-4 bg-white dark:bg-zinc-800 rounded-lg shadow-sm">
                   <CheckIcon className="h-6 w-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1" />
                   <p className="text-slate-700 dark:text-slate-300">{feature}</p>
                 </div>
@@ -128,7 +128,7 @@ const CloudHostingDemo: React.FC = () => {
                   description: 'New businesses that need professional hosting setup, domain registration, and cloud storage from day one.'
                 }
               ].map((useCase, index) => (
-                <div key={index} className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                <div key={index} className="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-white/5">
                   <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-3">
                     {useCase.title}
                   </h3>

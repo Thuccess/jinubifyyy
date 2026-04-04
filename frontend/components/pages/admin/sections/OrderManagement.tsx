@@ -275,7 +275,7 @@ const OrderManagement: React.FC = () => {
         </div>
 
         {/* Orders Table */}
-        <div className="bg-surface-card rounded-xl border border-border-subtle overflow-hidden">
+        <div className="bg-surface-card rounded-xl border border-border-card overflow-hidden shadow-card">
           {loading ? (
             <div className="p-12 text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-primary mx-auto"></div>
@@ -293,7 +293,7 @@ const OrderManagement: React.FC = () => {
                 <select
                   value={bulkStatus}
                   onChange={(e) => setBulkStatus(e.target.value)}
-                  className="px-3 py-1.5 text-sm rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary"
+                  className="px-3 py-1.5 text-sm rounded-lg border border-border-card bg-[color:var(--surface-card)] text-text-primary"
                 >
                   <option value="pending">Pending</option>
                   <option value="processing">Processing</option>
@@ -311,7 +311,7 @@ const OrderManagement: React.FC = () => {
                 </button>
               </AdminBulkToolbar>
                 <table className="w-full">
-                  <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                  <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-gray-200 dark:border-white/5">
                     <tr>
                       <th className="px-3 py-3 w-10">
                         <input type="checkbox" checked={orders.length > 0 && selectedIds.size === orders.length} onChange={toggleSelectAll} className="rounded border-border-subtle text-brand-primary" aria-label="Select all" />
@@ -412,14 +412,14 @@ const OrderManagement: React.FC = () => {
                     <button
                       onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                       disabled={currentPage === 1}
-                      className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-card border border-border-subtle rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-card border border-border-card rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Previous
                     </button>
                     <button
                       onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                       disabled={currentPage === totalPages}
-                      className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-card border border-border-subtle rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-card border border-border-card rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Next
                     </button>

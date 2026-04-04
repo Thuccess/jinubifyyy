@@ -152,7 +152,7 @@ const CareerPage: React.FC = () => {
               {benefits.map((item) => (
                 <div
                   key={item.title}
-                  className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-6 flex flex-col gap-3"
+                  className="rounded-lg border border-border-card bg-[color:var(--surface-card)] p-6 flex flex-col gap-3"
                 >
                   <h3 className="text-sm font-semibold text-text-primary">{item.title}</h3>
                   <p className="text-sm text-text-secondary leading-relaxed">{item.body}</p>
@@ -186,7 +186,7 @@ const CareerPage: React.FC = () => {
               {positions.map((role) => (
                 <div
                   key={role.title}
-                  className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-5 sm:p-6 flex flex-col gap-3 sm:gap-4"
+                  className="rounded-lg border border-border-card bg-[color:var(--surface-card)] p-5 sm:p-6 flex flex-col gap-3 sm:gap-4"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
                     <h3 className="text-base font-semibold text-text-primary">{role.title}</h3>
@@ -218,7 +218,7 @@ const CareerPage: React.FC = () => {
       <section className="py-16 sm:py-20 lg:py-24 bg-[color:var(--bg-secondary)]" aria-labelledby="application-heading">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection>
-            <div className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] overflow-hidden">
+            <div className="rounded-lg border border-border-card bg-[color:var(--surface-card)] overflow-hidden shadow-card">
               <div className="p-6 sm:p-8 lg:p-10">
                 <h2
                   id="application-heading"

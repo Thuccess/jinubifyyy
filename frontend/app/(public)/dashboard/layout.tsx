@@ -106,7 +106,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex items-center gap-2">
             <button
               type="button"
-              className="md:hidden inline-flex items-center justify-center rounded-lg border border-border-subtle px-2 py-1 text-xs text-text-secondary"
+              className="md:hidden inline-flex items-center justify-center rounded-lg border border-border-card px-2 py-1 text-xs text-text-secondary"
               onClick={() => router.push('/')}
             >
               Back
@@ -116,12 +116,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="relative h-9 w-9 rounded-full border border-border-subtle flex items-center justify-center text-text-secondary bg-surface-muted/60">
+            <div className="relative h-9 w-9 rounded-full border border-border-card flex items-center justify-center text-text-secondary bg-surface-muted/60">
               <SparklesIcon className="h-4 w-4" />
             </div>
             <button
               type="button"
-              className="hidden sm:flex items-center gap-2 rounded-full border border-border-subtle px-3 py-1.5 text-xs text-text-secondary hover:bg-surface-muted/80"
+              className="hidden sm:flex items-center gap-2 rounded-full border border-border-card px-3 py-1.5 text-xs text-text-secondary hover:bg-surface-muted/80"
               onClick={() => router.push('/dashboard/settings')}
             >
               <CogIcon className="h-3 w-3" />
@@ -129,7 +129,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </button>
             <button
               type="button"
-              className="inline-flex items-center justify-center rounded-full border border-border-subtle px-2.5 py-1.5 text-xs text-text-secondary hover:bg-surface-muted/80"
+              className="inline-flex items-center justify-center rounded-full border border-border-card px-2.5 py-1.5 text-xs text-text-secondary hover:bg-surface-muted/80"
               onClick={() => {
                 logout();
                 router.replace('/');

@@ -156,7 +156,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
         <div className="max-w-3xl mx-auto text-center">
           <div className="animate-fade-in-up" style={{ animationDelay: '100ms' }}>
             <div className="flex justify-center">
-              <div className="bg-[color:var(--surface-card)] border border-border-subtle rounded-full px-3 py-1 text-sm inline-flex items-center space-x-2">
+              <div className="bg-[color:var(--surface-card)] border border-border-card rounded-full px-3 py-1 text-sm inline-flex items-center space-x-2">
                 <span className="bg-brand-soft text-brand-primary font-semibold rounded-full px-2 py-0.5 text-xs">{c.badge}</span>
                 <span className="text-text-secondary">{c.badgeSub}</span>
               </div>

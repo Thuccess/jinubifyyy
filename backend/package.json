@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "create-admin": "node scripts/createAdmin.js admin@jinubify.com admin1234 Admin",
+    "create-admin": "node scripts/createAdmin.js",
     "promote-admin": "node scripts/promoteAdmin.js",
     "seed-cms": "node scripts/seedCms.js",
     "seed-services": "node scripts/seedServices.js",

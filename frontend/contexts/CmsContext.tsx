@@ -1,6 +1,7 @@
- 'use client';
+'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { cmsAPI, type CmsSiteResponse } from '../services/api';
 
 interface CmsContextType {
@@ -25,34 +26,29 @@ interface CmsProviderProps {
 }
 
 export const CmsProvider: React.FC<CmsProviderProps> = ({ children }) => {
-  const [site, setSite] = useState<CmsSiteResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['cms', 'site'],
+    queryFn: () => cmsAPI.getSite(),
+    staleTime: 10 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
 
-  const fetchSite = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await cmsAPI.getSite();
-      setSite(data);
-    } catch (e) {
-      const message = e && typeof e === 'object' && 'message' in e ? String((e as { message: string }).message) : 'Failed to load site content';
-      setError(message);
-      setSite(null);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchSite();
-  }, [fetchSite]);
+  const message =
+    error && typeof error === 'object' && 'message' in error
+      ? String((error as { message: string }).message)
+      : error
+        ? 'Failed to load site content'
+        : null;
 
   const value: CmsContextType = {
-    site,
+    site: data ?? null,
     isLoading,
-    error,
-    refetch: fetchSite,
+    error: message,
+    refetch: async () => {
+      await refetch();
+    },
   };
 
   return <CmsContext.Provider value={value}>{children}</CmsContext.Provider>;

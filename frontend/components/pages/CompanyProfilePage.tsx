@@ -26,7 +26,7 @@ const CompanyProfilePage: React.FC = () => {
         <section className="py-0 sm:py-4" aria-labelledby="who-we-are-heading">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
-              <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10">
+              <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10 shadow-card">
                 <h2
                   id="who-we-are-heading"
                   className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl"
@@ -56,7 +56,7 @@ const CompanyProfilePage: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
-                <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6">
+                <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
                   <BriefcaseIcon className="h-8 w-8 text-text-primary" aria-hidden />
                   <h3 className="mt-4 text-base font-semibold text-text-primary">What we do</h3>
                   <p className="mt-2 text-sm text-text-secondary leading-relaxed">
@@ -64,7 +64,7 @@ const CompanyProfilePage: React.FC = () => {
                     the operational support to keep them performing.
                   </p>
                 </div>
-                <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6">
+                <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
                   <UserGroupIcon className="h-8 w-8 text-text-primary" aria-hidden />
                   <h3 className="mt-4 text-base font-semibold text-text-primary">Who we serve</h3>
                   <p className="mt-2 text-sm text-text-secondary leading-relaxed">
@@ -72,7 +72,7 @@ const CompanyProfilePage: React.FC = () => {
                     rather than a one-off vendor relationship.
                   </p>
                 </div>
-                <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6">
+                <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
                   <MapPinIcon className="h-8 w-8 text-text-primary" aria-hidden />
                   <h3 className="mt-4 text-base font-semibold text-text-primary">Where we work</h3>
                   <p className="mt-2 text-sm text-text-secondary leading-relaxed">
@@ -107,7 +107,7 @@ const CompanyProfilePage: React.FC = () => {
                     feel calm, predictable, and productive.
                   </p>
                 </div>
-                <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8">
+                <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 shadow-card">
                   <h3 className="text-base font-semibold text-text-primary">
                     What to expect when you work with us
                   </h3>

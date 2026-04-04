@@ -64,7 +64,7 @@ const TechnologiesPage: React.FC = () => {
                   return (
                     <article
                       key={group.name}
-                      className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-7 flex flex-col justify-between"
+                      className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-7 flex flex-col justify-between"
                     >
                       <div>
                         <div className="flex items-center gap-3">
@@ -88,7 +88,7 @@ const TechnologiesPage: React.FC = () => {
                           {group.items.map((item) => (
                             <li
                               key={item}
-                              className="inline-flex items-center px-2.5 py-1 rounded-full border border-border-subtle bg-[color:var(--surface-muted)]"
+                              className="inline-flex items-center px-2.5 py-1 rounded-full border border-border-card bg-[color:var(--surface-muted)]"
                             >
                               {item}
                             </li>
@@ -109,7 +109,7 @@ const TechnologiesPage: React.FC = () => {
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
-              <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10">
+              <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10 shadow-card">
                 <h2
                   id="legacy-heading"
                   className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl"

@@ -69,7 +69,7 @@ const AdminSettingsPage: React.FC = () => {
         </div>
 
         {/* Settings Content */}
-        <div className="card-solid rounded-2xl border border-border-subtle p-6">
+        <div className="card-solid rounded-2xl border border-border-card p-6">
           {activeTab === 'general' && (
             <div className="space-y-6">
               <div>
@@ -186,7 +186,7 @@ const AdminSettingsPage: React.FC = () => {
               <div>
                 <h3 className="text-lg font-semibold text-text-primary mb-4">Security Settings</h3>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border border-border-subtle rounded-lg">
+                  <div className="flex items-center justify-between p-4 border border-border-card rounded-lg">
                     <div>
                       <h4 className="font-medium text-text-primary">Two-Factor Authentication</h4>
                       <p className="text-sm text-text-secondary">Enable 2FA for admin accounts</p>
@@ -198,7 +198,7 @@ const AdminSettingsPage: React.FC = () => {
                         onChange={(e) => setSettings({ ...settings, enableTwoFactor: e.target.checked })}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-surface-muted peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[color:var(--accent-ring)] rounded-full peer border border-border-subtle peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-primary"></div>
+                      <div className="w-11 h-6 bg-surface-muted peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[color:var(--accent-ring)] rounded-full peer border border-border-card peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-primary"></div>
                     </label>
                   </div>
                   <div>
@@ -231,7 +231,7 @@ const AdminSettingsPage: React.FC = () => {
                         type="text"
                         value={settings.apiKey}
                         readOnly
-                        className="flex-1 px-3 py-2 border border-border-subtle rounded-lg bg-surface-muted text-text-primary"
+                        className="flex-1 px-3 py-2 border border-border-card rounded-lg bg-surface-muted text-text-primary"
                       />
                       <button className="px-4 py-2 btn-secondary rounded-lg text-sm font-medium focus-visible:ring-offset-2">
                         Regenerate

@@ -17,6 +17,22 @@ const teamMemberSchema = new mongoose.Schema({
   order: { type: Number, default: 0 },
 }, { _id: true });
 
+const ceoFounderSchema = new mongoose.Schema(
+  {
+    enabled: { type: Boolean, default: true },
+    eyebrow: { type: String, trim: true, default: 'Leadership' },
+    sectionTitle: { type: String, trim: true, default: 'CEO & Founder' },
+    name: { type: String, trim: true, default: '' },
+    title: { type: String, trim: true, default: 'Chief Executive Officer' },
+    imageUrl: { type: String, trim: true, default: '' },
+    bio: { type: String, trim: true, default: '' },
+    detailedBio: { type: String, trim: true, default: '' },
+    quote: { type: String, trim: true, default: '' },
+    social: { type: socialSchema, default: () => ({}) },
+  },
+  { _id: false },
+);
+
 const teamPageSchema = new mongoose.Schema(
   {
     slug: { type: String, default: 'team', unique: true },
@@ -25,6 +41,7 @@ const teamPageSchema = new mongoose.Schema(
       heading: { type: String, trim: true, default: 'Meet the People Behind Jinubify' },
       subtitle: { type: String, trim: true, default: '' },
     },
+    ceoFounder: { type: ceoFounderSchema, default: () => ({}) },
     stripHeading: { type: String, trim: true, default: 'Browse team' },
     members: [teamMemberSchema],
   },

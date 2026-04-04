@@ -1,11 +1,15 @@
 # Render Blueprint – Jinubify (GitHub → Render)
 # Deploy from repo root; creates two Web Services: backend API + Next.js frontend.
 # Set secret env vars in Render Dashboard after first deploy (see RENDER_DEPLOY.md).
+#
+# Region: frankfurt lowers RTT vs Oregon for East Africa (Uganda/Kenya). Pair with MongoDB Atlas
+# in eu-central-1 (Frankfurt) or af-south-1 (Johannesburg) — same region as API is best.
 
 services:
   # Backend: Express API + MongoDB (use MongoDB Atlas; set MONGODB_URI + JWT_SECRET in Dashboard)
   - type: web
     name: jinubify-api
+    region: frankfurt
     runtime: node
     rootDir: backend
     buildCommand: npm install
@@ -38,6 +42,7 @@ services:
   # Frontend: Next.js – must use "npm start" (next start), NOT "npm run dev"
   - type: web
     name: jinubify-web
+    region: frankfurt
     runtime: node
     rootDir: frontend
     buildCommand: npm install && npm run build

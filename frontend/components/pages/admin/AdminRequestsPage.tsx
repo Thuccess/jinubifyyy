@@ -140,7 +140,7 @@ const AdminRequestsPage: React.FC = () => {
         </div>
 
         {/* Requests Table */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-white/5 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-slate-50 dark:bg-slate-900/50">

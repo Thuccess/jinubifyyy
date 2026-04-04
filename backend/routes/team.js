@@ -1,5 +1,6 @@
 import express from 'express';
 import TeamPage from '../models/TeamPage.js';
+import { defaultTeamPublicPayload } from '../data/defaultTeamPublic.js';
 
 const router = express.Router();
 
@@ -11,8 +12,10 @@ router.get('/', async (req, res) => {
   try {
     const doc = await TeamPage.findOne().lean();
     if (!doc) {
-      return res.status(404).json({ message: 'Team content not found' });
+      res.set('Cache-Control', 'public, max-age=60');
+      return res.json(defaultTeamPublicPayload);
     }
+    res.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=3600');
     res.json(doc);
   } catch (error) {
     console.error('Get team error:', error);

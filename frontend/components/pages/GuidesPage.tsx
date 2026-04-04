@@ -28,7 +28,7 @@ const GuidesPage: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
-                <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6">
+                <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
                   <LightBulbIcon className="h-8 w-8 text-text-primary" aria-hidden />
                   <h3 className="mt-4 text-base font-semibold text-text-primary">Foundations</h3>
                   <p className="mt-2 text-sm text-text-secondary leading-relaxed">
@@ -36,7 +36,7 @@ const GuidesPage: React.FC = () => {
                     you start building.
                   </p>
                 </div>
-                <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6">
+                <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
                   <PencilSquareIcon className="h-8 w-8 text-text-primary" aria-hidden />
                   <h3 className="mt-4 text-base font-semibold text-text-primary">Design & delivery</h3>
                   <p className="mt-2 text-sm text-text-secondary leading-relaxed">
@@ -44,7 +44,7 @@ const GuidesPage: React.FC = () => {
                     and avoiding common delivery pitfalls.
                   </p>
                 </div>
-                <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6">
+                <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
                   <RocketLaunchIcon className="h-8 w-8 text-text-primary" aria-hidden />
                   <h3 className="mt-4 text-base font-semibold text-text-primary">Launch & beyond</h3>
                   <p className="mt-2 text-sm text-text-secondary leading-relaxed">
@@ -63,7 +63,7 @@ const GuidesPage: React.FC = () => {
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection>
-              <div className="rounded-xl border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10">
+              <div className="rounded-xl border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10 shadow-card">
                 <h2
                   id="using-guides-heading"
                   className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl"

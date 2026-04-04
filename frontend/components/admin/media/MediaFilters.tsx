@@ -47,7 +47,7 @@ export const MediaFilters: React.FC<MediaFiltersProps> = ({
           <select
             value={sort}
             onChange={(e) => onSortChange(e.target.value as 'createdAt-asc' | 'createdAt-desc')}
-            className="px-2.5 py-2 text-xs rounded-lg border border-border-subtle bg-[color:var(--surface-card)] text-text-primary focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]"
+            className="px-2.5 py-2 text-xs rounded-lg border border-border-card bg-[color:var(--surface-card)] text-text-primary focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]"
           >
             <option value="createdAt-desc">Newest first</option>
             <option value="createdAt-asc">Oldest first</option>

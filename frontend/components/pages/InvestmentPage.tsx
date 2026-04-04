@@ -81,7 +81,7 @@ const InvestmentPage: React.FC = () => {
       <section className="py-16 sm:py-20 lg:py-24 bg-[color:var(--bg-secondary)]" aria-labelledby="opportunity-heading">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection>
-            <div className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10 space-y-4">
+            <div className="rounded-lg border border-border-card bg-[color:var(--surface-card)] p-6 sm:p-8 lg:p-10 space-y-4 shadow-card">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">About the opportunity</p>
                 <h2
@@ -126,28 +126,28 @@ const InvestmentPage: React.FC = () => {
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <div className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-6">
+              <div className="rounded-lg border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
                 <h3 className="text-sm font-semibold text-text-primary">Scalable Business Model</h3>
                 <p className="mt-2 text-sm text-text-secondary leading-relaxed">
                   Productized services and reusable components let us onboard clients efficiently and grow margins over
                   time.
                 </p>
               </div>
-              <div className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-6">
+              <div className="rounded-lg border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
                 <h3 className="text-sm font-semibold text-text-primary">Strong Digital Infrastructure</h3>
                 <p className="mt-2 text-sm text-text-secondary leading-relaxed">
                   Modern tooling, a stable codebase, and cloud-native workflows make our operations resilient and
                   transparent.
                 </p>
               </div>
-              <div className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-6">
+              <div className="rounded-lg border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
                 <h3 className="text-sm font-semibold text-text-primary">Expanding Client Base</h3>
                 <p className="mt-2 text-sm text-text-secondary leading-relaxed">
                   Focus on SMEs, NGOs, and growth-focused teams gives us a large, underserved market with recurring
                   needs.
                 </p>
               </div>
-              <div className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] p-6">
+              <div className="rounded-lg border border-border-card bg-[color:var(--surface-card)] p-6 shadow-card">
                 <h3 className="text-sm font-semibold text-text-primary">Leadership Vision</h3>
                 <p className="mt-2 text-sm text-text-secondary leading-relaxed">
                   A hands-on founder team with blended experience in engineering, design, marketing, and operations.
@@ -162,7 +162,7 @@ const InvestmentPage: React.FC = () => {
       <section className="py-16 sm:py-20 lg:py-24 bg-[color:var(--bg-secondary)]" aria-labelledby="investment-form-heading">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection>
-            <div className="rounded-lg border border-border-subtle bg-[color:var(--surface-card)] overflow-hidden">
+            <div className="rounded-lg border border-border-card bg-[color:var(--surface-card)] overflow-hidden shadow-card">
               <div className="p-6 sm:p-8 lg:p-10">
                 <h2
                   id="investment-form-heading"
