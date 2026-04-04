@@ -14,7 +14,8 @@
     "seed-pricing": "node scripts/seedPricing.js",
     "test": "vitest run",
     "mongo-ui": "node scripts/runMongoExpress.js",
-    "backup": "node scripts/backupDatabase.js"
+    "backup": "node scripts/backupDatabase.js",
+    "migrate:atlas": "node scripts/migrateAtlasCluster.mjs"
   },
   "keywords": [
     "express",
