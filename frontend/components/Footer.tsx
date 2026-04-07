@@ -1,4 +1,4 @@
- 'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -96,7 +96,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
     };
 
     return (
-        <footer className="surface surface--bar text-text-primary border-t border-border-subtle">
+        <footer className="relative z-10 bg-bg-primary text-text-primary border-t border-border-subtle transition-[background-color,border-color] duration-300 ease-out">
              <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
                 {/* CTA Section – uses --cta-* vars for tuned light/dark mode */}
                 <div
@@ -169,7 +169,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
                                         <li key={item.name}>
                                             <Link
                                                 href={item.path}
-                                                className="text-sm text-text-secondary hover:text-brand-primary transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg-secondary)] rounded"
+                                                className="text-sm text-text-secondary hover:text-brand-primary transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg-primary)] rounded"
                                             >
                                                 {item.name}
                                             </Link>

@@ -75,8 +75,18 @@ export const verifyApproved = (req, res, next) => {
   if (!req.user?.isEmailVerified) {
     return res.status(403).json({ message: 'Please verify your email before accessing this resource' });
   }
+  if (req.user?.status === 'pending') {
+    return res.status(403).json({ message: 'Your account is under review' });
+  }
+  if (req.user?.status === 'rejected') {
+    const rr = req.user?.rejectionReason ? String(req.user.rejectionReason).trim() : '';
+    return res.status(403).json({
+      message: 'Your application was not approved',
+      ...(rr ? { rejectionReason: rr } : {}),
+    });
+  }
   if (req.user?.status !== 'approved') {
-    return res.status(403).json({ message: 'Your account is pending approval' });
+    return res.status(403).json({ message: 'Your account is under review' });
   }
   return next();
 };

@@ -62,6 +62,30 @@ const userSchema = new mongoose.Schema({
     default: 'pending',
     index: true,
   },
+  accountType: {
+    type: String,
+    enum: ['personal', 'business'],
+  },
+  rejectionReason: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  profileSlug: {
+    type: String,
+    trim: true,
+    default: null,
+  },
+  qrCodeUrl: {
+    type: String,
+    default: '',
+  },
+  socialLinks: [
+    {
+      platform: { type: String, trim: true },
+      url: { type: String, trim: true },
+    },
+  ],
   // Optional profile / brand fields
   company: {
     type: String,
@@ -77,6 +101,20 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true,
     default: '',
+  },
+  /** Short line under the name on the public /u/:slug page */
+  publicTagline: {
+    type: String,
+    trim: true,
+    default: '',
+    maxlength: 220,
+  },
+  /** Longer “about” text on the public profile */
+  publicBio: {
+    type: String,
+    trim: true,
+    default: '',
+    maxlength: 4000,
   },
   preferredChannels: [
     {
@@ -140,6 +178,7 @@ userSchema.methods.toJSON = function () {
 
 // Indexes for performance
 userSchema.index({ role: 1 });
+userSchema.index({ profileSlug: 1 }, { unique: true, sparse: true });
 
 const User = mongoose.model('User', userSchema);
 

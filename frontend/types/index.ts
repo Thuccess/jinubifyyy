@@ -1,5 +1,12 @@
 export type Theme = 'light' | 'dark';
 
+export type AccountType = 'personal' | 'business';
+
+export interface SocialLink {
+  platform: string;
+  url: string;
+}
+
 export interface User {
   _id?: string;
   name: string;
@@ -11,6 +18,11 @@ export interface User {
   updatedAt?: Date | string;
   company?: string;
   industry?: string;
+  accountType?: AccountType;
+  profileSlug?: string | null;
+  qrCodeUrl?: string;
+  socialLinks?: SocialLink[];
+  status?: string;
   preferredChannels?: string[];
   brandGuidelines?: {
     primaryColor?: string;

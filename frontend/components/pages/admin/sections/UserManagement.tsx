@@ -18,7 +18,17 @@ interface User {
   company?: string;
   status?: 'pending' | 'approved' | 'rejected';
   lastLoginAt?: string;
+  profileSlug?: string;
+  accountType?: 'personal' | 'business';
+  rejectionReason?: string;
 }
+
+const mailtoHref = (email: string, subject: string, body: string) =>
+  `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+const openMailto = (email: string, subject: string, body: string) => {
+  window.open(mailtoHref(email, subject, body), '_blank', 'noopener,noreferrer');
+};
 
 const UserManagement: React.FC = () => {
   const { showNotification, NotificationComponent } = useNotification();
@@ -187,6 +197,43 @@ const UserManagement: React.FC = () => {
       showNotification('Failed to load messages', 'error');
     } finally {
       setLoadingMessages(false);
+    }
+  };
+
+  const handleApproveAndNotify = async (user: User) => {
+    try {
+      const res = (await adminAPI.approveUser(user._id)) as {
+        user?: { profileSlug?: string };
+      };
+      const slug = res.user?.profileSlug;
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const profileLink = slug ? `${origin}/u/${slug}` : origin;
+      const body = `Hi ${user.name},\n\nYour Jinubify application has been approved.\n\nYour public profile:\n${profileLink}\n\nWelcome aboard,\nJinubify`;
+      openMailto(user.email, 'Your Jinubify application was approved', body);
+      showNotification('User approved', 'success');
+      fetchUsers();
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      showNotification(err.response?.data?.message || 'Failed to approve user', 'error');
+    }
+  };
+
+  const handleRejectAndNotify = async (user: User) => {
+    const reason = window.prompt(
+      'Optional rejection reason (shown when the user tries to log in). Cancel to abort.',
+    );
+    if (reason === null) return;
+    try {
+      await adminAPI.rejectUser(user._id, { rejectionReason: reason.trim() });
+      const body = `Hi ${user.name},\n\nWe could not approve your Jinubify application at this time.${
+        reason.trim() ? `\n\nNote: ${reason.trim()}` : ''
+      }\n\nThank you,\nJinubify`;
+      openMailto(user.email, 'Update on your Jinubify application', body);
+      showNotification('User rejected', 'success');
+      fetchUsers();
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      showNotification(err.response?.data?.message || 'Failed to reject user', 'error');
     }
   };
 
@@ -373,7 +420,7 @@ const UserManagement: React.FC = () => {
                           {formatDate(user.createdAt)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex items-center justify-end gap-2">
+                          <div className="flex flex-wrap items-center justify-end gap-2">
                             <button
                               onClick={() => openMessageDialog(user)}
                               className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-surface-muted/80 rounded-lg transition-colors"
@@ -381,36 +428,54 @@ const UserManagement: React.FC = () => {
                               Message
                             </button>
                             {user.status !== 'approved' && (
-                              <button
-                                onClick={async () => {
-                                  try {
-                                    await adminAPI.approveUser(user._id);
-                                    showNotification('User approved', 'success');
-                                    fetchUsers();
-                                  } catch (error: any) {
-                                    showNotification(error.response?.data?.message || 'Failed to approve user', 'error');
-                                  }
-                                }}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition-colors duration-300 ease-out"
-                              >
-                                Approve
-                              </button>
+                              <>
+                                <button
+                                  onClick={async () => {
+                                    try {
+                                      await adminAPI.approveUser(user._id);
+                                      showNotification('User approved', 'success');
+                                      fetchUsers();
+                                    } catch (error: any) {
+                                      showNotification(error.response?.data?.message || 'Failed to approve user', 'error');
+                                    }
+                                  }}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition-colors duration-300 ease-out"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleApproveAndNotify(user)}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-emerald-800 dark:text-emerald-200 border border-emerald-600/30 rounded transition-colors duration-300 ease-out hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                                >
+                                  Approve &amp; Notify
+                                </button>
+                              </>
                             )}
                             {user.status !== 'rejected' && (
-                              <button
-                                onClick={async () => {
-                                  try {
-                                    await adminAPI.rejectUser(user._id);
-                                    showNotification('User rejected', 'success');
-                                    fetchUsers();
-                                  } catch (error: any) {
-                                    showNotification(error.response?.data?.message || 'Failed to reject user', 'error');
-                                  }
-                                }}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded transition-colors duration-300 ease-out"
-                              >
-                                Reject
-                              </button>
+                              <>
+                                <button
+                                  onClick={async () => {
+                                    try {
+                                      await adminAPI.rejectUser(user._id);
+                                      showNotification('User rejected', 'success');
+                                      fetchUsers();
+                                    } catch (error: any) {
+                                      showNotification(error.response?.data?.message || 'Failed to reject user', 'error');
+                                    }
+                                  }}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded transition-colors duration-300 ease-out"
+                                >
+                                  Reject
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRejectAndNotify(user)}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-amber-800 dark:text-amber-200 border border-amber-600/30 rounded transition-colors duration-300 ease-out hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                                >
+                                  Reject &amp; Notify
+                                </button>
+                              </>
                             )}
                             <button
                               onClick={() => handleDeleteUserClick(user)}

@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import type { AuthResponse, User } from '../types';
+import type { AuthResponse, SocialLink, User } from '../types';
 import type { BlogPost, BlogPostListResponse, BlogPostResponse, BlogQueryParams } from '../types/blog';
 import type { UserProfileResponse, UpdateProfileData } from '../types/user';
 import type { ApiResponse, ErrorResponse } from '../types/api';
@@ -66,9 +66,21 @@ api.interceptors.response.use(
   }
 );
 
+export type RegisterPayload = {
+  name: string;
+  email: string;
+  password: string;
+  accountType?: 'personal' | 'business';
+  phone?: string;
+  company?: string;
+  website?: string;
+  industry?: string;
+  photoURL?: string;
+};
+
 // Auth API
 export const authAPI = {
-  register: async (data: { name: string; email: string; password: string; company: string }) => {
+  register: async (data: RegisterPayload) => {
     const response = await api.post<{ message: string }>('/auth/register', data);
     return response.data;
   },
@@ -100,9 +112,70 @@ export const userAPI = {
     const response = await api.get<{ message: string; qrDataUrl: string; profileUrl: string }>('/users/me/qr');
     return response.data;
   },
+  addSocialLink: async (data: { platform: string; url: string }): Promise<{ message: string; socialLinks: SocialLink[] }> => {
+    const response = await api.post<{ message: string; socialLinks: SocialLink[] }>('/users/social-links', data);
+    return response.data;
+  },
+  deleteSocialLink: async (platform: string): Promise<{ message: string; socialLinks: SocialLink[] }> => {
+    const response = await api.delete<{ message: string; socialLinks: SocialLink[] }>(
+      `/users/social-links/${encodeURIComponent(platform)}`,
+    );
+    return response.data;
+  },
   updateProfile: async (data: UpdateProfileData): Promise<UserProfileResponse> => {
     const response = await api.put<UserProfileResponse>('/users/profile', data);
     return response.data;
+  },
+};
+
+export type PublicProfilePayload = {
+  slug: string;
+  username: string;
+  accountType: string;
+  displayName: string;
+  name: string;
+  company: string;
+  publicTagline: string;
+  industry: string;
+  tagline: string | null;
+  about: string;
+  heroImageUrl: string;
+  phone: string;
+  website: string;
+  email: string;
+  socialLinks: SocialLink[];
+  preferredChannels: string[];
+  brandGuidelines: {
+    toneOfVoice: string;
+    primaryColor: string;
+    secondaryColor: string;
+  };
+  qrCodeUrl: string;
+  verified: boolean;
+  viewCount: number;
+};
+
+export const publicAPI = {
+  getProfileBySlug: async (slug: string) => {
+    const response = await api.get<{ profile: PublicProfilePayload }>(
+      `/public/profile/${encodeURIComponent(slug)}`,
+    );
+    return response.data;
+  },
+  trackProfileView: async (slug: string): Promise<boolean> => {
+    try {
+      await api.post(`/public/profile/${encodeURIComponent(slug)}/view`);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  trackProfileClick: async (slug: string, target: string): Promise<void> => {
+    try {
+      await api.post(`/public/profile/${encodeURIComponent(slug)}/click`, { target });
+    } catch {
+      /* analytics best-effort */
+    }
   },
 };
 
@@ -436,8 +509,8 @@ export const adminAPI = {
     const response = await api.patch(`/admin/users/${userId}/approve`);
     return response.data;
   },
-  rejectUser: async (userId: string) => {
-    const response = await api.patch(`/admin/users/${userId}/reject`);
+  rejectUser: async (userId: string, data?: { rejectionReason?: string }) => {
+    const response = await api.patch(`/admin/users/${userId}/reject`, data ?? {});
     return response.data;
   },
   deleteUser: async (userId: string) => {

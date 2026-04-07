@@ -13,6 +13,10 @@ const expiresIn = () => process.env.JWT_EXPIRES_IN || '7d';
 export function signAccessToken(userDoc) {
   const photoURL = userDoc.photoURL ? String(userDoc.photoURL) : '';
   const ph = photoURL.length > 0 && photoURL.length <= 512 ? photoURL : undefined;
+  const rr =
+    userDoc.status === 'rejected' && userDoc.rejectionReason
+      ? String(userDoc.rejectionReason).slice(0, 280)
+      : undefined;
   return jwt.sign(
     {
       sub: userDoc._id.toString(),
@@ -22,6 +26,7 @@ export function signAccessToken(userDoc) {
       nm: userDoc.name,
       em: userDoc.email,
       ...(ph ? { ph } : {}),
+      ...(rr ? { rr } : {}),
       bal: typeof userDoc.balance === 'number' ? userDoc.balance : Number(userDoc.balance) || 0,
       v: 2,
     },
@@ -50,6 +55,7 @@ export function userFromVerifiedPayload(decoded) {
         decoded.ph ||
         `https://ui-avatars.com/api/?name=${encodeURIComponent(decoded.nm || 'User')}&background=random`,
       balance: typeof decoded.bal === 'number' ? decoded.bal : Number(decoded.bal) || 0,
+      rejectionReason: decoded.rr || '',
     };
   }
   return null;

@@ -22,6 +22,11 @@ class MockUser {
     this.emailVerificationExpires = data.emailVerificationExpires || null;
     this.role = data.role || 'user';
     this.balance = data.balance || 0;
+    this.accountType = data.accountType;
+    this.rejectionReason = data.rejectionReason || '';
+    this.profileSlug = data.profileSlug ?? null;
+    this.qrCodeUrl = data.qrCodeUrl || '';
+    this.socialLinks = data.socialLinks || [];
   }
 
   async save() {
@@ -91,6 +96,10 @@ vi.mock('../middleware/auth.js', () => ({
       status: 'approved',
     };
     if (state === 'pending') baseUser.status = 'pending';
+    if (state === 'rejected') {
+      baseUser.status = 'rejected';
+      baseUser.rejectionReason = 'Not a fit';
+    }
     if (state === 'unverified') baseUser.isEmailVerified = false;
     req.user = baseUser;
     return next();
@@ -99,8 +108,17 @@ vi.mock('../middleware/auth.js', () => ({
     if (!req.user?.isEmailVerified) {
       return res.status(403).json({ message: 'Please verify your email before accessing this resource' });
     }
+    if (req.user?.status === 'pending') {
+      return res.status(403).json({ message: 'Your account is under review' });
+    }
+    if (req.user?.status === 'rejected') {
+      return res.status(403).json({
+        message: 'Your application was not approved',
+        rejectionReason: req.user?.rejectionReason || undefined,
+      });
+    }
     if (req.user?.status !== 'approved') {
-      return res.status(403).json({ message: 'Your account is pending approval' });
+      return res.status(403).json({ message: 'Your account is under review' });
     }
     return next();
   },
@@ -166,7 +184,7 @@ describe('auth routes regression', () => {
       password: 'Passw0rd!',
     });
     expect(preApproveLogin.status).toBe(403);
-    expect(preApproveLogin.body.message).toBe('Your account is pending approval');
+    expect(preApproveLogin.body.message).toBe('Your account is under review');
 
     // Simulate admin approval (admin route is tested separately).
     const created = usersByEmail.get('approved@example.com');
@@ -196,7 +214,42 @@ describe('auth routes regression', () => {
     });
 
     expect(loginRes.status).toBe(403);
-    expect(loginRes.body.message).toBe('Your account is pending approval');
+    expect(loginRes.body.message).toBe('Your account is under review');
+  });
+
+  it('accepts personal registration without company', async () => {
+    const res = await request(app).post('/api/auth/register').send({
+      accountType: 'personal',
+      name: 'Pat Lee',
+      email: 'pat@example.com',
+      password: 'Passw0rd!',
+    });
+    expect(res.status).toBe(201);
+    const created = usersByEmail.get('pat@example.com');
+    expect(created.accountType).toBe('personal');
+    expect(created.company).toBe('');
+  });
+
+  it('blocks login for rejected accounts with message and optional reason', async () => {
+    await request(app).post('/api/auth/register').send({
+      name: 'Rejected User',
+      email: 'rejected@example.com',
+      password: 'Passw0rd!',
+      company: 'Acme',
+    });
+    const token = sendVerificationEmailMock.mock.calls.at(-1)?.[1];
+    await request(app).get('/api/auth/verify-email').query({ token });
+    const u = usersByEmail.get('rejected@example.com');
+    u.status = 'rejected';
+    u.rejectionReason = 'Incomplete information';
+
+    const loginRes = await request(app).post('/api/auth/login').send({
+      email: 'rejected@example.com',
+      password: 'Passw0rd!',
+    });
+    expect(loginRes.status).toBe(403);
+    expect(loginRes.body.message).toBe('Your application was not approved');
+    expect(loginRes.body.rejectionReason).toBe('Incomplete information');
   });
 
   it('keeps resend verification message anti-enumeration safe', async () => {
@@ -250,6 +303,11 @@ describe('auth routes regression', () => {
 
     const blockedRes = await request(app).get('/api/auth/me').set('x-auth-user', 'pending');
     expect(blockedRes.status).toBe(403);
-    expect(blockedRes.body.message).toBe('Your account is pending approval');
+    expect(blockedRes.body.message).toBe('Your account is under review');
+
+    const rejectedRes = await request(app).get('/api/auth/me').set('x-auth-user', 'rejected');
+    expect(rejectedRes.status).toBe(403);
+    expect(rejectedRes.body.message).toBe('Your application was not approved');
+    expect(rejectedRes.body.rejectionReason).toBe('Not a fit');
   });
 });

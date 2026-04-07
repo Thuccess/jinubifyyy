@@ -39,6 +39,7 @@ import { getUploadsDir } from '../config/uploadsPath.js';
 import cloudinary from '../config/cloudinary.js';
 import { authenticate, verifyApproved } from '../middleware/auth.js';
 import { invalidatePublicSocialsCache } from '../utils/shortCache.js';
+import { approveUserById } from '../services/onboarding/approveUser.js';
 
 const router = express.Router();
 
@@ -824,21 +825,11 @@ router.put('/users/:id', authorizeRole('admin', 'super_admin'), async (req, res)
 // @access  Admin and Super Admin
 router.patch('/users/:id/approve', authorizeRole('admin', 'super_admin'), async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      {
-        status: 'approved',
-        approvedAt: new Date(),
-        approvedBy: req.user?._id || null,
-      },
-      { new: true }
-    ).select('-password');
-
-    if (!user) {
+    const result = await approveUserById(req.params.id, req.user?._id || null);
+    if (result.error === 'not_found') {
       return res.status(404).json({ message: 'User not found' });
     }
-
-    res.json({ message: 'User approved successfully', user });
+    res.json({ message: 'User approved successfully', user: result.user });
   } catch (error) {
     console.error('Approve user error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -850,12 +841,17 @@ router.patch('/users/:id/approve', authorizeRole('admin', 'super_admin'), async 
 // @access  Admin and Super Admin
 router.patch('/users/:id/reject', authorizeRole('admin', 'super_admin'), async (req, res) => {
   try {
+    const rawReason = req.body?.rejectionReason;
+    const rejectionReason =
+      typeof rawReason === 'string' ? String(rawReason).trim().slice(0, 2000) : '';
+
     const user = await User.findByIdAndUpdate(
       req.params.id,
       {
         status: 'rejected',
         approvedAt: null,
         approvedBy: null,
+        rejectionReason: rejectionReason || '',
       },
       { new: true }
     ).select('-password');

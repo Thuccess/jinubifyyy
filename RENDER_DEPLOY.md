@@ -59,6 +59,7 @@ After the Blueprint is applied, set these in the Render Dashboard.
 | **MONGODB_URI** | Your Atlas connection string (from step 2). |
 | **JWT_SECRET**  | Either leave **Generated** (Render can generate) or set your own (min 32 characters). |
 | **FRONTEND_URL** | Usually auto-set from the frontend service URL. If not, set to `https://jinubify-web.onrender.com` (or your frontend URL). |
+| **BASE_URL**      | Optional but recommended: the **public** website origin users scan from QR codes (no trailing slash), e.g. `https://www.yourdomain.com`. When set, onboarding QR codes embed this host so `/u/:slug` links match production. If omitted, `FRONTEND_URL` is used. |
 
 Optional (contact form, etc.): `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `CONTACT_EMAIL`, `JWT_EXPIRES_IN`, `MEDIA_BASE_URL`.
 

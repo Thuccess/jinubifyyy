@@ -55,6 +55,7 @@ const [
   { default: eventsRoutes },
   { default: portfolioRoutes },
   { default: siteSocialsRoutes },
+  { default: publicProfileRoutes },
 ] = await Promise.all([
   import('./routes/auth.js'),
   import('./routes/users.js'),
@@ -82,6 +83,7 @@ const [
   import('./routes/events.js'),
   import('./routes/portfolio.js'),
   import('./routes/siteSocials.js'),
+  import('./routes/publicProfile.js'),
 ]);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -228,6 +230,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/public', publicProfileRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api/blogs', blogsPublicRoutes);
 app.use('/api/contact', contactRoutes);

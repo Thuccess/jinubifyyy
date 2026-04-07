@@ -198,72 +198,146 @@ const TeamPage: React.FC = () => {
       </header>
 
       {showCeo && ceo && (
-        <section className="relative py-10 sm:py-14 lg:py-16 border-t border-border-subtle" aria-labelledby="ceo-section-title">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">{ceo.eyebrow}</p>
-            <h2 id="ceo-section-title" className="mt-2 text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
-              {ceo.sectionTitle}
-            </h2>
-            <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
-              <div className="order-2 lg:order-1 space-y-5">
-                <div>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-text-primary">{ceo.name}</h3>
-                  {ceo.title ? <p className="mt-1 text-base text-brand-primary font-medium">{ceo.title}</p> : null}
-                </div>
-                {ceo.bio ? <p className="text-sm sm:text-base text-text-secondary leading-relaxed">{ceo.bio}</p> : null}
-                {ceo.detailedBio ? (
-                  <p className="text-sm sm:text-base text-text-secondary leading-relaxed">{ceo.detailedBio}</p>
-                ) : null}
-                {ceo.quote ? (
-                  <blockquote className="border-l-4 border-[color:var(--accent-primary)] pl-4 italic text-text-secondary text-sm sm:text-base leading-relaxed">
-                    {ceo.quote}
-                  </blockquote>
-                ) : null}
-                <div className="flex flex-wrap items-center gap-4">
-                  {ceo.social?.linkedin && (
-                    <a
-                      href={ceo.social.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-text-muted hover:text-brand-primary transition-colors p-1"
-                      aria-label={`${ceo.name}'s LinkedIn`}
-                    >
-                      <LinkedInIcon className="w-5 h-5" />
-                    </a>
-                  )}
-                  {ceo.social?.twitter && (
-                    <a
-                      href={ceo.social.twitter}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-text-muted hover:text-brand-primary transition-colors p-1"
-                      aria-label={`${ceo.name}'s Twitter`}
-                    >
-                      <TwitterIcon className="w-5 h-5" />
-                    </a>
-                  )}
-                  {ceo.social?.website && (
-                    <a
-                      href={ceo.social.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-text-muted hover:text-brand-primary transition-colors p-1"
-                      aria-label={`${ceo.name}'s Website`}
-                    >
-                      <GlobeIcon className="w-5 h-5" />
-                    </a>
-                  )}
-                </div>
+        <section
+          className="relative border-t border-border-subtle py-14 sm:py-20 lg:py-24 scroll-mt-6"
+          aria-labelledby="ceo-section-title"
+        >
+          <div
+            className="pointer-events-none absolute inset-0 overflow-hidden"
+            aria-hidden="true"
+          >
+            <div className="absolute -right-20 -top-20 h-[min(55vw,420px)] w-[min(55vw,420px)] rounded-full bg-brand-soft/35 blur-3xl dark:bg-brand-soft/20" />
+            <div className="absolute -left-16 bottom-0 h-[min(40vw,320px)] w-[min(40vw,320px)] rounded-full bg-[color:var(--surface-muted)] blur-3xl opacity-80" />
+          </div>
+
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-8 flex flex-col gap-3 sm:mb-10 lg:mb-12 lg:gap-4">
+              <div className="flex items-center gap-3">
+                <span className="h-px w-10 bg-brand-primary sm:w-14" aria-hidden="true" />
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-text-muted">
+                  {ceo.eyebrow}
+                </p>
               </div>
-              <div className="order-1 lg:order-2 relative aspect-[4/5] max-h-[480px] w-full max-w-md mx-auto lg:max-w-none rounded-2xl overflow-hidden bg-[color:var(--surface-muted)] ring-1 ring-border-subtle shadow-sm">
-                <Image
-                  src={normalizeImageUrl(ceo.imageUrl || '') || '/logo/logo-light.png'}
-                  alt={ceo.name || 'CEO portrait'}
-                  fill
-                  className="object-cover object-top"
-                  sizes="(max-width: 1024px) 100vw, 480px"
-                  priority
-                />
+              <h2
+                id="ceo-section-title"
+                className="max-w-2xl text-2xl font-bold leading-tight tracking-tight text-text-primary sm:text-3xl lg:text-4xl"
+              >
+                {ceo.sectionTitle}
+              </h2>
+            </div>
+
+            <div className="relative overflow-hidden rounded-[1.75rem] border border-border-card bg-[color:var(--surface-card)] shadow-card sm:rounded-[2rem]">
+              <div
+                className="pointer-events-none absolute inset-0 opacity-[0.035] dark:opacity-[0.07]"
+                style={{
+                  backgroundImage: `linear-gradient(var(--border-subtle) 1px, transparent 1px),linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px)`,
+                  backgroundSize: '40px 40px',
+                }}
+                aria-hidden="true"
+              />
+
+              <div className="relative grid grid-cols-1 items-center gap-10 p-6 sm:gap-12 sm:p-8 lg:grid-cols-12 lg:gap-14 lg:p-10 xl:p-14">
+                <div className="order-2 space-y-6 sm:space-y-7 lg:order-1 lg:col-span-7 lg:space-y-8">
+                  <header className="space-y-2">
+                    {ceo.name ? (
+                      <h3 className="text-balance text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl lg:text-5xl">
+                        {ceo.name}
+                      </h3>
+                    ) : null}
+                    {ceo.title ? (
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-primary sm:text-sm">
+                        {ceo.title}
+                      </p>
+                    ) : null}
+                  </header>
+
+                  {(ceo.bio || ceo.detailedBio) && (
+                    <div className="max-w-2xl space-y-4 text-base leading-relaxed text-text-secondary sm:text-lg">
+                      {ceo.bio ? <p>{ceo.bio}</p> : null}
+                      {ceo.detailedBio ? (
+                        <p className="text-text-secondary/90">{ceo.detailedBio}</p>
+                      ) : null}
+                    </div>
+                  )}
+
+                  {ceo.quote ? (
+                    <figure className="relative rounded-2xl border border-border-subtle bg-[color:var(--surface-muted)]/50 p-5 sm:p-6">
+                      <span
+                        className="pointer-events-none absolute left-3 top-1 font-serif text-5xl leading-none text-brand-primary/[0.18] sm:left-4 sm:text-6xl"
+                        aria-hidden="true"
+                      >
+                        &ldquo;
+                      </span>
+                      <blockquote className="relative border-l-2 border-brand-primary/60 pl-4 text-base font-medium italic leading-relaxed text-text-primary sm:pl-5 sm:text-lg">
+                        {ceo.quote}
+                      </blockquote>
+                    </figure>
+                  ) : null}
+
+                  {(ceo.social?.linkedin || ceo.social?.twitter || ceo.social?.website) && (
+                    <div className="flex flex-wrap gap-2 pt-1 sm:gap-3">
+                      {ceo.social.linkedin && (
+                        <a
+                          href={ceo.social.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 rounded-full border border-border-card bg-[color:var(--surface-card)] px-4 py-2 text-sm font-medium text-text-secondary shadow-sm transition-colors duration-200 hover:border-brand-primary/45 hover:text-brand-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg-primary)]"
+                          aria-label={`${ceo.name}'s LinkedIn`}
+                        >
+                          <LinkedInIcon className="h-4 w-4 shrink-0" />
+                          <span className="hidden sm:inline">LinkedIn</span>
+                        </a>
+                      )}
+                      {ceo.social.twitter && (
+                        <a
+                          href={ceo.social.twitter}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 rounded-full border border-border-card bg-[color:var(--surface-card)] px-4 py-2 text-sm font-medium text-text-secondary shadow-sm transition-colors duration-200 hover:border-brand-primary/45 hover:text-brand-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg-primary)]"
+                          aria-label={`${ceo.name}'s Twitter`}
+                        >
+                          <TwitterIcon className="h-4 w-4 shrink-0" />
+                          <span className="hidden sm:inline">Twitter</span>
+                        </a>
+                      )}
+                      {ceo.social.website && (
+                        <a
+                          href={ceo.social.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 rounded-full border border-border-card bg-[color:var(--surface-card)] px-4 py-2 text-sm font-medium text-text-secondary shadow-sm transition-colors duration-200 hover:border-brand-primary/45 hover:text-brand-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg-primary)]"
+                          aria-label={`${ceo.name}'s Website`}
+                        >
+                          <GlobeIcon className="h-4 w-4 shrink-0" />
+                          <span className="hidden sm:inline">Website</span>
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="order-1 lg:order-2 lg:col-span-5">
+                  <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+                    <div
+                      className="absolute -bottom-3 -right-2 left-4 top-4 rounded-3xl bg-[color:var(--surface-muted)] ring-1 ring-border-subtle/80 sm:-bottom-4 sm:-right-3 sm:left-5 sm:top-5"
+                      aria-hidden="true"
+                    />
+                    <div className="relative aspect-[3/4] w-full overflow-hidden rounded-3xl bg-[color:var(--surface-muted)] ring-1 ring-border-subtle shadow-lg">
+                      <Image
+                        src={normalizeImageUrl(ceo.imageUrl || '') || '/logo/logo-light.png'}
+                        alt={ceo.name || 'CEO portrait'}
+                        fill
+                        className="object-cover object-top"
+                        sizes="(max-width: 1024px) 100vw, 42vw"
+                        priority
+                      />
+                      <div
+                        className="pointer-events-none absolute inset-x-0 bottom-0 h-[38%] bg-gradient-to-t from-[color:var(--bg-primary)]/25 to-transparent dark:from-black/35"
+                        aria-hidden="true"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

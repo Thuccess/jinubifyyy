@@ -9,6 +9,7 @@ import { signAccessToken } from '../utils/accessToken.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
 import logger from '../utils/logger.js';
 import { sendVerificationEmail } from '../utils/sendEmail.js';
+import { registerOnboardingValidators } from '../utils/onboardingValidators.js';
 
 const router = express.Router();
 
@@ -35,28 +36,12 @@ const resendVerificationLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-const signupValidators = [
-  body('name').trim().notEmpty().withMessage('Name is required'),
-  body('email').isEmail().normalizeEmail().withMessage('Please provide a valid email'),
-  body('password')
-    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
-    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
-    .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter')
-    .matches(/[0-9]/).withMessage('Password must contain at least one number')
-    .matches(/[^A-Za-z0-9]/).withMessage('Password must contain at least one special character'),
-  // Minimal signup fields only; optional profile fields can be added later.
-  body('photoURL').optional().isURL().withMessage('Photo URL must be a valid URL'),
-  body('phone').optional().trim(),
-  body('company').trim().notEmpty().withMessage('Company is required'),
-  body('website').optional().isURL().withMessage('Website URL must be a valid URL'),
-];
-
 // @route   POST /api/auth/register
 // @desc    Register a new user for manual approval
 // @access  Public
 router.post(
   '/register',
-  signupValidators,
+  registerOnboardingValidators,
   async (req, res) => {
     try {
       const errors = validationResult(req);
@@ -71,7 +56,27 @@ router.post(
         });
       }
 
-      const { name, email, password, photoURL, phone, company, website } = req.body;
+      const {
+        name,
+        email,
+        password,
+        photoURL,
+        phone: phoneRaw,
+        company: companyRaw,
+        website: websiteRaw,
+        industry: industryRaw,
+      } = req.body;
+      const accountType = req.body.accountType === 'personal' ? 'personal' : 'business';
+      const phone = (phoneRaw && String(phoneRaw).trim()) || '';
+      const company =
+        accountType === 'personal' ? '' : (companyRaw && String(companyRaw).trim()) || '';
+      let website = '';
+      if (websiteRaw && String(websiteRaw).trim()) {
+        const w = String(websiteRaw).trim();
+        website = w.startsWith('http') ? w : `https://${w}`;
+      }
+      const industry =
+        accountType === 'personal' ? '' : (industryRaw && String(industryRaw).trim()) || '';
 
       const existingUser = await User.findOne({ email });
       if (existingUser) {
@@ -85,9 +90,12 @@ router.post(
         photoURL: photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
         phone,
         company,
-        website: website || '',
+        website,
+        industry,
+        accountType,
         status: 'pending',
         isEmailVerified: false,
+        socialLinks: [],
       });
 
       const rawVerificationToken = setEmailVerificationToken(user);
@@ -164,8 +172,17 @@ router.post(
       }
 
       // Hardening: account must also be approved (applies to all roles).
+      if (user.status === 'pending') {
+        return res.status(403).json({ message: 'Your account is under review' });
+      }
+      if (user.status === 'rejected') {
+        return res.status(403).json({
+          message: 'Your application was not approved',
+          rejectionReason: user.rejectionReason || undefined,
+        });
+      }
       if (user.status !== 'approved') {
-        return res.status(403).json({ message: 'Your account is pending approval' });
+        return res.status(403).json({ message: 'Your account is under review' });
       }
 
       // Track login timestamp and activity

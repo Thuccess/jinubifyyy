@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon, EyeIcon, EyeSlashIcon } from './icons/Icons';
+import PublicSignUpSteps from './onboarding/PublicSignUpSteps';
 import { authAPI, storeAuth } from '../services/api';
 import { User } from '../types';
 
@@ -12,9 +13,10 @@ const labelClass = 'block text-sm font-medium text-text-primary mb-1';
 const oauthBtnClass =
   'flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-border-subtle bg-[color:var(--surface-muted)] text-text-primary hover:bg-[color:var(--surface-card)] text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]';
 
-const getApiErrorMessage = (err: any) =>
-  (typeof err?.response?.data?.message === 'string' && err.response.data.message) ||
-  'Something went wrong';
+const getApiErrorMessage = (err: unknown) => {
+  const e = err as { response?: { data?: { message?: string } } };
+  return (typeof e?.response?.data?.message === 'string' && e.response.data.message) || 'Something went wrong';
+};
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -23,15 +25,8 @@ interface AuthModalProps {
   onSuccess: (user: User) => void;
 }
 
-const STEPS = [
-  { id: 1, label: 'Sign up your account' },
-  { id: 2, label: 'Set up your workspace' },
-  { id: 3, label: 'Set up your profile' },
-] as const;
-
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialView, onSuccess }) => {
   const [view, setView] = useState<'signIn' | 'signUp'>(initialView);
-  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -41,37 +36,22 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
   const [resendCooldown, setResendCooldown] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  
+
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
     email: '',
     password: '',
-    workspaceName: '',
-    photoURL: '',
-    phone: '',
-    company: '',
-    website: '',
   });
 
   useEffect(() => {
     setView(initialView);
-    setStep(1);
     setError('');
     setSuccessMessage('');
     setVerificationEmail('');
     setResendMessage('');
     setResendCooldown(0);
     setFormData({
-      firstName: '',
-      lastName: '',
       email: '',
       password: '',
-      workspaceName: '',
-      photoURL: '',
-      phone: '',
-      company: '',
-      website: '',
     });
   }, [initialView, isOpen]);
 
@@ -103,9 +83,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
       const res = await authAPI.resendVerification(email);
       setResendMessage(res.message || 'Verification email sent');
       setVerificationEmail(email);
-      // Backend limit is 3/min; use a 60s UI cooldown to avoid accidental spam.
       setResendCooldown(60);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(getApiErrorMessage(err));
     } finally {
       setResendLoading(false);
@@ -114,7 +93,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
 
   const handleOAuth = (provider: 'google' | 'github') => {
     setError('');
-    // Ready for integration: set your backend OAuth URLs or use Next.js Auth
     const base = (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL)?.replace(/\/api\/?$/, '') || '';
     const url = base ? `${base}/api/auth/${provider}` : '';
     if (url) {
@@ -147,56 +125,23 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
       storeAuth(response.token, normalizedUser as User, rememberMe);
       onSuccess(normalizedUser as User);
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string; rejectionReason?: string } } };
       const backendMessage = getApiErrorMessage(err);
-      const normalizedMessage =
-        backendMessage === 'Your account is pending approval'
-          ? 'Verified. Waiting for admin approval.'
-          : backendMessage;
+      let normalizedMessage = backendMessage;
+      if (backendMessage === 'Your account is pending approval' || backendMessage === 'Your account is under review') {
+        normalizedMessage = 'Your account is under review. We will email you when a decision is made.';
+      }
+      if (backendMessage === 'Your application was not approved') {
+        const reason = e?.response?.data?.rejectionReason;
+        normalizedMessage = reason
+          ? `${backendMessage} Reason: ${reason}`
+          : `${backendMessage} Contact support if you have questions.`;
+      }
       setError(normalizedMessage);
       if (backendMessage === 'Please verify your email before logging in') {
         setVerificationEmail(formData.email.trim());
       }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSignUpSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // Minimal signup flow: name, email, password, company.
-    if (!formData.firstName.trim() && !formData.lastName.trim()) {
-      setError('Please enter your name.');
-      return;
-    }
-    if (!formData.email.trim() || !formData.password.trim() || !formData.company.trim()) {
-      setError('Name, email, password, and company are required.');
-      return;
-    }
-    const strongPassword = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-    if (!strongPassword.test(formData.password)) {
-      setError('Password must be 8+ chars and include uppercase, lowercase, number, and special character.');
-      return;
-    }
-    setLoading(true);
-    setError('');
-    setSuccessMessage('');
-    setResendMessage('');
-    try {
-      const name = [formData.firstName, formData.lastName].filter(Boolean).join(' ').trim() || formData.email;
-      const response = await authAPI.register({
-        name,
-        email: formData.email,
-        password: formData.password,
-        company: formData.company,
-      });
-      const verificationMsg = 'Check your email to verify your account';
-      setSuccessMessage(response.message || verificationMsg);
-      setVerificationEmail(formData.email.trim());
-      setView('signIn');
-      setStep(1);
-    } catch (err: any) {
-      setError(getApiErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -229,72 +174,54 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel className="w-full max-w-2xl overflow-hidden surface surface--modal border border-border-card transition-colors duration-300">
-                <div className="flex flex-col md:flex-row min-h-[520px] md:min-h-[560px]">
-                  {/* Left: steps panel (hidden on small mobile when sign-in) */}
-                  <div
-                    className={`bg-[color:var(--bg-secondary)] p-6 md:p-8 md:w-[42%] flex flex-col justify-center border-b md:border-b-0 md:border-r border-border-subtle transition-colors duration-300 ${
-                      view === 'signIn' ? 'hidden md:flex' : 'flex'
-                    }`}
-                  >
-                    <h2 className="text-2xl md:text-3xl font-bold text-text-primary mb-2">
-                      Get Started with Us
-                    </h2>
-                    <p className="text-text-secondary text-sm md:text-base mb-8">
-                      Complete these easy steps to register your account.
-                    </p>
-                    <div className="space-y-3">
-                      {STEPS.map((s) => {
-                        const active = view === 'signUp' && step === s.id;
-                        return (
-                          <div
-                            key={s.id}
-                            className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-colors duration-200 ${
-                              active
-                                ? 'bg-[color:var(--surface-card)] border border-border-card text-text-primary'
-                                : 'bg-[color:var(--surface-muted)] text-text-secondary'
-                            }`}
-                          >
-                            <span
-                              className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                                active ? 'bg-[color:var(--surface-muted)] text-text-primary' : 'bg-[color:var(--border-subtle)] text-text-muted'
-                              }`}
-                            >
-                              {s.id}
-                            </span>
-                            <span className="text-sm font-medium">{s.label}</span>
-                          </div>
-                        );
-                      })}
+                {view === 'signUp' ? (
+                  <PublicSignUpSteps
+                    key={isOpen ? 'signup-open' : 'signup-closed'}
+                    inputClass={inputClass}
+                    labelClass={labelClass}
+                    oauthBtnClass={oauthBtnClass}
+                    onOAuthGoogle={() => handleOAuth('google')}
+                    onOAuthGithub={() => handleOAuth('github')}
+                    onClose={onClose}
+                    onComplete={(email) => {
+                      setVerificationEmail(email);
+                      setSuccessMessage(
+                        'Application received. We review applications and respond by email within 24 hours. Check your email to verify your account.',
+                      );
+                      setView('signIn');
+                    }}
+                    onSwitchToSignIn={() => {
+                      setView('signIn');
+                      setError('');
+                    }}
+                  />
+                ) : (
+                  <div className="flex flex-col md:flex-row min-h-[520px] md:min-h-[560px]">
+                    <div className="hidden md:flex bg-[color:var(--bg-secondary)] p-6 md:p-8 md:w-[42%] flex-col justify-center border-b md:border-b-0 md:border-r border-border-subtle transition-colors duration-300">
+                      <h2 className="text-2xl md:text-3xl font-bold text-text-primary mb-2">Welcome back</h2>
+                      <p className="text-text-secondary text-sm md:text-base">
+                        Sign in to your dashboard and continue where you left off.
+                      </p>
                     </div>
-                  </div>
 
-                  {/* Right: form */}
-                  <div className="flex-1 flex flex-col p-6 md:p-8 bg-[color:var(--bg-primary)] transition-colors duration-300">
-                    <div className="flex justify-between items-start mb-6">
-                      <div>
-                        <Dialog.Title as="h3" className="text-xl md:text-2xl font-bold text-text-primary">
-                          {view === 'signIn' ? 'Sign In' : step === 1 ? 'Sign Up Account' : step === 2 ? 'Set Up Workspace' : 'Set Up Profile'}
-                  </Dialog.Title>
-                        <p className="mt-1 text-sm text-text-secondary">
-                          {view === 'signIn'
-                            ? 'Enter your credentials to access your account.'
-                            : step === 1
-                              ? 'Enter your personal data to create your account.'
-                              : step === 2
-                                ? 'Name your workspace (optional).'
-                                : 'Add your company details, phone, and profile photo.'}
-                        </p>
+                    <div className="flex-1 flex flex-col p-6 md:p-8 bg-[color:var(--bg-primary)] transition-colors duration-300">
+                      <div className="flex justify-between items-start mb-6">
+                        <div>
+                          <Dialog.Title as="h3" className="text-xl md:text-2xl font-bold text-text-primary">
+                            Sign In
+                          </Dialog.Title>
+                          <p className="mt-1 text-sm text-text-secondary">Enter your credentials to access your account.</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={onClose}
+                          className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-muted/90 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
+                          aria-label="Close"
+                        >
+                          <XMarkIcon className="h-6 w-6" />
+                        </button>
                       </div>
-                  <button
-                    onClick={onClose}
-                        className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-muted/90 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
-                    aria-label="Close"
-                  >
-                    <XMarkIcon className="h-6 w-6" />
-                  </button>
-                </div>
 
-                    {view === 'signIn' ? (
                       <form onSubmit={handleSignIn} className="flex flex-col gap-4 flex-1">
                         <div className="flex gap-3">
                           <button type="button" onClick={() => handleOAuth('google')} className={oauthBtnClass}>
@@ -302,36 +229,44 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                           </button>
                           <button type="button" onClick={() => handleOAuth('github')} className={oauthBtnClass}>
                             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
-                              <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 2.24-1.296 2.75-1.026 2.75-1.026.544 1.379.202 2.397.098 2.65.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                              <path
+                                fillRule="evenodd"
+                                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 2.24-1.296 2.75-1.026 2.75-1.026.544 1.379.202 2.397.098 2.65.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                                clipRule="evenodd"
+                              />
                             </svg>
                             Github
                           </button>
-                    </div>
+                        </div>
                         <p className="text-center text-xs text-text-muted">Or</p>
-                  <div>
-                          <label htmlFor="email" className={labelClass}>Email</label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
+                        <div>
+                          <label htmlFor="email" className={labelClass}>
+                            Email
+                          </label>
+                          <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            required
                             className={inputClass}
                             placeholder="eg. john@example.com"
-                    />
-                  </div>
-                  <div>
-                          <label htmlFor="password" className={labelClass}>Password</label>
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="password" className={labelClass}>
+                            Password
+                          </label>
                           <div className="relative">
-                    <input
+                            <input
                               type={showPassword ? 'text' : 'password'}
-                      id="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      required
-                      minLength={6}
+                              id="password"
+                              name="password"
+                              value={formData.password}
+                              onChange={handleInputChange}
+                              required
+                              minLength={6}
                               className={`${inputClass} pr-10`}
                               placeholder="Enter your password"
                             />
@@ -343,17 +278,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                             >
                               {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
                             </button>
-                  </div>
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        id="remember-me"
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <input
+                            id="remember-me"
+                            type="checkbox"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
                             className="h-4 w-4 rounded border-border-subtle text-[color:var(--accent-primary)] focus:ring-[color:var(--accent-ring)]"
                           />
-                          <label htmlFor="remember-me" className="ml-2 text-sm text-text-secondary">Remember me</label>
+                          <label htmlFor="remember-me" className="ml-2 text-sm text-text-secondary">
+                            Remember me
+                          </label>
                         </div>
                         {error && (
                           <div className="p-3 rounded-lg text-sm bg-[color:var(--surface-muted)] border border-border-strong text-text-primary">
@@ -395,106 +332,20 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                           Don&apos;t have an account?{' '}
                           <button
                             type="button"
-                            onClick={() => { setView('signUp'); setError(''); }}
+                            onClick={() => {
+                              setView('signUp');
+                              setError('');
+                              setSuccessMessage('');
+                            }}
                             className="font-medium text-text-primary hover:underline"
                           >
                             Sign Up
                           </button>
                         </p>
                       </form>
-                    ) : (
-                      <form onSubmit={handleSignUpSubmit} className="flex flex-col gap-4 flex-1">
-                        {step === 1 && (
-                          <>
-                            <div className="flex gap-3">
-                              <button type="button" onClick={() => handleOAuth('google')} className={oauthBtnClass}>
-                                <span className="font-semibold">G</span> Google
-                              </button>
-                              <button type="button" onClick={() => handleOAuth('github')} className={oauthBtnClass}>
-                                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
-                                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 2.24-1.296 2.75-1.026 2.75-1.026.544 1.379.202 2.397.098 2.65.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
-                                </svg>
-                                Github
-                              </button>
-                            </div>
-                            <p className="text-center text-xs text-text-muted">Or</p>
-                            <div className="grid grid-cols-2 gap-3">
-                              <div>
-                                <label htmlFor="firstName" className={labelClass}>First Name</label>
-                                <input type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} required className={inputClass} placeholder="eg. John" />
-                              </div>
-                              <div>
-                                <label htmlFor="lastName" className={labelClass}>Last Name</label>
-                                <input type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} required className={inputClass} placeholder="eg. Francisco" />
-                              </div>
-                            </div>
-                            <div>
-                              <label htmlFor="email" className={labelClass}>Email</label>
-                              <input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} required className={inputClass} placeholder="eg. johnfrans@gmail.com" />
-                            </div>
-                            <div>
-                              <label htmlFor="password" className={labelClass}>Password</label>
-                              <div className="relative">
-                                <input
-                                  type={showPassword ? 'text' : 'password'}
-                                  id="password"
-                                  name="password"
-                                  value={formData.password}
-                                  onChange={handleInputChange}
-                                  required
-                                  minLength={8}
-                                  className={`${inputClass} pr-10`}
-                                  placeholder="Enter your password"
-                                />
-                                <button type="button" onClick={() => setShowPassword((p) => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded text-text-muted hover:text-text-primary transition-colors" aria-label={showPassword ? 'Hide password' : 'Show password'}>
-                                  {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
-                                </button>
-                              </div>
-                              <p className="mt-1 text-xs text-text-muted">Must be 8+ chars with uppercase, lowercase, number, and special character.</p>
-                            </div>
-                            <div>
-                              <label htmlFor="company" className={labelClass}>Company name</label>
-                              <input
-                                type="text"
-                                id="company"
-                                name="company"
-                                value={formData.company}
-                                onChange={handleInputChange}
-                                className={inputClass}
-                                placeholder="eg. Jinubify Ltd."
-                              />
-                            </div>
-                          </>
-                        )}
-
-                  {error && (
-                          <div className="p-3 rounded-lg text-sm bg-[color:var(--surface-muted)] border border-border-strong text-text-primary">
-                            {error}
                     </div>
-                  )}
-
-                        <div className="flex gap-3 mt-auto pt-4">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                            className="flex-1 py-3 rounded-xl font-semibold btn-primary disabled:opacity-60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
-                  >
-                            {loading ? 'Processing...' : 'Sign Up'}
-                  </button>
-                        </div>
-                </form>
-                    )}
-
-                    {view === 'signUp' && (
-                      <p className="mt-4 text-center text-sm text-text-secondary">
-                        Already have an account?{' '}
-                        <button type="button" onClick={() => { setView('signIn'); setError(''); setStep(1); }} className="font-medium text-text-primary hover:underline">
-                          Log In
-                  </button>
-                      </p>
-                    )}
                   </div>
-                </div>
+                )}
               </Dialog.Panel>
             </Transition.Child>
           </div>

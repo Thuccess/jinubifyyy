@@ -7,6 +7,12 @@ import { ShoppingBagIcon, SparklesIcon, WalletIcon, CheckIcon, PaperAirplaneIcon
 import Icon from '../ui/Icon';
 import AnimatedSection from '../AnimatedSection';
 import Card from '../ui/Card';
+import {
+  normalizeSocialPlatformId,
+  SOCIAL_PLATFORM_IDS,
+  SOCIAL_PLATFORM_META,
+  SocialPlatformGlyph,
+} from '@/lib/socialPlatforms';
 import { userAPI, dashboardAPI, clientAPI, getStoredUser } from '../../services/api';
 import SkeletonBlock from '../skeletons/SkeletonBlock';
 
@@ -646,6 +652,156 @@ const SummaryCards: React.FC = () => {
   );
 };
 
+const SocialLinksCard: React.FC = () => {
+  const [links, setLinks] = useState<{ platform: string; url: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [platform, setPlatform] = useState<SocialPlatformId | ''>('');
+  const [url, setUrl] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const load = async () => {
+    try {
+      const res = await userAPI.getProfile();
+      setLinks(res.user.socialLinks || []);
+    } catch {
+      setLinks([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!platform || !url.trim()) {
+      setError('Choose a platform and add a URL.');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    try {
+      const res = await userAPI.addSocialLink({ platform, url: url.trim() });
+      setLinks(res.socialLinks || []);
+      setPlatform('');
+      setUrl('');
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Could not save link.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleDelete = async (p: string) => {
+    setBusy(true);
+    setError('');
+    try {
+      const res = await userAPI.deleteSocialLink(p);
+      setLinks(res.socialLinks || []);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Could not remove link.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Card size="lg">
+      <h3 className="text-lg font-semibold text-text-primary">Social links</h3>
+      <p className="mt-1 text-sm text-text-secondary">
+        Choose a platform and URL. These links appear on your public profile and QR scan page.
+      </p>
+
+      {loading ? (
+        <div className="mt-4">
+          <SkeletonBlock className="h-10 w-full" rounded="lg" />
+        </div>
+      ) : (
+        <>
+          <ul className="mt-4 space-y-2">
+            {links.length === 0 ? (
+              <li className="text-sm text-text-muted">No links yet.</li>
+            ) : (
+              links.map((l) => {
+                const id = normalizeSocialPlatformId(l.platform);
+                const label = id ? SOCIAL_PLATFORM_META[id].label : l.platform;
+                return (
+                  <li
+                    key={l.platform}
+                    className="flex items-center justify-between gap-2 rounded-lg border border-border-card bg-surface-muted/50 px-3 py-2"
+                  >
+                    <div className="min-w-0 flex items-center gap-2">
+                      {id ? <SocialPlatformGlyph platform={l.platform} className="h-5 w-5 shrink-0" /> : null}
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-text-primary">{label}</p>
+                        <p className="text-xs text-text-muted truncate" title={l.url}>
+                          {l.url}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => handleDelete(l.platform)}
+                      className="shrink-0 text-xs font-medium text-red-600 hover:underline disabled:opacity-50"
+                    >
+                      Remove
+                    </button>
+                  </li>
+                );
+              })
+            )}
+          </ul>
+
+          <form onSubmit={handleAdd} className="mt-4 space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="social-platform" className="block text-xs font-medium text-text-secondary mb-1">
+                  Platform
+                </label>
+                <select
+                  id="social-platform"
+                  value={platform}
+                  onChange={(e) => setPlatform((e.target.value || '') as SocialPlatformId | '')}
+                  className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm text-text-primary"
+                >
+                  <option value="">Select platform…</option>
+                  {SOCIAL_PLATFORM_IDS.map((pid) => (
+                    <option key={pid} value={pid}>
+                      {SOCIAL_PLATFORM_META[pid].label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-text-secondary mb-1">URL</label>
+                <input
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
+                  placeholder="https://…"
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+            {error && <p className="text-sm text-red-600">{error}</p>}
+            <button
+              type="submit"
+              disabled={busy}
+              className="w-full sm:w-auto px-4 py-2 rounded-lg btn-primary text-sm font-medium disabled:opacity-60"
+            >
+              {busy ? 'Saving…' : 'Add or update link'}
+            </button>
+          </form>
+        </>
+      )}
+    </Card>
+  );
+};
+
 const ProfileQrCard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -715,6 +871,11 @@ const ProfileQrCard: React.FC = () => {
       <h3 className="text-lg font-semibold text-text-primary">Your profile QR</h3>
       <p className="mt-1 text-sm text-text-secondary">
         Share this QR code so clients can open your public profile quickly.
+        {profileUrl.includes('/u/') && (
+          <span className="block mt-1 text-xs text-text-muted">
+            Your profile uses a public URL on this site; keep your social links updated below so visitors can reach you.
+          </span>
+        )}
       </p>
 
       {loading && (
@@ -788,6 +949,7 @@ const UserDashboardPage: React.FC = () => {
           <AnimatedSection>
             <div className="space-y-6">
               <ProfileCard />
+              <SocialLinksCard />
               <ProfileQrCard />
               <RecentActivity />
             </div>
