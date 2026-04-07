@@ -27,31 +27,6 @@ function vcardEscape(value: string): string {
     .replace(/;/g, '\\;');
 }
 
-function platformIcon(platform: string) {
-  const p = platform.toLowerCase();
-  if (p.includes('linkedin')) return FaLinkedin;
-  if (p.includes('instagram')) return FaInstagram;
-  if (p.includes('twitter') || p === 'x') return FaTwitter;
-  if (p.includes('facebook')) return FaFacebook;
-  if (p.includes('youtube')) return FaYoutube;
-  if (p.includes('tiktok')) return FaTiktok;
-  if (p.includes('github')) return FaGithub;
-  if (p.includes('whatsapp')) return FaWhatsapp;
-  return FaGlobe;
-}
-
-function labelForPlatform(platform: string): string {
-  const p = platform.toLowerCase();
-  if (p.includes('linkedin')) return 'LinkedIn';
-  if (p.includes('instagram')) return 'Instagram';
-  if (p.includes('twitter') || p === 'x') return p === 'x' ? 'X' : 'Twitter';
-  if (p.includes('facebook')) return 'Facebook';
-  if (p.includes('youtube')) return 'YouTube';
-  if (p.includes('tiktok')) return 'TikTok';
-  if (p.includes('github')) return 'GitHub';
-  return platform.charAt(0).toUpperCase() + platform.slice(1);
-}
-
 const PublicProfileSlugLanding: React.FC = () => {
   const params = useParams();
   const slug = typeof params?.slug === 'string' ? params.slug : '';
