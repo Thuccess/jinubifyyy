@@ -9,6 +9,7 @@ import AnimatedSection from '../AnimatedSection';
 import Card from '../ui/Card';
 import {
   normalizeSocialPlatformId,
+  type SocialPlatformId,
   SOCIAL_PLATFORM_IDS,
   SOCIAL_PLATFORM_META,
   SocialPlatformGlyph,
