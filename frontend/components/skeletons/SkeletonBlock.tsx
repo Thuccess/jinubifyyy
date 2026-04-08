@@ -4,7 +4,7 @@ import React from 'react';
 
 type SkeletonBlockProps = {
   className?: string;
-  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
   style?: React.CSSProperties;
 };
 
@@ -14,6 +14,7 @@ const roundedClass: Record<NonNullable<SkeletonBlockProps['rounded']>, string> =
   md: 'rounded-md',
   lg: 'rounded-lg',
   xl: 'rounded-xl',
+  '2xl': 'rounded-2xl',
   full: 'rounded-full',
 };
 
