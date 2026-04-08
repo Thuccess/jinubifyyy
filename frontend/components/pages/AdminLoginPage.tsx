@@ -214,7 +214,7 @@ const AdminLoginPage: React.FC = () => {
                 <p className="text-sm text-text-primary">{error}</p>
               </div>
             )}
-            {error === 'Please verify your email before logging in' && (
+            {error === 'Please activate your account via email' && (
               <button
                 type="button"
                 disabled={resendLoading || resendCooldown > 0}

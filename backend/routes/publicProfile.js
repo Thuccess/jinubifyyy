@@ -12,6 +12,10 @@ function normalizeSlugParam(req) {
     .toLowerCase();
 }
 
+function escapeRegex(s) {
+  return String(s || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function normalizeWebsiteUrl(raw) {
   if (!raw || !String(raw).trim()) return '';
   const w = String(raw).trim();
@@ -35,20 +39,31 @@ router.get('/profile/:slug', async (req, res) => {
       return res.status(404).json({ message: 'Profile not found' });
     }
 
-    const user = await User.findOne({ profileSlug: slug })
+    const user = await User.findOne({
+      profileSlug: new RegExp(`^${escapeRegex(slug)}$`, 'i'),
+      status: 'approved',
+      isActive: { $ne: false },
+    })
       .select(
         'name company accountType socialLinks status profileSlug phone website email photoURL industry qrCodeUrl publicTagline publicBio brandGuidelines preferredChannels',
       )
       .lean();
 
-    if (!user || user.status !== 'approved') {
+    if (!user) {
       return res.status(404).json({ message: 'Profile not found' });
     }
 
-    const viewCount = await PublicProfileEvent.countDocuments({
-      profileSlug: slug,
-      kind: 'view',
-    });
+    const slugKey = String(user.profileSlug || slug).toLowerCase().trim();
+    const [viewCount, linkClickCount] = await Promise.all([
+      PublicProfileEvent.countDocuments({
+        profileSlug: slugKey,
+        kind: 'view',
+      }),
+      PublicProfileEvent.countDocuments({
+        profileSlug: slugKey,
+        kind: 'click',
+      }),
+    ]);
 
     const accountType = user.accountType || 'business';
     const logoUrl = user.brandGuidelines?.logoUrl?.trim() || '';
@@ -75,6 +90,7 @@ router.get('/profile/:slug', async (req, res) => {
 
     res.json({
       profile: {
+        userId: String(user._id),
         slug: user.profileSlug,
         username: user.profileSlug,
         accountType,
@@ -93,8 +109,9 @@ router.get('/profile/:slug', async (req, res) => {
         preferredChannels,
         brandGuidelines,
         qrCodeUrl: user.qrCodeUrl || '',
-        verified: true,
+        verified: user.status === 'approved',
         viewCount,
+        linkClickCount,
       },
     });
   } catch (error) {
@@ -104,23 +121,61 @@ router.get('/profile/:slug', async (req, res) => {
 });
 
 // @route   POST /api/public/profile/:slug/view
-// @desc    Record a profile page view (fire-and-forget friendly)
+// @desc    Record a profile page view (optional body: { ref: 'qr' } for QR-scanned visits)
 // @access  Public
-router.post('/profile/:slug/view', (req, res) => {
+router.post('/profile/:slug/view', express.json(), (req, res) => {
+  const slug = normalizeSlugParam(req);
+  const ref = String(req.body?.ref || '').trim().toLowerCase();
+  const target = ref === 'qr' ? 'qr' : '';
+  res.status(204).end();
+  if (!slug) return;
+  void (async () => {
+    try {
+      const exists = await User.findOne({
+        profileSlug: new RegExp(`^${escapeRegex(slug)}$`, 'i'),
+        status: 'approved',
+        isActive: { $ne: false },
+      })
+        .select('profileSlug')
+        .lean();
+      if (!exists) return;
+      const slugKey = String(exists.profileSlug || slug).toLowerCase().trim();
+      await PublicProfileEvent.create({
+        profileSlug: slugKey,
+        kind: 'view',
+        target: target.slice(0, 64),
+      });
+    } catch (err) {
+      console.error('Public profile view event error:', err.message);
+    }
+  })();
+});
+
+// @route   POST /api/public/profile/:slug/contact-save
+// @desc    Record a contact card / vCard save action
+// @access  Public
+router.post('/profile/:slug/contact-save', (req, res) => {
   const slug = normalizeSlugParam(req);
   res.status(204).end();
   if (!slug) return;
   void (async () => {
     try {
-      const exists = await User.findOne({ profileSlug: slug, status: 'approved' }).select('_id').lean();
+      const exists = await User.findOne({
+        profileSlug: new RegExp(`^${escapeRegex(slug)}$`, 'i'),
+        status: 'approved',
+        isActive: { $ne: false },
+      })
+        .select('profileSlug')
+        .lean();
       if (!exists) return;
+      const slugKey = String(exists.profileSlug || slug).toLowerCase().trim();
       await PublicProfileEvent.create({
-        profileSlug: slug,
-        kind: 'view',
+        profileSlug: slugKey,
+        kind: 'contact_save',
         target: '',
       });
     } catch (err) {
-      console.error('Public profile view event error:', err.message);
+      console.error('Public profile contact_save event error:', err.message);
     }
   })();
 });
@@ -141,10 +196,17 @@ router.post(
     res.status(204).end();
     void (async () => {
       try {
-        const exists = await User.findOne({ profileSlug: slug, status: 'approved' }).select('_id').lean();
+        const exists = await User.findOne({
+          profileSlug: new RegExp(`^${escapeRegex(slug)}$`, 'i'),
+          status: 'approved',
+          isActive: { $ne: false },
+        })
+          .select('profileSlug')
+          .lean();
         if (!exists) return;
+        const slugKey = String(exists.profileSlug || slug).toLowerCase().trim();
         await PublicProfileEvent.create({
-          profileSlug: slug,
+          profileSlug: slugKey,
           kind: 'click',
           target,
         });

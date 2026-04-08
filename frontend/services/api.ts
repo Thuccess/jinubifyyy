@@ -88,8 +88,8 @@ export const authAPI = {
     const response = await api.post<AuthResponse>('/auth/login', data);
     return response.data;
   },
-  verifyEmail: async (token: string): Promise<{ message: string; status?: string }> => {
-    const response = await api.get<{ message: string; status?: string }>('/auth/verify-email', { params: { token } });
+  verifyEmail: async (token: string): Promise<{ message: string; status?: string; email?: string }> => {
+    const response = await api.get<{ message: string; status?: string; email?: string }>('/auth/verify-email', { params: { token } });
     return response.data;
   },
   resendVerification: async (email: string): Promise<{ message: string }> => {
@@ -108,8 +108,91 @@ export const userAPI = {
     const response = await api.get<UserProfileResponse>('/users/profile');
     return response.data;
   },
-  getMyQr: async (): Promise<{ message: string; qrDataUrl: string; profileUrl: string }> => {
-    const response = await api.get<{ message: string; qrDataUrl: string; profileUrl: string }>('/users/me/qr');
+  getMyQr: async (): Promise<{
+    message: string;
+    qrDataUrl: string;
+    profileUrl: string;
+    profileUrlTracked?: string;
+  }> => {
+    const response = await api.get<{
+      message: string;
+      qrDataUrl: string;
+      profileUrl: string;
+      profileUrlTracked?: string;
+    }>('/users/me/qr');
+    return response.data;
+  },
+  getAnalyticsSummary: async (days: 7 | 30 = 7) => {
+    const response = await api.get<{
+      periodDays: number;
+      profileViews: number;
+      qrScans: number;
+      linkClicks: number;
+      contactsSaved: number;
+      topLinks: { target: string; count: number }[];
+    }>('/users/analytics/summary', { params: { days } });
+    return response.data;
+  },
+  getConnections: async (): Promise<{
+    connections: Array<{
+      _id: string;
+      name: string;
+      displayName: string;
+      profileSlug: string;
+      publicTagline: string;
+      photoURL: string;
+    }>;
+  }> => {
+    const response = await api.get<{
+      connections: Array<{
+        _id: string;
+        name: string;
+        displayName: string;
+        profileSlug: string;
+        publicTagline: string;
+        photoURL: string;
+      }>;
+    }>('/users/connections');
+    return response.data;
+  },
+  searchConnections: async (q: string): Promise<{
+    results: Array<{
+      _id: string;
+      name: string;
+      displayName: string;
+      profileSlug: string;
+      publicTagline: string;
+      photoURL: string;
+    }>;
+  }> => {
+    const response = await api.get<{
+      results: Array<{
+        _id: string;
+        name: string;
+        displayName: string;
+        profileSlug: string;
+        publicTagline: string;
+        photoURL: string;
+      }>;
+    }>('/users/connections/search', { params: { q } });
+    return response.data;
+  },
+  connectToUser: async (connectedUserId: string): Promise<{
+    message: string;
+    connected: boolean;
+    connectionCount: number;
+  }> => {
+    const response = await api.post<{
+      message: string;
+      connected: boolean;
+      connectionCount: number;
+    }>(`/users/connections/${encodeURIComponent(connectedUserId)}`);
+    return response.data;
+  },
+  removeConnection: async (connectedUserId: string): Promise<{ message: string; connectionCount: number }> => {
+    const response = await api.delete<{ message: string; connectionCount: number }>(
+      `/users/connections/${encodeURIComponent(connectedUserId)}`,
+    );
     return response.data;
   },
   addSocialLink: async (data: { platform: string; url: string }): Promise<{ message: string; socialLinks: SocialLink[] }> => {
@@ -126,9 +209,18 @@ export const userAPI = {
     const response = await api.put<UserProfileResponse>('/users/profile', data);
     return response.data;
   },
+  uploadProfileImage: async (file: File): Promise<{ url: string; filename: string; image?: string }> => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const response = await api.post<{ url: string; filename: string; image?: string }>('/users/profile/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
 };
 
 export type PublicProfilePayload = {
+  userId?: string;
   slug: string;
   username: string;
   accountType: string;
@@ -140,6 +232,7 @@ export type PublicProfilePayload = {
   tagline: string | null;
   about: string;
   heroImageUrl: string;
+  photoURL?: string;
   phone: string;
   website: string;
   email: string;
@@ -153,6 +246,8 @@ export type PublicProfilePayload = {
   qrCodeUrl: string;
   verified: boolean;
   viewCount: number;
+  /** All-time tracked CTA clicks (social, mail, phone, website, etc.) */
+  linkClickCount: number;
 };
 
 export const publicAPI = {
@@ -162,19 +257,29 @@ export const publicAPI = {
     );
     return response.data;
   },
-  trackProfileView: async (slug: string): Promise<boolean> => {
+  trackProfileView: async (slug: string, opts?: { ref?: 'qr' }): Promise<boolean> => {
     try {
-      await api.post(`/public/profile/${encodeURIComponent(slug)}/view`);
+      await api.post(`/public/profile/${encodeURIComponent(slug)}/view`, {
+        ...(opts?.ref === 'qr' ? { ref: 'qr' } : {}),
+      });
       return true;
     } catch {
       return false;
     }
   },
-  trackProfileClick: async (slug: string, target: string): Promise<void> => {
+  trackContactSave: async (slug: string): Promise<void> => {
+    try {
+      await api.post(`/public/profile/${encodeURIComponent(slug)}/contact-save`);
+    } catch {
+      /* best-effort */
+    }
+  },
+  trackProfileClick: async (slug: string, target: string): Promise<boolean> => {
     try {
       await api.post(`/public/profile/${encodeURIComponent(slug)}/click`, { target });
+      return true;
     } catch {
-      /* analytics best-effort */
+      return false;
     }
   },
 };
@@ -399,6 +504,7 @@ export const clientAPI = {
     phone?: string;
     company?: string;
     password?: string;
+    photoURL?: string;
   }) => {
     const response = await api.patch('/client/profile', data);
     return response.data;
@@ -511,6 +617,10 @@ export const adminAPI = {
   },
   rejectUser: async (userId: string, data?: { rejectionReason?: string }) => {
     const response = await api.patch(`/admin/users/${userId}/reject`, data ?? {});
+    return response.data;
+  },
+  setUserActive: async (userId: string, data: { isActive: boolean }) => {
+    const response = await api.patch(`/admin/users/${userId}/active`, data);
     return response.data;
   },
   deleteUser: async (userId: string) => {
@@ -1132,6 +1242,21 @@ export const storeAuth = (token: string, user: User, remember: boolean = false):
     sessionStorage.setItem('token', token);
     sessionStorage.setItem('currentUser', JSON.stringify(user));
   }
+};
+
+export const persistCurrentUser = (user: User): void => {
+  const localHasToken = Boolean(localStorage.getItem('token'));
+  const sessionHasToken = Boolean(sessionStorage.getItem('token'));
+  if (localHasToken) {
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    return;
+  }
+  if (sessionHasToken) {
+    sessionStorage.setItem('currentUser', JSON.stringify(user));
+    return;
+  }
+  // Fallback: keep data available for immediate UI bootstrap.
+  localStorage.setItem('currentUser', JSON.stringify(user));
 };
 
 // Helper function to clear auth

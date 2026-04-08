@@ -69,24 +69,44 @@ export const optionalAuth = async (req, res, next) => {
   }
 };
 
-// Enforce account readiness on already-authenticated requests.
-// Use after `authenticate` on protected route groups.
-export const verifyApproved = (req, res, next) => {
-  if (!req.user?.isEmailVerified) {
-    return res.status(403).json({ message: 'Please verify your email before accessing this resource' });
+/**
+ * Email activation + account state gate (DB-backed for security).
+ * Allows pending + approved (email verified, active, not rejected). Blocks rejected & deactivated.
+ */
+export const verifyApproved = async (req, res, next) => {
+  try {
+    if (!req.user?._id) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+    const uid = req.user._id.toString ? req.user._id.toString() : String(req.user._id);
+    const fresh = await User.findById(uid)
+      .select('isEmailVerified status rejectionReason isActive')
+      .lean();
+    if (!fresh) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+    if (!fresh.isEmailVerified) {
+      return res.status(403).json({ message: 'Please activate your account via email' });
+    }
+    if (fresh.isActive === false) {
+      return res.status(403).json({ message: 'Your account has been deactivated. Contact support.' });
+    }
+    if (fresh.status === 'rejected') {
+      const rr = fresh.rejectionReason ? String(fresh.rejectionReason).trim() : '';
+      return res.status(403).json({
+        message: 'Your application was not approved',
+        ...(rr ? { rejectionReason: rr } : {}),
+      });
+    }
+    req.user = {
+      ...req.user,
+      isEmailVerified: Boolean(fresh.isEmailVerified),
+      status: fresh.status,
+      rejectionReason: fresh.rejectionReason || '',
+      isActive: fresh.isActive !== false,
+    };
+    return next();
+  } catch (err) {
+    return res.status(500).json({ message: 'Authentication error', error: err.message });
   }
-  if (req.user?.status === 'pending') {
-    return res.status(403).json({ message: 'Your account is under review' });
-  }
-  if (req.user?.status === 'rejected') {
-    const rr = req.user?.rejectionReason ? String(req.user.rejectionReason).trim() : '';
-    return res.status(403).json({
-      message: 'Your application was not approved',
-      ...(rr ? { rejectionReason: rr } : {}),
-    });
-  }
-  if (req.user?.status !== 'approved') {
-    return res.status(403).json({ message: 'Your account is under review' });
-  }
-  return next();
 };

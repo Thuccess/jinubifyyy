@@ -6,15 +6,19 @@
 
 import React, { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext';
-import { FaEnvelope, FaEye, FaGlobe, FaLink, FaPhone } from 'react-icons/fa';
+import { useAuth } from '@/contexts/AuthContext';
+import { FaEnvelope, FaGlobe, FaPhone } from 'react-icons/fa';
+import { ConnectionIcon, LinkIcon } from '@/components/icons/Icons';
 import {
   normalizeSocialPlatformId,
   SOCIAL_PLATFORM_META,
   SocialPlatformGlyph,
 } from '@/lib/socialPlatforms';
-import { publicAPI, type PublicProfilePayload } from '../../services/api';
+import AuthModal from '@/components/AuthModal';
+import { publicAPI, userAPI, type PublicProfilePayload } from '../../services/api';
+import type { User } from '@/types';
 
 /** Short hero line: tagline only, not full bio */
 function heroLead(p: PublicProfilePayload): string {
@@ -84,30 +88,72 @@ type LoadState = 'loading' | 'ready' | 'error';
 
 const ProfileCardPage: React.FC = () => {
   const { theme } = useTheme();
+  const { currentUser, login } = useAuth();
   const params = useParams();
+  const searchParams = useSearchParams();
   const slug = typeof params?.slug === 'string' ? params.slug : '';
   const [state, setState] = useState<LoadState>('loading');
   const [profile, setProfile] = useState<PublicProfilePayload | null>(null);
   const [displayedViews, setDisplayedViews] = useState(0);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [isLinksOpen, setIsLinksOpen] = useState(false);
+  const [showConnectPrompt, setShowConnectPrompt] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalView, setAuthModalView] = useState<'signIn' | 'signUp'>('signUp');
 
-  const linksCount = profile?.socialLinks?.length ?? 0;
+  const openSignUpModal = useCallback(() => {
+    setAuthModalView('signUp');
+    setAuthModalOpen(true);
+  }, []);
 
-  const track = useCallback(
-    (target: string) => {
-      if (!slug) return;
-      void publicAPI.trackProfileClick(slug, target);
-    },
-    [slug],
-  );
+  const openSignInModal = useCallback(() => {
+    setAuthModalView('signIn');
+    setAuthModalOpen(true);
+  }, []);
+  const [linkClicksCount, setLinkClicksCount] = useState(0);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [cardVisible, setCardVisible] = useState(false);
+  const coverImage = profile?.heroImageUrl || profile?.photoURL || '';
+  const avatarImage = profile?.photoURL || profile?.heroImageUrl || '';
+  const filteredSocialLinks = useMemo(() => {
+    if (!profile?.socialLinks) return [];
+    const allowed = new Set([
+      'facebook',
+      'instagram',
+      'youtube',
+      'tiktok',
+      'whatsapp',
+      'messenger',
+      'x',
+      'twitter',
+      'snapchat',
+      'linkedin',
+      'pinterest',
+      'reddit',
+      'threads',
+      'telegram',
+      'wechat',
+      'website',
+    ]);
+    return profile.socialLinks.filter((l) => allowed.has(String(l.platform || '').toLowerCase()));
+  }, [profile?.socialLinks]);
+  const featuredSocialLinks = useMemo(() => filteredSocialLinks.slice(0, 8), [filteredSocialLinks]);
+
+  /** One server-backed link click; bumps local count only after the event is stored. */
+  const recordLinkClick = useCallback(async (target: string): Promise<void> => {
+    if (!slug) return;
+    const ok = await publicAPI.trackProfileClick(slug, target);
+    if (ok) setLinkClicksCount((n) => n + 1);
+  }, [slug]);
 
   const openTracked = useCallback(
     (target: string, href: string) => {
-      track(target);
+      void recordLinkClick(target);
       window.open(href, '_blank', 'noopener,noreferrer');
     },
-    [track],
+    [recordLinkClick],
   );
 
   useEffect(() => {
@@ -122,6 +168,7 @@ const ProfileCardPage: React.FC = () => {
         if (!alive) return;
         setProfile(res.profile);
         setDisplayedViews(Number(res.profile.viewCount) || 0);
+        setLinkClicksCount(Number(res.profile.linkClickCount) || 0);
         setState('ready');
       } catch {
         if (!alive) return;
@@ -140,38 +187,99 @@ const ProfileCardPage: React.FC = () => {
     const key = `jinubify-public-profile-view:${slug}`;
     if (window.sessionStorage.getItem(key)) return;
     window.sessionStorage.setItem(key, '1');
+    const fromQr = searchParams?.get('ref') === 'qr';
     void (async () => {
-      const ok = await publicAPI.trackProfileView(slug);
+      const ok = await publicAPI.trackProfileView(slug, fromQr ? { ref: 'qr' } : undefined);
       if (ok) setDisplayedViews((v) => v + 1);
     })();
-  }, [slug, state, profile]);
+  }, [slug, state, profile, searchParams]);
+
+  useEffect(() => {
+    if (state !== 'ready') return;
+    const t = window.requestAnimationFrame(() => setCardVisible(true));
+    return () => window.cancelAnimationFrame(t);
+  }, [state]);
 
   const isDark = theme === 'dark';
   const lead = profile ? heroLead(profile) : '';
+  const pageTextClass = isDark ? 'text-white/85' : 'text-slate-800/85';
+  const pageMutedTextClass = isDark ? 'text-white/65' : 'text-slate-700/65';
+  const cardBottomOverlayClass = isDark
+    ? 'bg-gradient-to-t from-black/92 via-black/65 to-transparent border-white/10'
+    : 'bg-gradient-to-t from-white/94 via-white/72 to-transparent border-black/10';
+  const chipClass = isDark
+    ? 'border-white/20 bg-black/45 text-white hover:bg-black/55'
+    : 'border-black/15 bg-white/70 text-slate-800 hover:bg-white/85';
+  const glassPanelClass = isDark
+    ? 'border-white/10 bg-white/5'
+    : 'border-black/10 bg-white/55';
+
+  useEffect(() => {
+    if (!currentUser || !profile?.userId) {
+      setIsConnected(false);
+      return;
+    }
+    let alive = true;
+    void (async () => {
+      try {
+        const r = await userAPI.getConnections();
+        if (!alive) return;
+        const list = r.connections || [];
+        setIsConnected(list.some((c) => c._id === profile.userId));
+      } catch {
+        if (!alive) return;
+        setIsConnected(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [currentUser, profile?.userId]);
+
+  const handleConnect = useCallback(async () => {
+    if (!currentUser?._id || !profile?.userId || isConnecting || isConnected) return;
+    setIsConnecting(true);
+    setIsConnected(true);
+    try {
+      await userAPI.connectToUser(profile.userId);
+    } catch {
+      setIsConnected(false);
+    } finally {
+      window.setTimeout(() => setIsConnecting(false), 350);
+    }
+  }, [currentUser?._id, isConnected, isConnecting, profile?.userId]);
+
+  const handleConnectIconClick = useCallback(() => {
+    if (!currentUser) {
+      setShowConnectPrompt(true);
+      return;
+    }
+    // Frontend-only placeholder hook for upcoming backend connect flow.
+    void handleConnect();
+  }, [currentUser, handleConnect]);
 
   return (
-    <div className="w-full min-h-0 text-text-primary antialiased pb-10">
-      <div className="flex flex-col items-center px-4 py-6 sm:py-8">
-        <Link
-          href="/"
-          className="self-start mb-4 sm:mb-6 text-xs font-medium text-text-muted hover:text-text-primary transition-colors tracking-wide"
-        >
-          ← Back to Jinubify
-        </Link>
+    <div className={`relative w-full min-h-[100svh] antialiased overflow-hidden ${pageTextClass}`}>
+      <div className="pointer-events-none absolute inset-0 bg-transparent" />
 
+      <div className="relative min-h-[100svh] flex flex-col items-center justify-center">
         {state === 'loading' && (
           <div
-            className="w-full max-w-[380px] aspect-[3/4] max-h-[85vh] rounded-[28px] overflow-hidden border border-border-subtle bg-[color:var(--surface-muted)] animate-pulse"
+            className={`h-[100svh] w-full overflow-hidden animate-pulse ${
+              isDark ? 'bg-black/35' : 'bg-white/45'
+            }`}
             aria-busy="true"
             aria-label="Loading profile"
           >
-            <div className="h-full w-full bg-gradient-to-t from-[color:var(--surface-card)] to-transparent opacity-60" />
+            <div className={`h-full w-full ${isDark ? 'bg-gradient-to-t from-black/60 to-transparent' : 'bg-gradient-to-t from-white/65 to-transparent'} opacity-70`} />
           </div>
         )}
 
         {state === 'error' && (
           <div
-            className="w-full max-w-[380px] rounded-[28px] border border-border-card bg-[color:var(--surface-card)] px-8 py-14 text-center text-text-secondary text-sm shadow-sm"
+            className={`h-[100svh] w-full px-8 py-14 text-center text-sm flex items-center justify-center ${
+              isDark ? 'bg-black/45 text-white/80' : 'bg-white/70 text-slate-700'
+            }`}
             role="alert"
           >
             This profile isn&apos;t available.
@@ -179,290 +287,380 @@ const ProfileCardPage: React.FC = () => {
         )}
 
         {state === 'ready' && profile && (
-          <div className="w-full max-w-[380px] space-y-8">
+          <div className="w-full">
             <div
-              className="transition-transform duration-500 ease-out hover:scale-[1.02] hover:z-10 motion-reduce:transform-none motion-reduce:hover:scale-100"
-              style={{ perspective: '1200px' }}
+              className={`transition-all duration-500 ease-out hover:scale-[1.012] hover:-translate-y-0.5 hover:z-10 motion-reduce:transform-none ${
+                cardVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.98]'
+              }`}
+              style={{
+                perspective: '1200px',
+                width: '100vw',
+                marginInline: 'auto',
+              }}
             >
               <article
-                className={`relative w-full aspect-[3/4] max-h-[85vh] rounded-[28px] overflow-hidden border shadow-lg ${
-                  isDark
-                    ? 'border-white/[0.12] bg-black/40 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.55),0_0_0_1px_rgba(255,255,255,0.06),0_0_80px_-24px_rgba(124,58,237,0.35)]'
-                    : 'border-border-card bg-[color:var(--surface-card)] shadow-[0_25px_50px_-12px_rgba(15,23,42,0.12)]'
-                }`}
+                className="relative h-[100svh] w-full overflow-hidden"
                 aria-label={`Profile of ${profile.displayName}`}
               >
-                {profile.heroImageUrl && !imgError ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- remote user media
-                  <img
-                    src={profile.heroImageUrl}
-                    alt=""
-                    width={760}
-                    height={1014}
-                    className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-out ${
-                      imgLoaded ? 'opacity-100' : 'opacity-0'
-                    }`}
-                    loading="eager"
-                    decoding="async"
-                    onLoad={() => setImgLoaded(true)}
-                    onError={() => setImgError(true)}
-                  />
-                ) : (
-                  <div
-                    className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[color:var(--surface-muted)] to-[color:var(--bg-secondary)] text-5xl font-bold text-text-muted"
-                    aria-hidden
-                  >
-                    {profile.displayName.charAt(0).toUpperCase()}
-                  </div>
-                )}
+                <div className="absolute inset-x-0 top-0 h-[52%] bg-white">
+                  {coverImage && !imgError ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- remote user media
+                    <img
+                      src={coverImage}
+                      alt=""
+                      width={760}
+                      height={430}
+                      className={`h-full w-full object-cover transition-opacity duration-700 ease-out ${
+                        imgLoaded ? 'opacity-100' : 'opacity-0'
+                      }`}
+                      loading="lazy"
+                      decoding="async"
+                      onLoad={() => setImgLoaded(true)}
+                      onError={() => setImgError(true)}
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-white text-5xl font-bold text-zinc-400" aria-hidden>
+                      {profile.displayName.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
 
                 <div
-                  className={`absolute inset-0 pointer-events-none ${
-                    isDark
-                      ? 'bg-gradient-to-t from-black via-black/55 to-black/15'
-                      : 'bg-gradient-to-t from-[color:var(--bg-primary)] via-[color:var(--bg-primary)]/70 to-transparent'
-                  }`}
+                  className="pointer-events-none absolute inset-x-0 top-[52%] h-[48%] bg-black"
                   aria-hidden
                 />
+                <div className="pointer-events-none absolute inset-x-0 top-[52%] h-[2px] bg-black" aria-hidden />
 
-                <div className="absolute inset-x-0 bottom-0 top-[40%] flex flex-col justify-end pointer-events-none">
+                <div className="absolute right-4 top-4 z-20 flex items-center gap-2 md:right-6 md:top-6">
+                  <button
+                    type="button"
+                    onClick={handleConnectIconClick}
+                    title="Connections"
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold backdrop-blur-xl ${chipClass}`}
+                  >
+                    <ConnectionIcon className="h-3.5 w-3.5" />
+                    {displayedViews.toLocaleString()}
+                  </button>
+                  <button
+                    type="button"
+                    title="Links"
+                    onClick={() => setIsLinksOpen((v) => !v)}
+                    className={`inline-flex h-9 w-9 items-center justify-center rounded-full border backdrop-blur-xl transition ${chipClass}`}
+                    aria-expanded={isLinksOpen}
+                    aria-label="Open social links"
+                  >
+                    <LinkIcon className="h-4 w-4" />
+                  </button>
+                </div>
+
+                {isLinksOpen ? (
                   <div
-                    className={`pointer-events-auto px-5 pb-7 pt-16 sm:px-6 sm:pb-8 backdrop-blur-[20px] border-t ${
-                      isDark
-                        ? 'bg-gradient-to-t from-black/85 via-black/45 to-transparent supports-[backdrop-filter]:bg-black/35 border-white/[0.08]'
-                        : 'bg-gradient-to-t from-[color:var(--bg-primary)]/95 via-[color:var(--bg-primary)]/65 to-transparent supports-[backdrop-filter]:bg-[color:var(--bg-primary)]/75 border-border-subtle'
+                    className={`absolute right-4 top-14 z-30 w-60 rounded-2xl border p-2 backdrop-blur-xl shadow-2xl ${
+                      isDark ? 'border-white/15 bg-black/65' : 'border-black/12 bg-white/75'
                     }`}
                   >
-                    <div className="flex flex-wrap items-center gap-2 gap-y-1">
-                      <h1
-                        className={`text-2xl sm:text-[1.65rem] font-bold tracking-tight leading-tight ${
-                          isDark ? 'text-white' : 'text-text-primary'
-                        }`}
-                      >
-                        {profile.displayName}
-                      </h1>
-                      {profile.verified ? <VerifiedAccountBadge isDark={isDark} /> : null}
+                    {filteredSocialLinks.length === 0 ? (
+                      <p className={`px-3 py-2 text-xs ${isDark ? 'text-white/80' : 'text-slate-700/85'}`}>No social links yet.</p>
+                    ) : (
+                      <ul className="space-y-1">
+                        {filteredSocialLinks.map((link) => {
+                          const id = normalizeSocialPlatformId(link.platform);
+                          if (!id) return null;
+                          const meta = SOCIAL_PLATFORM_META[id];
+                          const label = meta.label;
+                          const BrandIcon = meta.Icon;
+                          return (
+                            <li key={`${link.platform}-${link.url}`}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setIsLinksOpen(false);
+                                  openTracked(`social:${link.platform}`, link.url);
+                                }}
+                                className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm transition ${
+                                  isDark ? 'text-white/95 hover:bg-white/10' : 'text-slate-800 hover:bg-black/5'
+                                }`}
+                              >
+                                <BrandIcon
+                                  className="h-4 w-4"
+                                  style={{ color: meta.color || '#FFFFFF' }}
+                                  aria-hidden
+                                />
+                                <span className="truncate">{label}</span>
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                ) : null}
+
+                <div className="absolute inset-x-0 bottom-0 top-[47%] flex flex-col justify-end pointer-events-none">
+                  <div
+                    className={`pointer-events-auto px-5 pb-5 pt-16 sm:px-6 sm:pb-6 md:px-10 md:pb-8 lg:px-14 backdrop-blur-[22px] border-t ${cardBottomOverlayClass}`}
+                  >
+                    <div className="mx-auto w-full max-w-4xl">
+                    <div className="-mt-[3.35rem] mb-3 flex items-center gap-3 md:-mt-[3.85rem] md:gap-4">
+                      <div className="shrink-0 rounded-[14px] border-[4px] border-black bg-white p-1.5 shadow-[0_20px_42px_-14px_rgba(0,0,0,0.8)]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={
+                            avatarImage ||
+                            `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.displayName)}&background=random`
+                          }
+                          alt={`${profile.displayName} avatar`}
+                          width={88}
+                          height={88}
+                          loading="lazy"
+                          decoding="async"
+                          className="h-[76px] w-[76px] rounded-[10px] border border-black/15 object-cover md:h-[88px] md:w-[88px]"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2 gap-y-1">
+                          <h1 className={`truncate text-2xl sm:text-[1.65rem] md:text-[2.1rem] font-bold tracking-tight leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            {profile.displayName}
+                          </h1>
+                          {profile.verified ? <VerifiedAccountBadge isDark={isDark} /> : null}
+                        </div>
+                        <p className={`text-sm ${isDark ? 'text-white/75' : 'text-slate-700/80'}`}>@{profile.slug}</p>
+                      </div>
                     </div>
 
                     {lead ? (
-                      <p
-                        className={`mt-2 text-sm sm:text-[15px] leading-snug line-clamp-2 ${
-                          isDark ? 'text-white/80' : 'text-text-secondary'
-                        }`}
-                      >
-                        {lead}
-                      </p>
+                      <p className={`mt-2 text-sm sm:text-[15px] md:text-base leading-snug line-clamp-2 ${isDark ? 'text-white/85' : 'text-slate-800/82'}`}>{lead}</p>
                     ) : null}
 
-                    <div
-                      className={`mt-5 flex flex-row items-center justify-start gap-6 text-sm tabular-nums ${
-                        isDark ? 'text-white/90' : 'text-text-primary'
-                      }`}
-                    >
-                      <span className="inline-flex items-center gap-1.5">
-                        <FaEye
-                          className={isDark ? 'h-3.5 w-3.5 text-white/70' : 'h-3.5 w-3.5 text-text-muted'}
-                          aria-hidden
-                        />
-                        {displayedViews.toLocaleString()}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <FaLink
-                          className={isDark ? 'h-3.5 w-3.5 text-white/70' : 'h-3.5 w-3.5 text-text-muted'}
-                          aria-hidden
-                        />
-                        {linksCount}
-                      </span>
+                    <div className={`mt-4 grid grid-cols-2 gap-2 rounded-2xl border px-3 py-2 ${glassPanelClass}`}>
+                      <div>
+                        <p className={`text-[10px] uppercase tracking-wide ${pageMutedTextClass}`}>Profile views</p>
+                        <p className={`text-sm font-semibold tabular-nums ${isDark ? 'text-white' : 'text-slate-900'}`}>{displayedViews.toLocaleString()}</p>
+                      </div>
+                      <div>
+                        <p className={`text-[10px] uppercase tracking-wide ${pageMutedTextClass}`}>Link clicks</p>
+                        <p className={`text-sm font-semibold tabular-nums ${isDark ? 'text-white' : 'text-slate-900'}`}>{linkClicksCount.toLocaleString()}</p>
+                      </div>
+                    </div>
+
+                    {featuredSocialLinks.length > 0 ? (
+                      <div
+                        className={`mt-4 rounded-2xl border p-3.5 md:p-4 ${
+                          isDark
+                            ? `${glassPanelClass} md:bg-gradient-to-br md:from-white/[0.11] md:via-white/[0.06] md:to-white/[0.04]`
+                            : `${glassPanelClass} md:bg-gradient-to-br md:from-white/95 md:via-white/78 md:to-white/70`
+                        }`}
+                      >
+                        <div className="mb-2.5 flex items-center justify-between gap-2">
+                          <p className={`text-[11px] font-semibold uppercase tracking-[0.14em] ${pageMutedTextClass}`}>
+                            Social media
+                          </p>
+                          {currentUser ? (
+                            <Link
+                              href="/dashboard"
+                              className={`text-[11px] font-semibold underline underline-offset-2 transition ${
+                                isDark ? 'text-white/85 hover:text-white' : 'text-slate-800 hover:text-slate-950'
+                              }`}
+                            >
+                              My dashboard
+                            </Link>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={openSignUpModal}
+                              className={`text-[11px] font-semibold underline underline-offset-2 transition ${
+                                isDark ? 'text-white/85 hover:text-white' : 'text-slate-800 hover:text-slate-950'
+                              }`}
+                            >
+                              Create account for free
+                            </button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
+                        {featuredSocialLinks.map((link) => (
+                          <button
+                            key={`pill-${link.platform}-${link.url}`}
+                            type="button"
+                            onClick={() => openTracked(`social:${link.platform}`, link.url)}
+                            className={`group inline-flex items-center justify-between gap-2 rounded-xl border px-2.5 py-2 text-[11px] backdrop-blur-md transition ${
+                              isDark
+                                ? 'border-white/15 bg-white/[0.08] text-white hover:bg-white/[0.16]'
+                                : 'border-black/10 bg-white/75 text-slate-800 hover:bg-white/95'
+                            }`}
+                          >
+                            <span className="inline-flex items-center gap-1.5 min-w-0">
+                            {(() => {
+                              const id = normalizeSocialPlatformId(link.platform);
+                              if (!id) return null;
+                              const meta = SOCIAL_PLATFORM_META[id];
+                              const BrandIcon = meta.Icon;
+                              return (
+                                <BrandIcon
+                                  className="h-3.5 w-3.5"
+                                  style={{ color: meta.color || '#FFFFFF' }}
+                                  aria-hidden
+                                />
+                              );
+                            })()}
+                            <span className="truncate capitalize">{link.platform}</span>
+                            </span>
+                            <span className={`text-[10px] font-semibold transition-transform group-hover:translate-x-0.5 ${isDark ? 'text-white/80' : 'text-slate-700/75'}`}>
+                              Visit
+                            </span>
+                          </button>
+                        ))}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    <div className={`mt-4 rounded-2xl border px-3.5 py-3 backdrop-blur-xl ${glassPanelClass}`}>
+                      <p className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${pageMutedTextClass}`}>Contact</p>
+                      <ul className="space-y-1.5">
+                        {profile.email ? (
+                          <li className="flex items-center gap-2 text-xs">
+                            <FaEnvelope className={`h-3 w-3 shrink-0 ${pageMutedTextClass}`} aria-hidden />
+                            <a
+                              href={`mailto:${encodeURIComponent(profile.email)}`}
+                              className={`truncate underline-offset-2 hover:underline ${isDark ? 'text-white/90 hover:text-white' : 'text-slate-800 hover:text-slate-950'}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                void (async () => {
+                                  await recordLinkClick('mail');
+                                  window.location.assign(`mailto:${encodeURIComponent(profile.email)}`);
+                                })();
+                              }}
+                            >
+                              {profile.email}
+                            </a>
+                          </li>
+                        ) : null}
+                        {profile.phone ? (
+                          <li className="flex items-center gap-2 text-xs">
+                            <FaPhone className={`h-3 w-3 shrink-0 ${pageMutedTextClass}`} aria-hidden />
+                            <a
+                              href={`tel:${profile.phone.replace(/\s/g, '')}`}
+                              className={`truncate underline-offset-2 hover:underline ${isDark ? 'text-white/90 hover:text-white' : 'text-slate-800 hover:text-slate-950'}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                const tel = `tel:${profile.phone.replace(/\s/g, '')}`;
+                                void (async () => {
+                                  await recordLinkClick('phone');
+                                  window.location.assign(tel);
+                                })();
+                              }}
+                            >
+                              {profile.phone}
+                            </a>
+                          </li>
+                        ) : null}
+                        {profile.website ? (
+                          <li className={`flex items-center gap-2 text-xs pt-1.5 ${isDark ? 'border-t border-white/10' : 'border-t border-black/10'}`}>
+                            <FaGlobe className={`h-3 w-3 shrink-0 ${pageMutedTextClass}`} aria-hidden />
+                            <a
+                              href={profile.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`truncate underline-offset-2 hover:underline ${isDark ? 'text-cyan-300 hover:text-cyan-200' : 'text-blue-700 hover:text-blue-800'}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                const w = profile.website;
+                                void (async () => {
+                                  await recordLinkClick('website');
+                                  window.open(w, '_blank', 'noopener,noreferrer');
+                                })();
+                              }}
+                            >
+                              {profile.website.replace(/^https?:\/\//, '')}
+                            </a>
+                          </li>
+                        ) : null}
+                      </ul>
+                    </div>
+
+                    <p className={`mt-3 text-center text-[11px] tracking-wide ${pageMutedTextClass}`}>
+                      Powered by{' '}
+                      <Link
+                        href="/"
+                        className={`font-semibold transition-colors ${isDark ? 'text-white/85 hover:text-white' : 'text-slate-800 hover:text-slate-950'}`}
+                      >
+                        Jinubify
+                      </Link>
+                    </p>
                     </div>
                   </div>
                 </div>
               </article>
             </div>
 
-            <div className="space-y-6 text-sm">
-              <p className="text-xs text-text-muted">
-                <span className="font-semibold text-text-secondary capitalize">{profile.accountType}</span>
-                {profile.accountType === 'business' && profile.name && profile.displayName !== profile.name
-                  ? ` · ${profile.name}`
-                  : null}
-                {profile.company && profile.displayName !== profile.company ? ` · ${profile.company}` : null}
-              </p>
-
-              {profile.about ? (
-                <section>
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">About</h2>
-                  <p className="text-text-secondary leading-relaxed whitespace-pre-wrap">{profile.about}</p>
-                </section>
-              ) : null}
-
-              {profile.industry && lead !== profile.industry ? (
-                <section>
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
-                    Industry
-                  </h2>
-                  <p className="text-text-secondary">{profile.industry}</p>
-                </section>
-              ) : null}
-
-              {profile.publicTagline && profile.publicTagline !== lead ? (
-                <section>
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
-                    Tagline
-                  </h2>
-                  <p className="text-text-secondary">{profile.publicTagline}</p>
-                </section>
-              ) : null}
-
-              {profile.brandGuidelines?.toneOfVoice ? (
-                <section>
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
-                    Brand voice
-                  </h2>
-                  <p className="text-text-secondary">{profile.brandGuidelines.toneOfVoice}</p>
-                </section>
-              ) : null}
-
-              {(profile.brandGuidelines?.primaryColor || profile.brandGuidelines?.secondaryColor) && (
-                <section>
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">Brand colors</h2>
-                  <div className="flex flex-wrap gap-3">
-                    {profile.brandGuidelines.primaryColor ? (
-                      <span className="inline-flex items-center gap-2">
-                        <span
-                          className="h-8 w-8 rounded-lg border border-border-subtle shadow-inner"
-                          style={{ backgroundColor: profile.brandGuidelines.primaryColor }}
-                          title={profile.brandGuidelines.primaryColor}
-                        />
-                        <span className="text-text-muted text-xs font-mono">{profile.brandGuidelines.primaryColor}</span>
-                      </span>
-                    ) : null}
-                    {profile.brandGuidelines.secondaryColor ? (
-                      <span className="inline-flex items-center gap-2">
-                        <span
-                          className="h-8 w-8 rounded-lg border border-border-subtle shadow-inner"
-                          style={{ backgroundColor: profile.brandGuidelines.secondaryColor }}
-                          title={profile.brandGuidelines.secondaryColor}
-                        />
-                        <span className="text-text-muted text-xs font-mono">
-                          {profile.brandGuidelines.secondaryColor}
-                        </span>
-                      </span>
-                    ) : null}
-                  </div>
-                </section>
-              )}
-
-              {profile.preferredChannels && profile.preferredChannels.length > 0 ? (
-                <section>
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
-                    Preferred channels
-                  </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.preferredChannels.map((ch) => (
-                      <span
-                        key={ch}
-                        className="rounded-full border border-border-card bg-[color:var(--surface-muted)] px-3 py-1 text-xs font-medium text-text-primary"
-                      >
-                        {ch}
-                      </span>
-                    ))}
-                  </div>
-                </section>
-              ) : null}
-
-              <section>
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">Contact</h2>
-                <ul className="space-y-2.5">
-                  {profile.email ? (
-                    <li className="flex items-center gap-2">
-                      <FaEnvelope className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden />
-                      <a
-                        href={`mailto:${encodeURIComponent(profile.email)}`}
-                        className="text-brand-primary font-medium hover:underline break-all"
-                        onClick={() => track('mail')}
-                      >
-                        {profile.email}
-                      </a>
-                    </li>
-                  ) : null}
-                  {profile.phone ? (
-                    <li className="flex items-center gap-2">
-                      <FaPhone className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden />
-                      <a
-                        href={`tel:${profile.phone.replace(/\s/g, '')}`}
-                        className="text-text-primary font-medium hover:underline"
-                        onClick={() => track('phone')}
-                      >
-                        {profile.phone}
-                      </a>
-                    </li>
-                  ) : null}
-                  {profile.website ? (
-                    <li className="flex items-center gap-2">
-                      <FaGlobe className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden />
-                      <a
-                        href={profile.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-brand-primary font-medium hover:underline break-all"
-                        onClick={() => track('website')}
-                      >
-                        {profile.website.replace(/^https?:\/\//, '')}
-                      </a>
-                    </li>
-                  ) : null}
-                </ul>
-              </section>
-
-              {profile.socialLinks && profile.socialLinks.length > 0 ? (
-                <section aria-label="Social links">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">Social</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.socialLinks.map((link) => {
-                      const id = normalizeSocialPlatformId(link.platform);
-                      if (!id) return null;
-                      const label = SOCIAL_PLATFORM_META[id].label;
-                      return (
-                        <button
-                          key={`${link.platform}-${link.url}`}
-                          type="button"
-                          onClick={() => openTracked(`social:${link.platform}`, link.url)}
-                          className="inline-flex items-center gap-2 rounded-xl border border-border-card bg-[color:var(--surface-card)] pl-3 pr-4 py-2.5 text-sm font-medium text-text-primary hover:bg-[color:var(--surface-muted)] transition"
-                        >
-                          <SocialPlatformGlyph platform={link.platform} />
-                          {label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </section>
-              ) : null}
-
-              {profile.qrCodeUrl ? (
-                <section className="flex flex-col items-center pt-2">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">Profile QR</h2>
-                  <div className="rounded-xl border border-border-subtle bg-white p-2 shadow-sm">
-                    <img
-                      src={profile.qrCodeUrl}
-                      alt=""
-                      className="h-24 w-24 sm:h-28 sm:w-28 object-contain"
-                      width={112}
-                      height={112}
-                    />
-                  </div>
-                </section>
-              ) : null}
-            </div>
-
-            <p className="text-center text-[11px] text-text-muted tracking-wide">
-              Powered by{' '}
-              <Link href="/" className="font-semibold text-text-secondary hover:text-text-primary transition-colors">
-                Jinubify
-              </Link>
-            </p>
           </div>
         )}
       </div>
+      {showConnectPrompt ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <button
+            type="button"
+            className={`absolute inset-0 backdrop-blur-sm ${isDark ? 'bg-black/60' : 'bg-white/35'}`}
+            aria-label="Close sign in prompt"
+            onClick={() => setShowConnectPrompt(false)}
+          />
+          <div
+            className={`relative w-full max-w-sm rounded-2xl border p-5 shadow-2xl backdrop-blur-xl ${
+              isDark ? 'border-white/15 bg-black/70 text-white' : 'border-black/12 bg-white/82 text-slate-900'
+            }`}
+          >
+            <h3 className="text-base font-semibold">Sign in to connect</h3>
+            <p className={`mt-2 text-sm ${isDark ? 'text-white/80' : 'text-slate-700'}`}>
+              Create your account for free or sign in to join the Jinubify community.
+            </p>
+            <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => setShowConnectPrompt(false)}
+                className={`flex-1 rounded-lg border px-3 py-2 text-sm ${
+                  isDark ? 'border-white/20 text-white' : 'border-black/15 text-slate-900'
+                }`}
+              >
+                Not now
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowConnectPrompt(false);
+                  openSignInModal();
+                }}
+                className={`flex-1 rounded-lg px-3 py-2 text-center text-sm font-semibold ${
+                  isDark ? 'bg-white text-black' : 'bg-slate-900 text-white'
+                }`}
+              >
+                Log In
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowConnectPrompt(false);
+                  openSignUpModal();
+                }}
+                className={`sm:col-span-2 rounded-lg border px-3 py-2 text-center text-sm font-semibold transition ${
+                  isDark
+                    ? 'border-white/25 bg-white/10 text-white hover:bg-white/15'
+                    : 'border-black/15 bg-white/80 text-slate-900 hover:bg-white'
+                }`}
+              >
+                Create account for free
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        view={authModalView}
+        onSuccess={(user: User) => {
+          login(user);
+          setAuthModalOpen(false);
+        }}
+      />
     </div>
   );
 };

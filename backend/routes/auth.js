@@ -5,6 +5,7 @@ import { body, validationResult } from 'express-validator';
 import User from '../models/User.js';
 import Activity from '../models/Activity.js';
 import { authenticate, verifyApproved } from '../middleware/auth.js';
+import { canonicalizeSocialLinks } from '../constants/socialPlatforms.js';
 import { signAccessToken } from '../utils/accessToken.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
 import logger from '../utils/logger.js';
@@ -15,6 +16,44 @@ const router = express.Router();
 
 // Apply rate limiting to auth routes
 router.use(authLimiter);
+
+/** Full session payload for client identity dashboard (no password). */
+function toSessionUser(u) {
+  if (!u) return null;
+  const o = u.toObject ? u.toObject() : { ...u };
+  return {
+    _id: o._id,
+    name: o.name,
+    email: o.email,
+    photoURL: o.photoURL,
+    role: o.role,
+    balance: o.balance,
+    status: o.status,
+    rejectionReason: o.rejectionReason || '',
+    isEmailVerified: Boolean(o.isEmailVerified),
+    accountType: o.accountType,
+    profileSlug: o.profileSlug ?? null,
+    qrCodeUrl: o.qrCodeUrl || '',
+    phone: o.phone || '',
+    company: o.company || '',
+    website: o.website || '',
+    industry: o.industry || '',
+    location: o.location || '',
+    servicesOffered: Array.isArray(o.servicesOffered) ? o.servicesOffered.filter(Boolean) : [],
+    publicTagline: o.publicTagline || '',
+    publicBio: o.publicBio || '',
+    socialLinks: canonicalizeSocialLinks(o.socialLinks || []),
+    preferredChannels: o.preferredChannels || [],
+    brandGuidelines: o.brandGuidelines || {
+      primaryColor: '',
+      secondaryColor: '',
+      logoUrl: '',
+      toneOfVoice: '',
+    },
+    lastLoginAt: o.lastLoginAt,
+    isActive: o.isActive !== false,
+  };
+}
 
 const hashVerificationToken = (token) =>
   crypto.createHash('sha256').update(token).digest('hex');
@@ -105,7 +144,8 @@ router.post(
       try {
         await sendVerificationEmail(user, rawVerificationToken);
         res.status(201).json({
-          message: 'Check your email to verify your account',
+          message:
+            'Almost there — check your email to activate your Jinubify profile. Your account has been created successfully. Please check your email and click the verification link to activate your profile.',
         });
       } catch (emailError) {
         logger.error('Register verification email send failed', {
@@ -166,23 +206,17 @@ router.post(
         return res.status(401).json({ message: 'Invalid email or password' });
       }
 
-      // Enforce email verification before allowing login.
       if (user.isEmailVerified === false) {
-        return res.status(403).json({ message: 'Please verify your email before logging in' });
-      }
-
-      // Hardening: account must also be approved (applies to all roles).
-      if (user.status === 'pending') {
-        return res.status(403).json({ message: 'Your account is under review' });
+        return res.status(403).json({ message: 'Please activate your account via email' });
       }
       if (user.status === 'rejected') {
         return res.status(403).json({
           message: 'Your application was not approved',
-          rejectionReason: user.rejectionReason || undefined,
+          rejectionReason: user.rejectionReason || '',
         });
       }
-      if (user.status !== 'approved') {
-        return res.status(403).json({ message: 'Your account is under review' });
+      if (user.isActive === false) {
+        return res.status(403).json({ message: 'Your account has been deactivated. Contact support.' });
       }
 
       // Track login timestamp and activity
@@ -208,16 +242,7 @@ router.post(
       res.json({
         message: 'Login successful',
         token,
-        user: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          photoURL: user.photoURL,
-          role: user.role,
-          balance: user.balance,
-          status: user.status,
-          lastLoginAt: user.lastLoginAt,
-        },
+        user: toSessionUser(user),
       });
     } catch (error) {
       logger.error('Login error', { error: error.message });
@@ -254,6 +279,7 @@ router.get('/verify-email', async (req, res) => {
     return res.json({
       message: 'Email verified successfully',
       status: user.status,
+      email: user.email,
     });
   } catch (error) {
     logger.error('Verify email error', { error: error.message });
@@ -351,20 +377,43 @@ router.post(
 );
 
 // @route   GET /api/auth/me
-// @desc    Get current user
+// @desc    Get current user (verified email; any approval status)
 // @access  Private
 router.get('/me', authenticate, verifyApproved, async (req, res) => {
   try {
-    res.json({
-      user: {
-        _id: req.user._id,
-        name: req.user.name,
-        email: req.user.email,
-        photoURL: req.user.photoURL,
-        balance: req.user.balance,
-        role: req.user.role,
-      },
-    });
+    const dbUser = await User.findById(req.user._id).select('-password').lean();
+    const merged = dbUser
+      ? { ...dbUser, socialLinks: canonicalizeSocialLinks(dbUser.socialLinks || []) }
+      : {
+          _id: req.user._id,
+          name: req.user.name,
+          email: req.user.email,
+          photoURL: req.user.photoURL,
+          role: req.user.role,
+          balance: req.user.balance,
+          status: req.user.status,
+          rejectionReason: req.user.rejectionReason,
+          isEmailVerified: req.user.isEmailVerified,
+          accountType: req.user.accountType,
+          profileSlug: req.user.profileSlug ?? null,
+          qrCodeUrl: req.user.qrCodeUrl || '',
+          phone: '',
+          company: '',
+          website: '',
+          industry: '',
+          location: '',
+          servicesOffered: [],
+          publicTagline: '',
+          publicBio: '',
+          socialLinks: [],
+          preferredChannels: [],
+          brandGuidelines: { primaryColor: '', secondaryColor: '', logoUrl: '', toneOfVoice: '' },
+          lastLoginAt: req.user.lastLoginAt,
+        };
+    if (!merged?.email) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+    res.json({ user: toSessionUser(merged) });
   } catch (error) {
     console.error('Get user error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });

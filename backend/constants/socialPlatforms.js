@@ -10,10 +10,12 @@ export const SOCIAL_PLATFORM_ORDER = Object.freeze([
   'x',
   'snapchat',
   'linkedin',
+  'website',
   'pinterest',
   'reddit',
   'threads',
   'telegram',
+  'wechat',
 ]);
 
 export const SOCIAL_PLATFORM_KEY_SET = new Set(SOCIAL_PLATFORM_ORDER);

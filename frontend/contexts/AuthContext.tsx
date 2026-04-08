@@ -1,7 +1,7 @@
  'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authAPI, getStoredUser, clearAuth } from '../services/api';
+import { authAPI, getStoredUser, clearAuth, persistCurrentUser } from '../services/api';
 import type { User } from '../types';
 
 interface AuthContextType {
@@ -47,7 +47,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const response = await authAPI.getCurrentUser();
           const user = response.user as User;
           const role = (user.role as User['role']) ?? 'user';
-          setCurrentUser({ ...user, role });
+          const normalized = { ...user, role };
+          setCurrentUser(normalized);
+          persistCurrentUser(normalized);
         } catch (error) {
           // Token invalid, clear auth
           clearAuth();
@@ -61,6 +63,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = (user: User) => {
     setCurrentUser(user);
+    persistCurrentUser(user);
   };
 
   const logout = () => {
@@ -73,7 +76,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authAPI.getCurrentUser();
       const user = response.user as User;
       const role = (user.role as User['role']) ?? 'user';
-      setCurrentUser({ ...user, role });
+      const normalized = { ...user, role };
+      setCurrentUser(normalized);
+      persistCurrentUser(normalized);
     } catch (error) {
       clearAuth();
       setCurrentUser(null);

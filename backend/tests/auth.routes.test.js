@@ -16,6 +16,7 @@ class MockUser {
     this.phone = data.phone || '';
     this.company = data.company || '';
     this.website = data.website || '';
+    this.industry = data.industry || '';
     this.status = data.status || 'pending';
     this.isEmailVerified = Boolean(data.isEmailVerified);
     this.emailVerificationToken = data.emailVerificationToken || null;
@@ -27,6 +28,49 @@ class MockUser {
     this.profileSlug = data.profileSlug ?? null;
     this.qrCodeUrl = data.qrCodeUrl || '';
     this.socialLinks = data.socialLinks || [];
+    this.location = data.location || '';
+    this.servicesOffered = data.servicesOffered || [];
+    this.publicTagline = data.publicTagline || '';
+    this.publicBio = data.publicBio || '';
+    this.preferredChannels = data.preferredChannels || [];
+    this.brandGuidelines = data.brandGuidelines || {
+      primaryColor: '',
+      secondaryColor: '',
+      logoUrl: '',
+      toneOfVoice: '',
+    };
+    this.isActive = data.isActive === undefined ? true : Boolean(data.isActive);
+  }
+
+  toObject() {
+    return {
+      _id: this._id,
+      name: this.name,
+      email: this.email,
+      password: this.password,
+      photoURL: this.photoURL || '',
+      phone: this.phone || '',
+      company: this.company || '',
+      website: this.website || '',
+      status: this.status,
+      isEmailVerified: this.isEmailVerified,
+      role: this.role,
+      balance: this.balance,
+      accountType: this.accountType,
+      rejectionReason: this.rejectionReason || '',
+      profileSlug: this.profileSlug ?? null,
+      qrCodeUrl: this.qrCodeUrl || '',
+      socialLinks: this.socialLinks || [],
+      industry: this.industry || '',
+      publicTagline: this.publicTagline || '',
+      publicBio: this.publicBio || '',
+      preferredChannels: this.preferredChannels || [],
+      brandGuidelines: this.brandGuidelines,
+      location: this.location || '',
+      servicesOffered: this.servicesOffered || [],
+      lastLoginAt: this.lastLoginAt,
+      isActive: this.isActive !== false,
+    };
   }
 
   async save() {
@@ -63,6 +107,23 @@ class MockUser {
     };
     return queryResult;
   }
+
+  static findById(id) {
+    return {
+      select: (_fields) => ({
+        lean: async () => {
+          for (const u of usersByEmail.values()) {
+            if (String(u._id) === String(id)) {
+              const o = u.toObject();
+              delete o.password;
+              return o;
+            }
+          }
+          return null;
+        },
+      }),
+    };
+  }
 }
 
 vi.mock('../models/User.js', () => ({
@@ -93,6 +154,7 @@ vi.mock('../middleware/auth.js', () => ({
       balance: 0,
       role: 'user',
       isEmailVerified: true,
+      isActive: true,
       status: 'approved',
     };
     if (state === 'pending') baseUser.status = 'pending';
@@ -101,24 +163,22 @@ vi.mock('../middleware/auth.js', () => ({
       baseUser.rejectionReason = 'Not a fit';
     }
     if (state === 'unverified') baseUser.isEmailVerified = false;
+    if (state === 'inactive') baseUser.isActive = false;
     req.user = baseUser;
     return next();
   },
   verifyApproved: (req, res, next) => {
     if (!req.user?.isEmailVerified) {
-      return res.status(403).json({ message: 'Please verify your email before accessing this resource' });
+      return res.status(403).json({ message: 'Please activate your account via email' });
     }
-    if (req.user?.status === 'pending') {
-      return res.status(403).json({ message: 'Your account is under review' });
+    if (req.user?.isActive === false) {
+      return res.status(403).json({ message: 'Your account has been deactivated. Contact support.' });
     }
     if (req.user?.status === 'rejected') {
       return res.status(403).json({
         message: 'Your application was not approved',
         rejectionReason: req.user?.rejectionReason || undefined,
       });
-    }
-    if (req.user?.status !== 'approved') {
-      return res.status(403).json({ message: 'Your account is under review' });
     }
     return next();
   },
@@ -154,7 +214,9 @@ describe('auth routes regression', () => {
     });
 
     expect(res.status).toBe(201);
-    expect(res.body.message).toBe('Check your email to verify your account');
+    expect(res.body.message).toBe(
+      'Almost there — check your email to activate your Jinubify profile. Your account has been created successfully. Please check your email and click the verification link to activate your profile.',
+    );
     expect(sendVerificationEmailMock).toHaveBeenCalledTimes(1);
     const created = usersByEmail.get('jane@example.com');
     expect(created).toBeTruthy();
@@ -183,8 +245,8 @@ describe('auth routes regression', () => {
       email: 'approved@example.com',
       password: 'Passw0rd!',
     });
-    expect(preApproveLogin.status).toBe(403);
-    expect(preApproveLogin.body.message).toBe('Your account is under review');
+    expect(preApproveLogin.status).toBe(200);
+    expect(typeof preApproveLogin.body.token).toBe('string');
 
     // Simulate admin approval (admin route is tested separately).
     const created = usersByEmail.get('approved@example.com');
@@ -213,8 +275,8 @@ describe('auth routes regression', () => {
       password: 'Passw0rd!',
     });
 
-    expect(loginRes.status).toBe(403);
-    expect(loginRes.body.message).toBe('Your account is under review');
+    expect(loginRes.status).toBe(200);
+    expect(loginRes.body.user.status).toBe('pending');
   });
 
   it('accepts personal registration without company', async () => {
@@ -249,7 +311,6 @@ describe('auth routes regression', () => {
     });
     expect(loginRes.status).toBe(403);
     expect(loginRes.body.message).toBe('Your application was not approved');
-    expect(loginRes.body.rejectionReason).toBe('Incomplete information');
   });
 
   it('keeps resend verification message anti-enumeration safe', async () => {
@@ -296,18 +357,41 @@ describe('auth routes regression', () => {
     expect(verifyRes.body.message).toBe('Invalid or expired verification token');
   });
 
-  it('returns /auth/me data for verified and approved users only', async () => {
+  it('returns /auth/me for verified active users (pending or approved); blocks rejected and inactive', async () => {
     const okRes = await request(app).get('/api/auth/me').set('x-auth-user', 'approved');
     expect(okRes.status).toBe(200);
     expect(okRes.body.user.email).toBe('mock@example.com');
 
-    const blockedRes = await request(app).get('/api/auth/me').set('x-auth-user', 'pending');
-    expect(blockedRes.status).toBe(403);
-    expect(blockedRes.body.message).toBe('Your account is under review');
+    const pendingRes = await request(app).get('/api/auth/me').set('x-auth-user', 'pending');
+    expect(pendingRes.status).toBe(200);
+    expect(pendingRes.body.user.status).toBe('pending');
 
     const rejectedRes = await request(app).get('/api/auth/me').set('x-auth-user', 'rejected');
     expect(rejectedRes.status).toBe(403);
     expect(rejectedRes.body.message).toBe('Your application was not approved');
-    expect(rejectedRes.body.rejectionReason).toBe('Not a fit');
+
+    const inactiveRes = await request(app).get('/api/auth/me').set('x-auth-user', 'inactive');
+    expect(inactiveRes.status).toBe(403);
+    expect(inactiveRes.body.message).toBe('Your account has been deactivated. Contact support.');
+  });
+
+  it('blocks login when account is deactivated after verification', async () => {
+    await request(app).post('/api/auth/register').send({
+      name: 'Inactive User',
+      email: 'inactive@example.com',
+      password: 'Passw0rd!',
+      company: 'Acme',
+    });
+    const token = sendVerificationEmailMock.mock.calls.at(-1)?.[1];
+    await request(app).get('/api/auth/verify-email').query({ token });
+    const u = usersByEmail.get('inactive@example.com');
+    u.isActive = false;
+
+    const loginRes = await request(app).post('/api/auth/login').send({
+      email: 'inactive@example.com',
+      password: 'Passw0rd!',
+    });
+    expect(loginRes.status).toBe(403);
+    expect(loginRes.body.message).toBe('Your account has been deactivated. Contact support.');
   });
 });

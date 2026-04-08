@@ -21,6 +21,8 @@ interface User {
   profileSlug?: string;
   accountType?: 'personal' | 'business';
   rejectionReason?: string;
+  /** false = deactivated (cannot log in). Undefined treated as active. */
+  isActive?: boolean;
 }
 
 const mailtoHref = (email: string, subject: string, body: string) =>
@@ -360,6 +362,7 @@ const UserManagement: React.FC = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">User</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Email</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Login</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Company</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Last Login</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Joined</th>
@@ -411,6 +414,17 @@ const UserManagement: React.FC = () => {
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
+                          {user.isActive === false ? (
+                            <span className="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:text-red-200">
+                              Deactivated
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-900/60 px-2.5 py-0.5 text-xs font-medium text-slate-700 dark:text-slate-300">
+                              Active
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
                           {user.company || '—'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
@@ -426,6 +440,22 @@ const UserManagement: React.FC = () => {
                               className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-surface-muted/80 rounded-lg transition-colors"
                             >
                               Message
+                            </button>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const nextActive = user.isActive === false;
+                                try {
+                                  await adminAPI.setUserActive(user._id, { isActive: nextActive });
+                                  showNotification(nextActive ? 'User activated' : 'User deactivated', 'success');
+                                  fetchUsers();
+                                } catch (error: any) {
+                                  showNotification(error.response?.data?.message || 'Failed to update account status', 'error');
+                                }
+                              }}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary border border-border-card rounded-lg hover:bg-surface-muted/80 transition-colors"
+                            >
+                              {user.isActive === false ? 'Activate account' : 'Deactivate account'}
                             </button>
                             {user.status !== 'approved' && (
                               <>

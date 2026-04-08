@@ -30,9 +30,9 @@ export default function ProjectsPage() {
   }, []);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 sm:space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">My Projects</h1>
+        <h1 className="text-xl font-bold text-text-primary sm:text-2xl">My Projects</h1>
         <p className="text-sm text-text-secondary mt-1">
           Track the status of your Jinubify services and projects.
         </p>
@@ -51,11 +51,11 @@ export default function ProjectsPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {projects.map((project) => (
-            <Link key={project.id} href={`/dashboard/projects/${project.id}`}>
+            <Link key={project.id} href={`/dashboard/projects/${project.id}`} className="block">
               <Card className="hover:border-brand-primary/60 cursor-pointer transition-colors">
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h2 className="text-base font-semibold text-text-primary">{project.title}</h2>
+                  <div className="min-w-0">
+                    <h2 className="text-base font-semibold text-text-primary break-words">{project.title}</h2>
                     <p className="mt-1 text-sm text-text-secondary line-clamp-3">
                       {project.description || 'No description yet.'}
                     </p>

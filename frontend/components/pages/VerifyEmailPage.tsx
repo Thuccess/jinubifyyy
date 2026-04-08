@@ -1,19 +1,22 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { authAPI } from '../../services/api';
 import SkeletonBlock from '@/components/skeletons/SkeletonBlock';
 
 type VerifyState = 'loading' | 'success' | 'error';
 
 const VerifyEmailPage: React.FC = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token') || '';
   const [state, setState] = useState<VerifyState>('loading');
   const [message, setMessage] = useState('Verifying your email...');
   const [email, setEmail] = useState('');
+  const [verifiedEmail, setVerifiedEmail] = useState('');
+  const redirectScheduled = useRef(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [resendMessage, setResendMessage] = useState('');
   const [resendCooldown, setResendCooldown] = useState(0);
@@ -32,12 +35,8 @@ const VerifyEmailPage: React.FC = () => {
         const res = await authAPI.verifyEmail(token);
         if (!active) return;
         setState('success');
-        const status = (res as { status?: string }).status;
-        if (status && status !== 'approved') {
-          setMessage('Email verified successfully. Waiting for admin approval.');
-        } else {
-          setMessage(res.message || 'Email verified successfully');
-        }
+        setMessage('Email verified successfully');
+        setVerifiedEmail((res.email && String(res.email).trim()) || '');
       } catch {
         if (!active) return;
         setState('error');
@@ -50,6 +49,17 @@ const VerifyEmailPage: React.FC = () => {
       active = false;
     };
   }, [token]);
+
+  useEffect(() => {
+    if (state !== 'success' || redirectScheduled.current) return;
+    redirectScheduled.current = true;
+    const t = window.setTimeout(() => {
+      const e = verifiedEmail.trim();
+      const q = e ? `auth=login&email=${encodeURIComponent(e)}` : 'auth=login';
+      router.replace(`/?${q}`, { scroll: false });
+    }, 1600);
+    return () => window.clearTimeout(t);
+  }, [state, verifiedEmail, router]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;

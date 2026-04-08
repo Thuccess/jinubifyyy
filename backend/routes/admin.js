@@ -867,6 +867,41 @@ router.patch('/users/:id/reject', authorizeRole('admin', 'super_admin'), async (
   }
 });
 
+// @route   PATCH /api/admin/users/:id/active
+// @desc    Activate or deactivate a user account (blocks login when inactive)
+// @access  Admin and Super Admin
+router.patch('/users/:id/active', authorizeRole('admin', 'super_admin'), async (req, res) => {
+  try {
+    const { isActive } = req.body;
+    if (typeof isActive !== 'boolean') {
+      return res.status(400).json({ message: 'isActive must be a boolean' });
+    }
+
+    const targetUser = await User.findById(req.params.id).select('-password');
+    if (!targetUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (String(req.user._id) === String(targetUser._id)) {
+      return res.status(400).json({ message: 'You cannot deactivate your own account.' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      targetUser._id,
+      { isActive },
+      { new: true }
+    ).select('-password');
+
+    res.json({
+      message: isActive ? 'User activated successfully' : 'User deactivated successfully',
+      user,
+    });
+  } catch (error) {
+    console.error('Update user active state error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // @route   DELETE /api/admin/users/:id
 // @desc    Delete user account
 // @access  Admin and Super Admin

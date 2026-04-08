@@ -23,9 +23,9 @@ export default function PaymentsPage() {
   }, []);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 sm:space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">Payments &amp; Invoices</h1>
+        <h1 className="text-xl font-bold text-text-primary sm:text-2xl">Payments &amp; Invoices</h1>
         <p className="text-sm text-text-secondary mt-1">
           Review your billing history, invoice status, and payment activity.
         </p>
@@ -33,13 +33,13 @@ export default function PaymentsPage() {
 
       <Card>
         <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
+          <table className="min-w-[640px] w-full text-sm">
             <thead>
               <tr className="border-b border-border-subtle text-left text-xs uppercase tracking-wide text-text-muted">
-                <th className="py-2 pr-4">Invoice ID</th>
-                <th className="py-2 pr-4">Amount</th>
-                <th className="py-2 pr-4">Status</th>
-                <th className="py-2 pr-4">Date</th>
+                <th className="py-2 pr-3 sm:pr-4">Invoice ID</th>
+                <th className="py-2 pr-3 sm:pr-4">Amount</th>
+                <th className="py-2 pr-3 sm:pr-4">Status</th>
+                <th className="py-2 pr-3 sm:pr-4">Date</th>
               </tr>
             </thead>
             <tbody>
@@ -52,16 +52,16 @@ export default function PaymentsPage() {
               ) : (
                 invoices.map((inv) => (
                   <tr key={inv.id} className="border-b border-border-subtle/60 last:border-0">
-                    <td className="py-2 pr-4 text-xs text-text-secondary">{inv.id}</td>
-                    <td className="py-2 pr-4 font-medium text-text-primary">
+                    <td className="py-2 pr-3 sm:pr-4 text-xs text-text-secondary">{inv.id}</td>
+                    <td className="py-2 pr-3 sm:pr-4 font-medium text-text-primary">
                       ${inv.amount?.toFixed(2) ?? '0.00'}
                     </td>
-                    <td className="py-2 pr-4">
+                    <td className="py-2 pr-3 sm:pr-4">
                       <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-surface-muted text-text-secondary">
                         {inv.status}
                       </span>
                     </td>
-                    <td className="py-2 pr-4 text-xs text-text-muted">
+                    <td className="py-2 pr-3 sm:pr-4 text-xs text-text-muted">
                       {new Date(inv.due_date).toLocaleDateString()}
                     </td>
                   </tr>

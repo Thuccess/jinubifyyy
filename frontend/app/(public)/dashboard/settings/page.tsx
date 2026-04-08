@@ -1,129 +1,128 @@
 'use client';
 
 import React, { useState } from 'react';
-import Card from '@/components/ui/Card';
+import Link from 'next/link';
 import { clientAPI } from '@/services/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIdentityAccess } from '@/components/identity/useIdentityAccess';
+import { glassCard } from '@/components/identity/identityStyles';
 
 export default function SettingsPage() {
   const { currentUser, refreshUser } = useAuth();
-  const [form, setForm] = useState({
-    name: currentUser?.name || '',
-    email: currentUser?.email || '',
-    phone: (currentUser as any)?.phone || '',
-    company: (currentUser as any)?.company || '',
-    password: '',
-  });
+  const { isApproved, isPending, isRejected, status } = useIdentityAccess();
+  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(currentUser?.email || '');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  React.useEffect(() => {
+    setEmail(currentUser?.email || '');
+  }, [currentUser?.email]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isApproved) {
+      setMessage('Account email and password can be updated after your application is approved.');
+      return;
+    }
     setSaving(true);
     setMessage(null);
     try {
       await clientAPI.updateProfile({
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        company: form.company,
-        password: form.password || undefined,
+        email: email.trim(),
+        password: password || undefined,
       });
       await refreshUser();
-      setMessage('Profile updated successfully.');
-      setForm((prev) => ({ ...prev, password: '' }));
-    } catch (err: any) {
-      setMessage(err.response?.data?.message || 'Failed to update profile.');
+      setMessage('Account updated.');
+      setPassword('');
+    } catch (err: unknown) {
+      const msg =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          : undefined;
+      setMessage(msg || 'Update failed.');
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto max-w-xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">Account Settings</h1>
-        <p className="text-sm text-text-secondary mt-1">
-          Update your profile, company details, and security preferences.
-        </p>
+        <h1 className="text-xl font-bold text-text-primary sm:text-2xl">Settings</h1>
+        <p className="mt-1 text-sm text-text-secondary">Account security and approval status.</p>
       </div>
 
-      <Card>
-        <form onSubmit={handleSubmit} className="space-y-4 max-w-xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {isPending ? (
+        <div className={`${glassCard} border-amber-400/25 px-4 py-3 text-sm text-text-primary`} role="status">
+          Your account is under review. We&apos;ll notify you soon.
+        </div>
+      ) : null}
+
+      {isRejected ? (
+        <div className={`${glassCard} border-rose-400/30 px-4 py-3 text-sm text-rose-950 dark:text-rose-100`} role="alert">
+          <p className="font-semibold">Your application was not approved.</p>
+          {currentUser?.rejectionReason ? (
+            <p className="mt-2 text-text-secondary dark:text-rose-100/90">{currentUser.rejectionReason}</p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {isApproved ? (
+        <div className={`${glassCard} p-4 sm:p-6`}>
+          <h2 className="text-sm font-bold text-text-primary">Account</h2>
+          <p className="mt-1 text-xs text-text-muted">Email and password for signing in.</p>
+          <form onSubmit={(e) => void handleSubmit(e)} className="mt-4 space-y-4">
             <div>
-              <label className="block text-xs font-medium text-text-secondary mb-1">Name</label>
+              <label className="text-xs font-semibold text-text-muted">Email</label>
               <input
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                required
-                className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-text-secondary mb-1">Email</label>
-              <input
-                name="email"
                 type="email"
-                value={form.email}
-                onChange={handleChange}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-text-secondary mb-1">Phone</label>
-              <input
-                name="phone"
-                value={form.phone}
-                onChange={handleChange}
-                className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
+                className="mt-2 w-full rounded-xl border border-border-card bg-bg-secondary px-3 py-2 text-sm"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-text-secondary mb-1">Company</label>
+              <label className="text-xs font-semibold text-text-muted">New password</label>
               <input
-                name="company"
-                value={form.company}
-                onChange={handleChange}
-                className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+                placeholder="Leave blank to keep current"
+                className="mt-2 w-full rounded-xl border border-border-card bg-bg-secondary px-3 py-2 text-sm"
               />
             </div>
-          </div>
+            <button
+              type="submit"
+              disabled={saving}
+              className="w-full rounded-xl bg-brand-primary py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {saving ? 'Saving…' : 'Save account'}
+            </button>
+          </form>
+        </div>
+      ) : (
+        <div className={`${glassCard} p-4 sm:p-6 text-sm text-text-secondary`}>
+          <p>
+            Email and password updates are available when your account is approved. You can still build your public
+            profile under{' '}
+            <Link href="/dashboard/profile" className="font-semibold text-brand-primary">
+              My Profile
+            </Link>
+            .
+          </p>
+        </div>
+      )}
 
-          <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1">New Password</label>
-            <input
-              name="password"
-              type="password"
-              value={form.password}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-border-card bg-bg-primary px-3 py-2 text-sm"
-              placeholder="Leave blank to keep current password"
-            />
-          </div>
+      {message ? <p className="text-sm text-brand-primary">{message}</p> : null}
 
-          {message && <p className="text-sm text-text-secondary">{message}</p>}
-
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center justify-center rounded-lg bg-brand-primary px-5 py-2.5 text-sm font-semibold text-text-inverted shadow-md hover:bg-[color-mix(in_oklab,var(--accent-primary)_0.9,var(--bg-primary))] disabled:opacity-60"
-          >
-            {saving ? 'Saving...' : 'Save Changes'}
-          </button>
-        </form>
-      </Card>
+      {isApproved ? (
+        <p className="text-center text-xs text-text-muted">
+          Status: <span className="font-semibold capitalize text-text-primary">{status}</span>
+        </p>
+      ) : null}
     </div>
   );
 }
-

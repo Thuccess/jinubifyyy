@@ -23,9 +23,9 @@ export default function FilesPage() {
   }, []);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 sm:space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">Files</h1>
+        <h1 className="text-xl font-bold text-text-primary sm:text-2xl">Files</h1>
         <p className="text-sm text-text-secondary mt-1">
           Access your project assets, documents, and shared files.
         </p>
@@ -40,9 +40,9 @@ export default function FilesPage() {
         ) : (
           <ul className="divide-y divide-border-subtle">
             {files.map((file) => (
-              <li key={file.id} className="flex items-center justify-between py-3">
-                <div>
-                  <p className="text-sm font-medium text-text-primary">{file.name}</p>
+              <li key={file.id} className="flex flex-col items-start gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-text-primary break-words">{file.name}</p>
                   <p className="text-xs text-text-muted">
                     Uploaded {new Date(file.created_at).toLocaleString()}
                   </p>

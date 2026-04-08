@@ -62,6 +62,12 @@ const userSchema = new mongoose.Schema({
     default: 'pending',
     index: true,
   },
+  /** Admin can deactivate accounts without deleting them (blocks login + API). */
+  isActive: {
+    type: Boolean,
+    default: true,
+    index: true,
+  },
   accountType: {
     type: String,
     enum: ['personal', 'business'],
@@ -86,6 +92,13 @@ const userSchema = new mongoose.Schema({
       url: { type: String, trim: true },
     },
   ],
+  /** Saved networking connections (accepted/saved users). */
+  connections: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+  ],
   // Optional profile / brand fields
   company: {
     type: String,
@@ -102,6 +115,20 @@ const userSchema = new mongoose.Schema({
     trim: true,
     default: '',
   },
+  /** Business / profile location (city, region, etc.) */
+  location: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  /** Business services list (short labels) */
+  servicesOffered: [
+    {
+      type: String,
+      trim: true,
+      maxlength: 120,
+    },
+  ],
   /** Short line under the name on the public /u/:slug page */
   publicTagline: {
     type: String,

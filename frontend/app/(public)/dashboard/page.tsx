@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
-import UserDashboardPage from '@/components/pages/UserDashboardPage';
+import IdentityOverview from '@/components/identity/IdentityOverview';
 
 export const metadata: Metadata = {
-  title: 'Dashboard | Jinubify',
-  description: 'Your Jinubify user dashboard.',
+  title: 'Overview | Jinubify',
+  description: 'Your public identity overview and quick actions.',
 };
 
 export default function Page() {
-  return <UserDashboardPage />;
+  return <IdentityOverview />;
 }

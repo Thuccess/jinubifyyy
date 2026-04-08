@@ -40,9 +40,9 @@ export default function RequestServicePage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 sm:space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">New Service Request</h1>
+        <h1 className="text-xl font-bold text-text-primary sm:text-2xl">New Service Request</h1>
         <p className="text-sm text-text-secondary mt-1">
           Tell us about the project you&apos;d like Jinubify to handle.
         </p>
@@ -103,7 +103,7 @@ export default function RequestServicePage() {
           <button
             type="submit"
             disabled={submitting}
-            className="inline-flex items-center justify-center rounded-lg bg-brand-primary px-5 py-2.5 text-sm font-semibold text-text-inverted shadow-md hover:bg-[color-mix(in_oklab,var(--accent-primary)_0.9,var(--bg-primary))] disabled:opacity-60"
+            className="inline-flex w-full sm:w-auto items-center justify-center rounded-lg bg-brand-primary px-5 py-2.5 text-sm font-semibold text-text-inverted shadow-md hover:bg-[color-mix(in_oklab,var(--accent-primary)_0.9,var(--bg-primary))] disabled:opacity-60"
           >
             {submitting ? 'Submitting...' : 'Submit Request'}
           </button>

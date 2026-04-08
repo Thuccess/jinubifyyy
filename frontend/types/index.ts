@@ -23,6 +23,16 @@ export interface User {
   qrCodeUrl?: string;
   socialLinks?: SocialLink[];
   status?: string;
+  rejectionReason?: string;
+  isEmailVerified?: boolean;
+  /** When false, login and API access are blocked (admin-controlled). */
+  isActive?: boolean;
+  phone?: string;
+  website?: string;
+  location?: string;
+  servicesOffered?: string[];
+  publicTagline?: string;
+  publicBio?: string;
   preferredChannels?: string[];
   brandGuidelines?: {
     primaryColor?: string;
@@ -30,6 +40,7 @@ export interface User {
     logoUrl?: string;
     toneOfVoice?: string;
   };
+  lastLoginAt?: Date | string;
 }
 
 export interface AuthResponse {

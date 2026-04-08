@@ -10,11 +10,11 @@ const publicProfileEventSchema = new mongoose.Schema({
   },
   kind: {
     type: String,
-    enum: ['view', 'click'],
+    enum: ['view', 'click', 'contact_save'],
     required: true,
     index: true,
   },
-  /** For clicks: whatsapp | website | vcf | social | mail */
+  /** For clicks: platform key; for views: '' or 'qr' (QR landing); for contact_save: '' */
   target: {
     type: String,
     trim: true,

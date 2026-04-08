@@ -5,6 +5,8 @@ export interface UserProfile {
   photoURL: string;
   role: 'user' | 'admin';
   balance: number;
+  status?: string;
+  rejectionReason?: string;
   company?: string;
   industry?: string;
   publicTagline?: string;
@@ -12,6 +14,10 @@ export interface UserProfile {
   accountType?: 'personal' | 'business';
   profileSlug?: string | null;
   qrCodeUrl?: string;
+  phone?: string;
+  website?: string;
+  location?: string;
+  servicesOffered?: string[];
   socialLinks?: { platform: string; url: string }[];
   preferredChannels?: string[];
   brandGuidelines?: {
@@ -32,6 +38,12 @@ export interface UpdateProfileData {
   publicTagline?: string;
   publicBio?: string;
   preferredChannels?: string[];
+  profileSlug?: string | null;
+  accountType?: 'personal' | 'business';
+  phone?: string;
+  website?: string;
+  location?: string;
+  servicesOffered?: string[];
   brandGuidelines?: {
     primaryColor?: string;
     secondaryColor?: string;

@@ -25,12 +25,14 @@ export async function approveUserById(userId, approvedById) {
 
   const baseUrl = getPublicBaseUrl();
   const publicProfileUrl = `${baseUrl}/u/${user.profileSlug}`;
+  const qrSourceUrl = `${publicProfileUrl}?ref=qr`;
 
   if (!user.qrCodeUrl) {
-    user.qrCodeUrl = await profileUrlToQrDataUrl(publicProfileUrl);
+    user.qrCodeUrl = await profileUrlToQrDataUrl(qrSourceUrl);
   }
 
   user.status = 'approved';
+  user.isActive = true;
   user.approvedAt = new Date();
   user.approvedBy = approvedById || null;
   user.rejectionReason = '';

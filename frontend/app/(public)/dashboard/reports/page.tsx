@@ -23,9 +23,9 @@ export default function ReportsPage() {
   }, []);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 sm:space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">Reports</h1>
+        <h1 className="text-xl font-bold text-text-primary sm:text-2xl">Reports</h1>
         <p className="text-sm text-text-secondary mt-1">
           Access SEO reports, marketing analytics, and performance summaries for your projects.
         </p>
@@ -39,9 +39,9 @@ export default function ReportsPage() {
         ) : (
           <ul className="divide-y divide-border-subtle">
             {reports.map((r) => (
-              <li key={r.id} className="flex items-center justify-between py-3">
-                <div>
-                  <p className="text-sm font-medium text-text-primary">{r.title}</p>
+              <li key={r.id} className="flex flex-col items-start gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-text-primary break-words">{r.title}</p>
                   <p className="text-xs text-text-muted">
                     Generated {new Date(r.created_at).toLocaleString()}
                   </p>

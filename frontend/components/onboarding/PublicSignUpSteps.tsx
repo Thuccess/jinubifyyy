@@ -174,7 +174,7 @@ const PublicSignUpSteps: React.FC<PublicSignUpStepsProps> = ({
         <div className="flex justify-between items-start mb-6 pr-10">
           <div>
             <h3 className="text-xl md:text-2xl font-bold text-text-primary">
-              {step === 1 ? 'Choose account type' : step === 2 ? 'Your details' : 'Review & submit'}
+              {step === 1 ? 'Choose account type' : step === 2 ? 'Your details' : 'Submit application'}
             </h3>
             <p className="mt-1 text-sm text-text-secondary">
               {step === 1

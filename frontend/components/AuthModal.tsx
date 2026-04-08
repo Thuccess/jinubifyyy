@@ -23,9 +23,11 @@ interface AuthModalProps {
   onClose: () => void;
   view: 'signIn' | 'signUp';
   onSuccess: (user: User) => void;
+  /** Prefills sign-in email (e.g. after email verification deep link). */
+  signInPrefillEmail?: string | null;
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialView, onSuccess }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialView, onSuccess, signInPrefillEmail }) => {
   const [view, setView] = useState<'signIn' | 'signUp'>(initialView);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -49,11 +51,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
     setVerificationEmail('');
     setResendMessage('');
     setResendCooldown(0);
+    const prefill = (signInPrefillEmail || '').trim();
     setFormData({
-      email: '',
+      email: initialView === 'signIn' && prefill ? prefill : '',
       password: '',
     });
-  }, [initialView, isOpen]);
+  }, [initialView, isOpen, signInPrefillEmail]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -115,23 +118,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
       });
       const loginRole = response.user.role && String(response.user.role).toLowerCase() === 'admin' ? 'admin' : 'user';
       const normalizedUser = {
-        _id: response.user._id,
-        name: response.user.name,
-        email: response.user.email,
-        photoURL: response.user.photoURL,
+        ...response.user,
         role: loginRole,
-        balance: response.user.balance,
-      };
-      storeAuth(response.token, normalizedUser as User, rememberMe);
-      onSuccess(normalizedUser as User);
+      } as User;
+      storeAuth(response.token, normalizedUser, rememberMe);
+      onSuccess(normalizedUser);
       onClose();
     } catch (err: unknown) {
       const e = err as { response?: { data?: { message?: string; rejectionReason?: string } } };
       const backendMessage = getApiErrorMessage(err);
       let normalizedMessage = backendMessage;
-      if (backendMessage === 'Your account is pending approval' || backendMessage === 'Your account is under review') {
-        normalizedMessage = 'Your account is under review. We will email you when a decision is made.';
-      }
       if (backendMessage === 'Your application was not approved') {
         const reason = e?.response?.data?.rejectionReason;
         normalizedMessage = reason
@@ -139,7 +135,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
           : `${backendMessage} Contact support if you have questions.`;
       }
       setError(normalizedMessage);
-      if (backendMessage === 'Please verify your email before logging in') {
+      if (backendMessage === 'Please activate your account via email') {
         setVerificationEmail(formData.email.trim());
       }
     } finally {
@@ -186,7 +182,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                     onComplete={(email) => {
                       setVerificationEmail(email);
                       setSuccessMessage(
-                        'Application received. We review applications and respond by email within 24 hours. Check your email to verify your account.',
+                        'Almost there — check your email to activate your Jinubify profile.\n\nYour account has been created successfully. Please check your email and click the verification link to activate your profile.',
                       );
                       setView('signIn');
                     }}
@@ -298,11 +294,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                           </div>
                         )}
                         {successMessage && (
-                          <div className="p-3 rounded-lg text-sm bg-[color:var(--surface-muted)] border border-border-card text-text-primary">
+                          <div className="p-3 rounded-lg text-sm bg-[color:var(--surface-muted)] border border-border-card text-text-primary whitespace-pre-line">
                             {successMessage}
                           </div>
                         )}
-                        {(successMessage || error === 'Please verify your email before logging in') && (
+                        {(successMessage || error === 'Please activate your account via email') && (
                           <button
                             type="button"
                             onClick={() => handleResendVerification()}

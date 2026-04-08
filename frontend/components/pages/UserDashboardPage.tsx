@@ -15,6 +15,7 @@ import {
   SocialPlatformGlyph,
 } from '@/lib/socialPlatforms';
 import { userAPI, dashboardAPI, clientAPI, getStoredUser } from '../../services/api';
+import { useAuth } from '@/contexts/AuthContext';
 import SkeletonBlock from '../skeletons/SkeletonBlock';
 
 // --- Subcomponents for the Dashboard ---
@@ -25,7 +26,7 @@ const OverviewStatCard: React.FC<{ icon: React.ReactNode; title: string; value: 
   value,
 }) => (
   <Card
-    className="group flex-row items-center"
+    className="group flex-row items-center min-w-0"
     size="sm"
     hover="lift"
     variant="subtle"
@@ -41,12 +42,12 @@ const OverviewStatCard: React.FC<{ icon: React.ReactNode; title: string; value: 
 );
 
 const ActivityItem: React.FC<{ icon: React.ReactNode; text: string; time: string; }> = ({ icon, text, time }) => (
-    <div className="flex items-start space-x-4 py-3">
+    <div className="flex items-start space-x-3 sm:space-x-4 py-3">
         <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center bg-surface-muted rounded-full">
             {icon}
         </div>
         <div className="flex-grow">
-            <p className="text-sm text-text-primary">{text}</p>
+            <p className="text-sm text-text-primary break-words">{text}</p>
             <p className="text-xs text-text-muted">{time}</p>
         </div>
     </div>
@@ -55,11 +56,13 @@ const ActivityItem: React.FC<{ icon: React.ReactNode; text: string; time: string
 // --- Main Dashboard Components ---
 
 const ProfileCard: React.FC = () => {
+    const { refreshUser } = useAuth();
     const [user, setUser] = useState<User | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState<User | null>(null);
     const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(true);
+    const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -141,6 +144,62 @@ const ProfileCard: React.FC = () => {
         setFormData(prev => ({ ...prev!, preferredChannels: next }));
     };
 
+    const handleProfileImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] || null;
+        if (!file || !formData) return;
+        if (!file.type.startsWith('image/')) {
+            setSuccessMessage('Please choose an image file.');
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            setSuccessMessage('Please choose an image smaller than 5MB.');
+            return;
+        }
+        setUploadingAvatar(true);
+        try {
+            const result = await userAPI.uploadProfileImage(file);
+            const photoURL = result.url || result.image || '';
+            if (!photoURL) throw new Error('Upload did not return an image URL.');
+            const response = await userAPI.updateProfile({
+                name: formData.name,
+                photoURL,
+                company: formData.company,
+                industry: formData.industry,
+                preferredChannels: formData.preferredChannels,
+                brandGuidelines: formData.brandGuidelines,
+            });
+
+            const updatedUser: User = {
+                _id: response.user._id,
+                name: response.user.name,
+                email: response.user.email,
+                photoURL: response.user.photoURL,
+                role: response.user.role,
+                balance: response.user.balance,
+                company: response.user.company || '',
+                industry: response.user.industry || '',
+                preferredChannels: response.user.preferredChannels || [],
+                brandGuidelines: response.user.brandGuidelines || {
+                  primaryColor: '',
+                  secondaryColor: '',
+                  logoUrl: '',
+                  toneOfVoice: '',
+                },
+                createdAt: response.user.createdAt,
+                updatedAt: response.user.updatedAt,
+            };
+
+            setUser(updatedUser);
+            setFormData(updatedUser);
+            await refreshUser();
+            setSuccessMessage('Profile photo updated.');
+        } catch (error: any) {
+            setSuccessMessage(error?.response?.data?.message || error?.message || 'Failed to upload photo.');
+        } finally {
+            setUploadingAvatar(false);
+        }
+    };
+
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         if (formData) {
@@ -208,9 +267,19 @@ const ProfileCard: React.FC = () => {
                                 <label htmlFor="name" className="sr-only">Name</label>
                                 <input type="text" id="name" name="name" value={formData.name} onChange={handleInputChange} required className="block w-full text-center px-3 py-2 bg-bg-secondary border border-border-card rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]" />
                             </div>
-                            <div>
-                                <label htmlFor="photoURL" className="sr-only">Photo URL</label>
-                                <input type="text" id="photoURL" name="photoURL" value={formData.photoURL} onChange={handleInputChange} required className="block w-full text-center px-3 py-2 bg-bg-secondary border border-border-card rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]" />
+                            <div className="space-y-2 text-left">
+                                <p className="text-xs font-medium text-text-secondary">Profile photo</p>
+                                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleProfileImageSelect}
+                                    className="block w-full text-xs text-text-secondary file:mr-3 file:rounded-md file:border-0 file:bg-surface-muted file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-text-primary"
+                                  />
+                                  {uploadingAvatar ? (
+                                    <span className="text-xs text-text-muted">Uploading...</span>
+                                  ) : null}
+                                </div>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
                               <div>
@@ -471,14 +540,14 @@ const RecentActivity: React.FC = () => {
 const Recommendations: React.FC = () => (
   <Card size="lg">
     <h2 className="text-xl font-bold text-text-primary mb-4">Recommended For You</h2>
-    <div className="bg-[color:var(--surface-muted)] p-6 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-border-card shadow-lg">
+    <div className="bg-[color:var(--surface-muted)] p-4 sm:p-6 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-border-card shadow-lg">
       <div>
         <h3 className="font-bold text-text-primary">TikTok Growth Package</h3>
         <p className="text-sm text-text-secondary mt-1">
           Expand your reach on the fastest-growing platform.
         </p>
       </div>
-      <button className="group flex-shrink-0 inline-flex items-center justify-center px-4 py-2 text-sm font-semibold btn-primary rounded-lg shadow-md transition-all transform hover:scale-105 focus-visible:ring-offset-2">
+      <button className="group w-full sm:w-auto flex-shrink-0 inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold btn-primary rounded-lg shadow-md transition-all transform hover:scale-105 focus-visible:ring-offset-2">
         Explore Now{' '}
         <PaperAirplaneIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
       </button>
@@ -550,7 +619,7 @@ const OrdersList: React.FC = () => {
       ) : (
         <>
           <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
+            <table className="min-w-[680px] w-full text-sm">
               <thead>
                 <tr className="border-b border-border-subtle text-xs uppercase tracking-wide text-text-muted">
                   <th className="px-3 py-2 text-left">Service</th>
@@ -580,7 +649,7 @@ const OrdersList: React.FC = () => {
             </table>
           </div>
           {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mt-4">
               <p className="text-xs text-text-muted">
                 Page {page} of {totalPages}
               </p>
@@ -628,7 +697,7 @@ const SummaryCards: React.FC = () => {
   if (!summary) return null;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 min-[460px]:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
       <OverviewStatCard
         icon={<Icon icon={ShoppingBagIcon} size="md" tone="brand" />}
         title="Active Projects"
@@ -922,10 +991,10 @@ const ProfileQrCard: React.FC = () => {
 const UserDashboardPage: React.FC = () => {
   return (
     <div className="animate-fade-in min-h-screen">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
+      <div className="max-w-6xl mx-auto px-1 sm:px-2 py-2 sm:py-4 space-y-5 sm:space-y-6">
         {/* Top: welcome + summary stats */}
         <AnimatedSection>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex flex-col gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-text-primary">
                 Your Jinubify dashboard

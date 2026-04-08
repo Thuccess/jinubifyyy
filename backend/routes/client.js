@@ -341,14 +341,15 @@ router.post('/service-request', async (req, res) => {
 router.patch('/profile', async (req, res) => {
   try {
     const clientId = req.user._id;
-    const { name, email, phone, company, password } = req.body;
+    const { name, email, phone, company, password, photoURL } = req.body;
 
     const update = {};
-    if (name) update.name = name;
-    if (email) update.email = email;
-    if (phone) update.phone = phone;
-    if (company) update.company = company;
-    if (password) update.password = password;
+    if (name !== undefined) update.name = name;
+    if (email !== undefined) update.email = email;
+    if (phone !== undefined) update.phone = phone;
+    if (company !== undefined) update.company = company;
+    if (password !== undefined) update.password = password;
+    if (photoURL !== undefined) update.photoURL = photoURL;
 
     const user = await User.findById(clientId);
     if (!user) {

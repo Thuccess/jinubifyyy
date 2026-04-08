@@ -7,7 +7,8 @@
 
 import type { JSX } from 'react';
 import type { IconType } from 'react-icons';
-import { FaLinkedin } from 'react-icons/fa6';
+import { FaGlobe, FaLinkedin } from 'react-icons/fa6';
+import { FaWeixin } from 'react-icons/fa';
 import {
   SiFacebook,
   SiInstagram,
@@ -33,10 +34,12 @@ export const SOCIAL_PLATFORM_IDS = [
   'x',
   'snapchat',
   'linkedin',
+  'website',
   'pinterest',
   'reddit',
   'threads',
   'telegram',
+  'wechat',
 ] as const;
 
 export type SocialPlatformId = (typeof SOCIAL_PLATFORM_IDS)[number];
@@ -62,10 +65,12 @@ export const SOCIAL_PLATFORM_META: Record<SocialPlatformId, SocialPlatformMeta> 
   x: { label: 'X', Icon: SiX, useThemeColor: true },
   snapchat: { label: 'Snapchat', Icon: SiSnapchat, color: '#FFFC00' },
   linkedin: { label: 'LinkedIn', Icon: FaLinkedin, color: '#0A66C2' },
+  website: { label: 'Website', Icon: FaGlobe, color: '#6366f1' },
   pinterest: { label: 'Pinterest', Icon: SiPinterest, color: '#E60023' },
   reddit: { label: 'Reddit', Icon: SiReddit, color: '#FF4500' },
   threads: { label: 'Threads', Icon: SiThreads, useThemeColor: true },
   telegram: { label: 'Telegram', Icon: SiTelegram, color: '#26A5E4' },
+  wechat: { label: 'WeChat', Icon: FaWeixin, color: '#07C160' },
 };
 
 export function normalizeSocialPlatformId(raw: string): SocialPlatformId | null {

@@ -17,12 +17,14 @@ export function signAccessToken(userDoc) {
     userDoc.status === 'rejected' && userDoc.rejectionReason
       ? String(userDoc.rejectionReason).slice(0, 280)
       : undefined;
+  const isActive = userDoc.isActive !== false;
   return jwt.sign(
     {
       sub: userDoc._id.toString(),
       role: userDoc.role,
       st: userDoc.status,
       ev: userDoc.isEmailVerified ? 1 : 0,
+      ia: isActive ? 1 : 0,
       nm: userDoc.name,
       em: userDoc.email,
       ...(ph ? { ph } : {}),
@@ -49,6 +51,7 @@ export function userFromVerifiedPayload(decoded) {
       role: decoded.role,
       status: decoded.st,
       isEmailVerified: decoded.ev === 1,
+      isActive: decoded.ia !== 0,
       name: decoded.nm || '',
       email: decoded.em || '',
       photoURL:

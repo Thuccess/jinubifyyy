@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, Fragment } from 'react';
 import Link from 'next/link';
 import Image from '@/components/NextImage';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Menu, Transition } from '@headlessui/react';
 import { SunIcon, MoonIcon, UserCircleIcon, LogoutIcon, DashboardIcon, CogIcon } from './icons/Icons';
 import { TwitterIcon, InstagramIcon, YouTubeIcon, FacebookIcon, WhatsAppIcon } from './icons/Socials';
@@ -63,9 +63,11 @@ const NavLink: React.FC<{
 const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLoginSuccess, onLogout }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalView, setAuthModalView] = useState<'signIn' | 'signUp'>('signIn');
+  const [signInPrefillEmail, setSignInPrefillEmail] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
   const menuContentRef = useRef<HTMLDivElement>(null);
@@ -74,6 +76,27 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLogi
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  /** Deep links: `/?auth=signup` or `/?auth=login` open the auth modal (then strip the query). */
+  useEffect(() => {
+    const auth = searchParams.get('auth');
+    if (auth !== 'signup' && auth !== 'login') return;
+    const emailParam = searchParams.get('email');
+    if (auth === 'signup') {
+      setAuthModalView('signUp');
+      setSignInPrefillEmail(null);
+    } else {
+      setAuthModalView('signIn');
+      setSignInPrefillEmail(emailParam && emailParam.trim() ? emailParam.trim() : null);
+    }
+    setIsAuthModalOpen(true);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('auth');
+    params.delete('email');
+    const q = params.toString();
+    const path = pathname || '/';
+    router.replace(q ? `${path}?${q}` : path, { scroll: false });
+  }, [searchParams, pathname, router]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -122,6 +145,7 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLogi
 
   const handleCloseModal = () => {
     setIsAuthModalOpen(false);
+    setSignInPrefillEmail(null);
   };
 
   const handleSuccessfulLogin = (user: User) => {
@@ -441,6 +465,7 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLogi
         isOpen={isAuthModalOpen}
         onClose={handleCloseModal}
         view={authModalView}
+        signInPrefillEmail={signInPrefillEmail}
         onSuccess={handleSuccessfulLogin}
       />
     </>

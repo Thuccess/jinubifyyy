@@ -162,10 +162,10 @@ const PublicProfileSlugLanding: React.FC = () => {
                       : 'rounded-full aspect-square'
                   }`}
                 >
-                  {profile.heroImageUrl ? (
+                  {profile.heroImageUrl || profile.photoURL ? (
                     // eslint-disable-next-line @next/next/no-img-element -- arbitrary user/brand URLs
                     <img
-                      src={profile.heroImageUrl}
+                      src={profile.heroImageUrl || profile.photoURL}
                       alt=""
                       width={132}
                       height={132}
