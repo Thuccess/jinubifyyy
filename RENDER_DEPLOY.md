@@ -56,6 +56,7 @@ After the Blueprint is applied, set these in the Render Dashboard.
 
 | Key            | Value / action |
 |----------------|-----------------|
+| **PORT** | **Do not set manually** on Render web services. Render injects `PORT`; the API must listen on that value (the app exits in production if it is missing). |
 | **MONGODB_URI** | Your Atlas connection string (from step 2). |
 | **JWT_SECRET**  | Either leave **Generated** (Render can generate) or set your own (min 32 characters). |
 | **FRONTEND_URL** | Usually auto-set from the frontend service URL. If not, set to `https://jinubify-web.onrender.com` (or your frontend URL). |
@@ -115,7 +116,7 @@ If traffic to your API hits **Cloudflare** before Render:
 3. **Reduce cold starts** — Use a **paid / always-on** Render instance so the service answers quickly; this removes most 522s after idle.
 4. **Correct DNS** — CNAME target must match the **exact** hostname Render shows for the service (e.g. `your-service.onrender.com`).
 
-The backend listens on **`0.0.0.0`** and **`PORT`** from the environment so Render’s router can reach it.
+The backend listens on **`PORT`** from the environment (required in production — set automatically on Render). By default it uses Node’s **all-interfaces** bind (works with IPv4/IPv6). To force IPv4-only, set **`LISTEN_HOST=0.0.0.0`** in Render.
 
 ---
 

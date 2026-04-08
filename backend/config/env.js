@@ -6,7 +6,7 @@ const requiredEnvVars = [
 ];
 
 const optionalEnvVars = {
-  PORT: 5000,
+  // Never default PORT here — Render/Heroku/Docker inject PORT; forcing 5000 breaks routing (521).
   FRONTEND_URL: 'http://localhost:3000',
   NODE_ENV: 'development',
   JWT_EXPIRES_IN: '7d',

@@ -88,9 +88,30 @@ const [
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
-const PORT = process.env.PORT || 5000;
-/** Bind all interfaces so Render/Docker/proxies can reach the process (not only localhost). */
-const LISTEN_HOST = process.env.LISTEN_HOST || '0.0.0.0';
+
+function resolveListenPort() {
+  const raw = process.env.PORT;
+  if (raw != null && String(raw).trim() !== '') {
+    const n = parseInt(String(raw), 10);
+    if (Number.isFinite(n) && n > 0) return n;
+  }
+  if (process.env.NODE_ENV === 'production') {
+    console.error('❌ PORT is missing or invalid. In production the host must set PORT (e.g. Render).');
+    process.exit(1);
+  }
+  return 5000;
+}
+
+const PORT = resolveListenPort();
+
+/**
+ * Optional bind address. Unset = Node default (:: / dual-stack on modern Node), which works well on Render.
+ * Set LISTEN_HOST=0.0.0.0 to force IPv4-only if your platform requires it.
+ */
+const LISTEN_HOST =
+  process.env.LISTEN_HOST != null && String(process.env.LISTEN_HOST).trim() !== ''
+    ? String(process.env.LISTEN_HOST).trim()
+    : undefined;
 let server;
 let reconnectTimer = null;
 let reconnectInFlight = false;
@@ -465,11 +486,13 @@ const startServer = async () => {
       startPublishScheduledPostsJob();
       startCleanupUnusedMediaJob();
     }
-    server = app.listen(PORT, LISTEN_HOST, () => {
+    const onListening = () => {
       httpServerListening = true;
-      console.log(`🚀 Server listening on http://${LISTEN_HOST}:${PORT}`);
+      const hostLabel = LISTEN_HOST || '(all interfaces)';
+      console.log(`🚀 Server listening on http://${hostLabel}:${PORT}`);
       console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
-    });
+    };
+    server = LISTEN_HOST ? app.listen(PORT, LISTEN_HOST, onListening) : app.listen(PORT, onListening);
     server.keepAliveTimeout = 75_000;
     server.headersTimeout = 76_000;
   } catch (error) {
