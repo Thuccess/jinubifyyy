@@ -99,6 +99,24 @@ Optional: `NEXT_PUBLIC_MEDIA_BASE_URL`, `NEXT_PUBLIC_SITE_URL` for CDN or custom
 - For frontend: set `NEXT_PUBLIC_SITE_URL` (and optionally `NEXT_PUBLIC_API_URL` if the API is on a custom domain).
 - For backend: set `FRONTEND_URL` to the frontend’s public URL (custom or Render).
 
+### Cloudflare in front of Render (errors **521** / **522**)
+
+If traffic to your API hits **Cloudflare** before Render:
+
+| Symptom | Likely cause |
+|--------|----------------|
+| **522** | Origin connection **timeout** — often **free-tier cold start** (first request after sleep takes 30–60s) while Cloudflare gives up earlier. |
+| **521** | Connection **refused** — app not listening on the interface/port Render expects, or service down. |
+
+**What to do:**
+
+1. **Prefer DNS-only for the API** — In Cloudflare, set the record that points to Render (**grey cloud** / “DNS only”) so browsers connect straight to Render and avoid Cloudflare’s origin timeout on wake.
+2. **SSL/TLS mode** — If you keep the proxy **on** (orange cloud), use **Full** or **Full (strict)** (not “Flexible”) for HTTPS to Render.
+3. **Reduce cold starts** — Use a **paid / always-on** Render instance so the service answers quickly; this removes most 522s after idle.
+4. **Correct DNS** — CNAME target must match the **exact** hostname Render shows for the service (e.g. `your-service.onrender.com`).
+
+The backend listens on **`0.0.0.0`** and **`PORT`** from the environment so Render’s router can reach it.
+
 ---
 
 ## 8. Troubleshooting: MongoDB connection on Render
@@ -124,7 +142,7 @@ This is **not fixed in application code**. Atlas blocks the connection until Net
 
 ---
 
-## 9. Free tier note
+## 10. Free tier note
 
 On the free tier, services spin down after a period of inactivity. The first request after spin-down can take 30–60 seconds. For always-on uptime, use a paid plan.
 

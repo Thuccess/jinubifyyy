@@ -89,6 +89,8 @@ const [
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 5000;
+/** Bind all interfaces so Render/Docker/proxies can reach the process (not only localhost). */
+const LISTEN_HOST = process.env.LISTEN_HOST || '0.0.0.0';
 let server;
 let reconnectTimer = null;
 let reconnectInFlight = false;
@@ -463,9 +465,9 @@ const startServer = async () => {
       startPublishScheduledPostsJob();
       startCleanupUnusedMediaJob();
     }
-    server = app.listen(PORT, () => {
+    server = app.listen(PORT, LISTEN_HOST, () => {
       httpServerListening = true;
-      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`🚀 Server listening on http://${LISTEN_HOST}:${PORT}`);
       console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
     server.keepAliveTimeout = 75_000;
