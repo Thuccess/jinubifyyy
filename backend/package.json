@@ -11,6 +11,7 @@
     "promote-admin": "node scripts/promoteAdmin.js",
     "seed-cms": "node scripts/seedCms.js",
     "seed-services": "node scripts/seedServices.js",
+    "delete-service": "node scripts/deleteServiceBySlug.js",
     "seed-pricing": "node scripts/seedPricing.js",
     "test": "vitest run",
     "mongo-ui": "node scripts/runMongoExpress.js",

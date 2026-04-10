@@ -51,20 +51,6 @@ export const servicesContent: ServiceContentItem[] = [
     hasDemo: true,
   },
   {
-    title: 'Website Design & Development',
-    intro: 'Websites that work for your business. We build fast, mobile-friendly, and secure websites that showcase your brand and help convert visitors into customers.',
-    bulletsLabel: 'Website solutions:',
-    bullets: [
-      'Business & corporate websites',
-      'NGO & organization websites',
-      'Landing pages for promotions',
-      'Simple e-commerce websites',
-      'Website maintenance & updates',
-    ],
-    slug: 'website-design-development',
-    hasDemo: true,
-  },
-  {
     title: 'Mobile App Development',
     intro: 'Bring your ideas to your customers\' pockets. We develop practical, user-friendly mobile applications that help businesses improve service delivery and customer engagement.',
     bulletsLabel: 'Mobile app services:',

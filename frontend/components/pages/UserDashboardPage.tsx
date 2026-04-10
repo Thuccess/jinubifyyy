@@ -85,6 +85,8 @@ const ProfileCard: React.FC = () => {
                       secondaryColor: '',
                       logoUrl: '',
                       toneOfVoice: '',
+                      publicProfileAccentColor: '',
+                      publicProfileTextColor: '',
                     },
                     createdAt: userData.createdAt,
                     updatedAt: userData.updatedAt,
@@ -121,7 +123,13 @@ const ProfileCard: React.FC = () => {
         if (!formData) return;
 
         if (name.startsWith('brandGuidelines.')) {
-            const key = name.split('.')[1] as 'primaryColor' | 'secondaryColor' | 'logoUrl' | 'toneOfVoice';
+            const key = name.split('.')[1] as
+              | 'primaryColor'
+              | 'secondaryColor'
+              | 'logoUrl'
+              | 'toneOfVoice'
+              | 'publicProfileAccentColor'
+              | 'publicProfileTextColor';
             setFormData(prev => ({
                 ...prev!,
                 brandGuidelines: {
@@ -184,6 +192,8 @@ const ProfileCard: React.FC = () => {
                   secondaryColor: '',
                   logoUrl: '',
                   toneOfVoice: '',
+                  publicProfileAccentColor: '',
+                  publicProfileTextColor: '',
                 },
                 createdAt: response.user.createdAt,
                 updatedAt: response.user.updatedAt,
@@ -227,6 +237,8 @@ const ProfileCard: React.FC = () => {
                       secondaryColor: '',
                       logoUrl: '',
                       toneOfVoice: '',
+                      publicProfileAccentColor: '',
+                      publicProfileTextColor: '',
                     },
                     createdAt: response.user.createdAt,
                     updatedAt: response.user.updatedAt,
@@ -351,6 +363,25 @@ const ProfileCard: React.FC = () => {
                                   name="brandGuidelines.secondaryColor"
                                   placeholder="Secondary color"
                                   value={formData.brandGuidelines?.secondaryColor || ''}
+                                  onChange={handleInputChange}
+                                  className="block w-full px-3 py-2 bg-bg-secondary border border-border-card rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-xs"
+                                />
+                                <p className="text-[11px] font-medium text-text-muted pt-1">
+                                  Public card / QR page (optional)
+                                </p>
+                                <input
+                                  type="text"
+                                  name="brandGuidelines.publicProfileAccentColor"
+                                  placeholder="Accent on public profile (#RRGGBB)"
+                                  value={formData.brandGuidelines?.publicProfileAccentColor || ''}
+                                  onChange={handleInputChange}
+                                  className="block w-full px-3 py-2 bg-bg-secondary border border-border-card rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-xs"
+                                />
+                                <input
+                                  type="text"
+                                  name="brandGuidelines.publicProfileTextColor"
+                                  placeholder="Text on public profile (#RRGGBB)"
+                                  value={formData.brandGuidelines?.publicProfileTextColor || ''}
                                   onChange={handleInputChange}
                                   className="block w-full px-3 py-2 bg-bg-secondary border border-border-card rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-xs"
                                 />

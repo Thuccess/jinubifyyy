@@ -72,20 +72,6 @@ seed_demo "$SERVICE" "image-editing-design"
 seed_demo "$SERVICE" "branded-merchandise-design"
 
 ########################################
-# Websites
-########################################
-SERVICE="website-design-development"
-seed_demo "$SERVICE" "business-websites"
-seed_demo "$SERVICE" "corporate-websites"
-seed_demo "$SERVICE" "ngo-organization-websites"
-seed_demo "$SERVICE" "landing-pages-for-promotions"
-seed_demo "$SERVICE" "simple-e-commerce-websites"
-seed_demo "$SERVICE" "mobile-friendly-responsive-design"
-seed_demo "$SERVICE" "website-maintenance-updates"
-seed_demo "$SERVICE" "website-optimization-performance-seo"
-seed_demo "$SERVICE" "contact-forms-integrations-whatsapp-email"
-
-########################################
 # Mobile apps
 ########################################
 SERVICE="mobile-app-development"

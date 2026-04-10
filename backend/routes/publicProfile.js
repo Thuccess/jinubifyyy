@@ -83,6 +83,10 @@ router.get('/profile/:slug', async (req, res) => {
       toneOfVoice: (bg.toneOfVoice && String(bg.toneOfVoice).trim()) || '',
       primaryColor: (bg.primaryColor && String(bg.primaryColor).trim()) || '',
       secondaryColor: (bg.secondaryColor && String(bg.secondaryColor).trim()) || '',
+      publicProfileAccentColor:
+        (bg.publicProfileAccentColor && String(bg.publicProfileAccentColor).trim()) || '',
+      publicProfileTextColor:
+        (bg.publicProfileTextColor && String(bg.publicProfileTextColor).trim()) || '',
     };
     const preferredChannels = Array.isArray(user.preferredChannels)
       ? user.preferredChannels.map((c) => String(c || '').trim()).filter(Boolean)

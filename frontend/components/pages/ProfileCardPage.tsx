@@ -19,6 +19,7 @@ import {
 import AuthModal from '@/components/AuthModal';
 import { publicAPI, userAPI, type PublicProfilePayload } from '../../services/api';
 import type { User } from '@/types';
+import { rgbaFromHex, textLuminance } from '@/lib/publicProfileTheme';
 
 /** Short hero line: tagline only, not full bio */
 function heroLead(p: PublicProfilePayload): string {
@@ -202,17 +203,134 @@ const ProfileCardPage: React.FC = () => {
 
   const isDark = theme === 'dark';
   const lead = profile ? heroLead(profile) : '';
+  const accentColor = profile?.brandGuidelines?.publicProfileAccentColor?.trim() ?? '';
+  const textColor = profile?.brandGuidelines?.publicProfileTextColor?.trim() ?? '';
+  const usePublicProfileColors = Boolean(accentColor || textColor);
+  const textLum = textColor ? textLuminance(textColor) : null;
+  const badgeIsDark = textLum != null ? textLum > 0.45 : isDark;
+
   const pageTextClass = isDark ? 'text-white/85' : 'text-slate-800/85';
   const pageMutedTextClass = isDark ? 'text-white/65' : 'text-slate-700/65';
   const cardBottomOverlayClass = isDark
     ? 'bg-gradient-to-t from-black/92 via-black/65 to-transparent border-white/10'
     : 'bg-gradient-to-t from-white/94 via-white/72 to-transparent border-black/10';
-  const chipClass = isDark
-    ? 'border-white/20 bg-black/45 text-white hover:bg-black/55'
-    : 'border-black/15 bg-white/70 text-slate-800 hover:bg-white/85';
-  const glassPanelClass = isDark
-    ? 'border-white/10 bg-white/5'
-    : 'border-black/10 bg-white/55';
+  const chipClass =
+    accentColor || textColor
+      ? 'border text-[color:var(--pp-text)] backdrop-blur-xl hover:opacity-95'
+      : isDark
+        ? 'border-white/20 bg-black/45 text-white hover:bg-black/55'
+        : 'border-black/15 bg-white/70 text-slate-800 hover:bg-white/85';
+  const chipSurfaceStyle: React.CSSProperties = {};
+  if (accentColor) {
+    chipSurfaceStyle.borderColor = rgbaFromHex(accentColor, 0.42);
+    chipSurfaceStyle.backgroundColor = rgbaFromHex(accentColor, 0.12);
+  }
+  if (textColor) {
+    chipSurfaceStyle.color = textColor;
+    if (!accentColor) {
+      chipSurfaceStyle.borderColor = rgbaFromHex(textColor, 0.38);
+      chipSurfaceStyle.backgroundColor = rgbaFromHex(textColor, 0.1);
+    }
+  }
+  const glassPanelClass =
+    accentColor || textColor
+      ? 'border backdrop-blur-md'
+      : isDark
+        ? 'border-white/10 bg-white/5'
+        : 'border-black/10 bg-white/55';
+  const glassPanelStyle: React.CSSProperties =
+    accentColor
+      ? {
+          borderColor: rgbaFromHex(accentColor, 0.28),
+          backgroundColor: rgbaFromHex(accentColor, 0.07),
+        }
+      : textColor
+        ? {
+            borderColor: rgbaFromHex(textColor, 0.22),
+            backgroundColor: rgbaFromHex(textColor, 0.06),
+          }
+        : {};
+  const headingTextClass = textColor
+    ? 'text-[color:var(--pp-text)]'
+    : isDark
+      ? 'text-white'
+      : 'text-slate-900';
+  const subheadingMutedClass = textColor
+    ? 'text-[color:var(--pp-muted)]'
+    : isDark
+      ? 'text-white/75'
+      : 'text-slate-700/80';
+  const bodyLeadClass = textColor
+    ? 'text-[color:var(--pp-text)]'
+    : isDark
+      ? 'text-white/85'
+      : 'text-slate-800/82';
+  const statsLabelClass = textColor ? 'text-[color:var(--pp-muted)]' : pageMutedTextClass;
+  const statsValueClass = headingTextClass;
+  const linkLikeClass = accentColor
+    ? 'text-[color:var(--pp-accent)] hover:opacity-90'
+    : textColor
+      ? 'text-[color:var(--pp-text)] hover:opacity-90'
+      : isDark
+        ? 'text-white/85 hover:text-white'
+        : 'text-slate-800 hover:text-slate-950';
+  const contactLinkClass = accentColor
+    ? 'text-[color:var(--pp-accent)] hover:opacity-90 underline-offset-2 hover:underline'
+    : textColor
+      ? 'text-[color:var(--pp-text)] hover:opacity-90 underline-offset-2 hover:underline'
+      : isDark
+        ? 'text-white/90 hover:text-white'
+        : 'text-slate-800 hover:text-slate-950';
+  const websiteLinkClass = accentColor
+    ? 'text-[color:var(--pp-accent)] hover:opacity-90 underline-offset-2 hover:underline'
+    : textColor
+      ? 'text-[color:var(--pp-text)] hover:opacity-90 underline-offset-2 hover:underline'
+      : isDark
+        ? 'text-cyan-300 hover:text-cyan-200'
+        : 'text-blue-700 hover:text-blue-800';
+  const socialPillClass =
+    accentColor || textColor
+      ? 'border text-[color:var(--pp-text)] backdrop-blur-md transition hover:opacity-95'
+      : isDark
+        ? 'border-white/15 bg-white/[0.08] text-white hover:bg-white/[0.16]'
+        : 'border-black/10 bg-white/75 text-slate-800 hover:bg-white/95';
+  const socialPillStyle: React.CSSProperties = {};
+  if (accentColor) {
+    socialPillStyle.borderColor = rgbaFromHex(accentColor, 0.35);
+    socialPillStyle.backgroundColor = rgbaFromHex(accentColor, 0.08);
+  } else if (textColor) {
+    socialPillStyle.borderColor = rgbaFromHex(textColor, 0.32);
+    socialPillStyle.backgroundColor = rgbaFromHex(textColor, 0.08);
+  }
+  const socialPillChevronClass = textColor
+    ? 'text-[color:var(--pp-muted)]'
+    : isDark
+      ? 'text-white/80'
+      : 'text-slate-700/75';
+  const poweredByClass = textColor ? 'text-[color:var(--pp-muted)]' : pageMutedTextClass;
+  const poweredByLinkClass = accentColor
+    ? 'font-semibold text-[color:var(--pp-accent)] hover:opacity-90'
+    : textColor
+      ? 'font-semibold text-[color:var(--pp-text)] hover:opacity-90'
+      : isDark
+        ? 'font-semibold text-white/85 hover:text-white'
+        : 'font-semibold text-slate-800 hover:text-slate-950';
+
+  const articleProfileColorStyle: React.CSSProperties | undefined = usePublicProfileColors
+    ? ({
+        '--pp-text': textColor
+          ? textColor
+          : isDark
+            ? 'rgba(255,255,255,0.92)'
+            : 'rgb(15 23 42)',
+        '--pp-muted': textColor
+          ? rgbaFromHex(textColor, 0.72) || 'rgba(148,163,184,0.85)'
+          : isDark
+            ? 'rgba(255,255,255,0.65)'
+            : 'rgba(51,65,85,0.78)',
+        '--pp-accent': accentColor || (isDark ? '#93c5fd' : '#4f46e5'),
+      } as React.CSSProperties)
+    : undefined;
 
   useEffect(() => {
     if (!currentUser || !profile?.userId) {
@@ -300,6 +418,7 @@ const ProfileCardPage: React.FC = () => {
             >
               <article
                 className="relative h-[100svh] w-full overflow-hidden"
+                style={articleProfileColorStyle}
                 aria-label={`Profile of ${profile.displayName}`}
               >
                 <div className="absolute inset-x-0 top-0 h-[52%] bg-white">
@@ -336,6 +455,7 @@ const ProfileCardPage: React.FC = () => {
                     type="button"
                     onClick={handleConnectIconClick}
                     title="Connections"
+                    style={accentColor || textColor ? chipSurfaceStyle : undefined}
                     className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold backdrop-blur-xl ${chipClass}`}
                   >
                     <ConnectionIcon className="h-3.5 w-3.5" />
@@ -345,6 +465,7 @@ const ProfileCardPage: React.FC = () => {
                     type="button"
                     title="Links"
                     onClick={() => setIsLinksOpen((v) => !v)}
+                    style={accentColor || textColor ? chipSurfaceStyle : undefined}
                     className={`inline-flex h-9 w-9 items-center justify-center rounded-full border backdrop-blur-xl transition ${chipClass}`}
                     aria-expanded={isLinksOpen}
                     aria-label="Open social links"
@@ -419,48 +540,60 @@ const ProfileCardPage: React.FC = () => {
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2 gap-y-1">
-                          <h1 className={`truncate text-2xl sm:text-[1.65rem] md:text-[2.1rem] font-bold tracking-tight leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                          <h1
+                            className={`truncate text-2xl sm:text-[1.65rem] md:text-[2.1rem] font-bold tracking-tight leading-tight ${headingTextClass}`}
+                          >
                             {profile.displayName}
                           </h1>
-                          {profile.verified ? <VerifiedAccountBadge isDark={isDark} /> : null}
+                          {profile.verified ? <VerifiedAccountBadge isDark={badgeIsDark} /> : null}
                         </div>
-                        <p className={`text-sm ${isDark ? 'text-white/75' : 'text-slate-700/80'}`}>@{profile.slug}</p>
+                        <p className={`text-sm ${subheadingMutedClass}`}>@{profile.slug}</p>
                       </div>
                     </div>
 
                     {lead ? (
-                      <p className={`mt-2 text-sm sm:text-[15px] md:text-base leading-snug line-clamp-2 ${isDark ? 'text-white/85' : 'text-slate-800/82'}`}>{lead}</p>
+                      <p className={`mt-2 text-sm sm:text-[15px] md:text-base leading-snug line-clamp-2 ${bodyLeadClass}`}>
+                        {lead}
+                      </p>
                     ) : null}
 
-                    <div className={`mt-4 grid grid-cols-2 gap-2 rounded-2xl border px-3 py-2 ${glassPanelClass}`}>
+                    <div
+                      className={`mt-4 grid grid-cols-2 gap-2 rounded-2xl border px-3 py-2 ${glassPanelClass}`}
+                      style={accentColor || textColor ? glassPanelStyle : undefined}
+                    >
                       <div>
-                        <p className={`text-[10px] uppercase tracking-wide ${pageMutedTextClass}`}>Profile views</p>
-                        <p className={`text-sm font-semibold tabular-nums ${isDark ? 'text-white' : 'text-slate-900'}`}>{displayedViews.toLocaleString()}</p>
+                        <p className={`text-[10px] uppercase tracking-wide ${statsLabelClass}`}>Profile views</p>
+                        <p className={`text-sm font-semibold tabular-nums ${statsValueClass}`}>
+                          {displayedViews.toLocaleString()}
+                        </p>
                       </div>
                       <div>
-                        <p className={`text-[10px] uppercase tracking-wide ${pageMutedTextClass}`}>Link clicks</p>
-                        <p className={`text-sm font-semibold tabular-nums ${isDark ? 'text-white' : 'text-slate-900'}`}>{linkClicksCount.toLocaleString()}</p>
+                        <p className={`text-[10px] uppercase tracking-wide ${statsLabelClass}`}>Link clicks</p>
+                        <p className={`text-sm font-semibold tabular-nums ${statsValueClass}`}>
+                          {linkClicksCount.toLocaleString()}
+                        </p>
                       </div>
                     </div>
 
                     {featuredSocialLinks.length > 0 ? (
                       <div
                         className={`mt-4 rounded-2xl border p-3.5 md:p-4 ${
-                          isDark
-                            ? `${glassPanelClass} md:bg-gradient-to-br md:from-white/[0.11] md:via-white/[0.06] md:to-white/[0.04]`
-                            : `${glassPanelClass} md:bg-gradient-to-br md:from-white/95 md:via-white/78 md:to-white/70`
+                          accentColor || textColor
+                            ? glassPanelClass
+                            : isDark
+                              ? `${glassPanelClass} md:bg-gradient-to-br md:from-white/[0.11] md:via-white/[0.06] md:to-white/[0.04]`
+                              : `${glassPanelClass} md:bg-gradient-to-br md:from-white/95 md:via-white/78 md:to-white/70`
                         }`}
+                        style={accentColor || textColor ? glassPanelStyle : undefined}
                       >
                         <div className="mb-2.5 flex items-center justify-between gap-2">
-                          <p className={`text-[11px] font-semibold uppercase tracking-[0.14em] ${pageMutedTextClass}`}>
+                          <p className={`text-[11px] font-semibold uppercase tracking-[0.14em] ${statsLabelClass}`}>
                             Social media
                           </p>
                           {currentUser ? (
                             <Link
                               href="/dashboard"
-                              className={`text-[11px] font-semibold underline underline-offset-2 transition ${
-                                isDark ? 'text-white/85 hover:text-white' : 'text-slate-800 hover:text-slate-950'
-                              }`}
+                              className={`text-[11px] font-semibold underline underline-offset-2 transition ${linkLikeClass}`}
                             >
                               My dashboard
                             </Link>
@@ -468,9 +601,7 @@ const ProfileCardPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={openSignUpModal}
-                              className={`text-[11px] font-semibold underline underline-offset-2 transition ${
-                                isDark ? 'text-white/85 hover:text-white' : 'text-slate-800 hover:text-slate-950'
-                              }`}
+                              className={`text-[11px] font-semibold underline underline-offset-2 transition ${linkLikeClass}`}
                             >
                               Create account for free
                             </button>
@@ -482,11 +613,8 @@ const ProfileCardPage: React.FC = () => {
                             key={`pill-${link.platform}-${link.url}`}
                             type="button"
                             onClick={() => openTracked(`social:${link.platform}`, link.url)}
-                            className={`group inline-flex items-center justify-between gap-2 rounded-xl border px-2.5 py-2 text-[11px] backdrop-blur-md transition ${
-                              isDark
-                                ? 'border-white/15 bg-white/[0.08] text-white hover:bg-white/[0.16]'
-                                : 'border-black/10 bg-white/75 text-slate-800 hover:bg-white/95'
-                            }`}
+                            style={accentColor || textColor ? socialPillStyle : undefined}
+                            className={`group inline-flex items-center justify-between gap-2 rounded-xl border px-2.5 py-2 text-[11px] backdrop-blur-md transition ${socialPillClass}`}
                           >
                             <span className="inline-flex items-center gap-1.5 min-w-0">
                             {(() => {
@@ -504,7 +632,9 @@ const ProfileCardPage: React.FC = () => {
                             })()}
                             <span className="truncate capitalize">{link.platform}</span>
                             </span>
-                            <span className={`text-[10px] font-semibold transition-transform group-hover:translate-x-0.5 ${isDark ? 'text-white/80' : 'text-slate-700/75'}`}>
+                            <span
+                              className={`text-[10px] font-semibold transition-transform group-hover:translate-x-0.5 ${socialPillChevronClass}`}
+                            >
                               Visit
                             </span>
                           </button>
@@ -513,15 +643,20 @@ const ProfileCardPage: React.FC = () => {
                       </div>
                     ) : null}
 
-                    <div className={`mt-4 rounded-2xl border px-3.5 py-3 backdrop-blur-xl ${glassPanelClass}`}>
-                      <p className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${pageMutedTextClass}`}>Contact</p>
+                    <div
+                      className={`mt-4 rounded-2xl border px-3.5 py-3 backdrop-blur-xl ${glassPanelClass}`}
+                      style={accentColor || textColor ? glassPanelStyle : undefined}
+                    >
+                      <p className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${statsLabelClass}`}>
+                        Contact
+                      </p>
                       <ul className="space-y-1.5">
                         {profile.email ? (
                           <li className="flex items-center gap-2 text-xs">
-                            <FaEnvelope className={`h-3 w-3 shrink-0 ${pageMutedTextClass}`} aria-hidden />
+                            <FaEnvelope className={`h-3 w-3 shrink-0 ${statsLabelClass}`} aria-hidden />
                             <a
                               href={`mailto:${encodeURIComponent(profile.email)}`}
-                              className={`truncate underline-offset-2 hover:underline ${isDark ? 'text-white/90 hover:text-white' : 'text-slate-800 hover:text-slate-950'}`}
+                              className={`truncate underline-offset-2 hover:underline ${contactLinkClass}`}
                               onClick={(e) => {
                                 e.preventDefault();
                                 void (async () => {
@@ -536,10 +671,10 @@ const ProfileCardPage: React.FC = () => {
                         ) : null}
                         {profile.phone ? (
                           <li className="flex items-center gap-2 text-xs">
-                            <FaPhone className={`h-3 w-3 shrink-0 ${pageMutedTextClass}`} aria-hidden />
+                            <FaPhone className={`h-3 w-3 shrink-0 ${statsLabelClass}`} aria-hidden />
                             <a
                               href={`tel:${profile.phone.replace(/\s/g, '')}`}
-                              className={`truncate underline-offset-2 hover:underline ${isDark ? 'text-white/90 hover:text-white' : 'text-slate-800 hover:text-slate-950'}`}
+                              className={`truncate underline-offset-2 hover:underline ${contactLinkClass}`}
                               onClick={(e) => {
                                 e.preventDefault();
                                 const tel = `tel:${profile.phone.replace(/\s/g, '')}`;
@@ -555,12 +690,12 @@ const ProfileCardPage: React.FC = () => {
                         ) : null}
                         {profile.website ? (
                           <li className={`flex items-center gap-2 text-xs pt-1.5 ${isDark ? 'border-t border-white/10' : 'border-t border-black/10'}`}>
-                            <FaGlobe className={`h-3 w-3 shrink-0 ${pageMutedTextClass}`} aria-hidden />
+                            <FaGlobe className={`h-3 w-3 shrink-0 ${statsLabelClass}`} aria-hidden />
                             <a
                               href={profile.website}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className={`truncate underline-offset-2 hover:underline ${isDark ? 'text-cyan-300 hover:text-cyan-200' : 'text-blue-700 hover:text-blue-800'}`}
+                              className={`truncate underline-offset-2 hover:underline ${websiteLinkClass}`}
                               onClick={(e) => {
                                 e.preventDefault();
                                 const w = profile.website;
@@ -577,12 +712,9 @@ const ProfileCardPage: React.FC = () => {
                       </ul>
                     </div>
 
-                    <p className={`mt-3 text-center text-[11px] tracking-wide ${pageMutedTextClass}`}>
+                    <p className={`mt-3 text-center text-[11px] tracking-wide ${poweredByClass}`}>
                       Powered by{' '}
-                      <Link
-                        href="/"
-                        className={`font-semibold transition-colors ${isDark ? 'text-white/85 hover:text-white' : 'text-slate-800 hover:text-slate-950'}`}
-                      >
+                      <Link href="/" className={`transition-colors ${poweredByLinkClass}`}>
                         Jinubify
                       </Link>
                     </p>

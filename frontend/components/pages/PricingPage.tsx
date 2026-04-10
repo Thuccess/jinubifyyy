@@ -7,7 +7,6 @@ import {
     ChatBubbleLeftRightIcon,
     MegaphoneIcon,
     PaintBrushIcon,
-    CodeBracketIcon,
     DevicePhoneMobileIcon,
     ServerStackIcon,
     CpuChipIcon,
@@ -53,10 +52,6 @@ const categoryVisuals: Record<string, { emoji: string; icon: React.ReactNode }> 
     'graphic-design-branding': {
         emoji: '🎨',
         icon: <PaintBrushIcon className="h-8 w-8 text-text-secondary" />,
-    },
-    'website-design-development': {
-        emoji: '🌐',
-        icon: <CodeBracketIcon className="h-8 w-8 text-blue-300" />,
     },
     'mobile-app-development': {
         emoji: '📱',

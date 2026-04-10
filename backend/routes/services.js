@@ -9,6 +9,31 @@ const router = express.Router();
 
 const SERVICE_PAGE_SIZE = 50;
 
+/** Only persist schema-defined fields; never spread raw req.body (avoids cast errors / pollution). */
+function serviceBodyPayload(body) {
+  const b = body && typeof body === 'object' ? body : {};
+  const bullets = Array.isArray(b.bullets) ? b.bullets.map((x) => String(x ?? '').trim()).filter(Boolean) : [];
+  return {
+    title: String(b.title ?? '').trim(),
+    slug: String(b.slug ?? '').trim().toLowerCase(),
+    description: String(b.description ?? '').trim(),
+    shortDescription: String(b.shortDescription ?? '').trim(),
+    intro: String(b.intro ?? '').trim(),
+    bulletsLabel: String(b.bulletsLabel ?? '').trim(),
+    bullets,
+    hasDemo: Boolean(b.hasDemo),
+    category: String(b.category ?? '').trim(),
+    icon: String(b.icon ?? '').trim(),
+    imageUrl: String(b.imageUrl ?? '').trim(),
+    startingPrice: String(b.startingPrice ?? '').trim(),
+    isActive: b.isActive !== false && b.isActive !== 'false',
+    isFeatured: Boolean(b.isFeatured),
+    order: typeof b.order === 'number' && Number.isFinite(b.order) ? b.order : parseInt(String(b.order ?? ''), 10) || 0,
+    seoTitle: String(b.seoTitle ?? '').trim(),
+    seoDescription: String(b.seoDescription ?? '').trim(),
+  };
+}
+
 // Common list handler with pagination and sorting
 router.get('/', async (req, res) => {
   res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400');
@@ -204,12 +229,13 @@ router.post('/', serviceValidators, async (req, res) => {
       });
     }
 
-    const existing = await Service.findOne({ slug: req.body.slug, isDeleted: { $ne: true } });
+    const body = serviceBodyPayload(req.body);
+    const existing = await Service.findOne({ slug: body.slug, isDeleted: { $ne: true } });
     if (existing) {
       return res.status(400).json({ message: 'Service with this slug already exists' });
     }
 
-    const payload = { ...req.body, createdBy: req.user?._id, updatedBy: req.user?._id };
+    const payload = { ...body, createdBy: req.user?._id, updatedBy: req.user?._id };
     const service = await Service.create(payload);
 
     if (service.imageUrl) {
@@ -221,6 +247,9 @@ router.post('/', serviceValidators, async (req, res) => {
       data: service,
     });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'A service with this slug already exists' });
+    }
     console.error('Create service error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -241,7 +270,7 @@ router.put('/:id', serviceValidators, async (req, res) => {
     }
 
     const { id } = req.params;
-    const update = { ...req.body, updatedBy: req.user?._id };
+    const update = { ...serviceBodyPayload(req.body), updatedBy: req.user?._id };
 
     if (update.slug) {
       const existing = await Service.findOne({ slug: update.slug, _id: { $ne: id }, isDeleted: { $ne: true } });
@@ -271,6 +300,9 @@ router.put('/:id', serviceValidators, async (req, res) => {
       data: service,
     });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'A service with this slug already exists' });
+    }
     console.error('Update service error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }

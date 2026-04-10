@@ -79,22 +79,6 @@ const SERVICES_AND_SUBS = [
     ],
   },
   {
-    title: 'Website Design & Development',
-    slug: 'website-design-development',
-    description: 'Websites that work for your business. Fast, mobile-friendly, and secure sites that showcase your brand and convert visitors.',
-    subServices: [
-      'Business websites',
-      'Corporate websites',
-      'NGO & organization websites',
-      'Landing pages for promotions',
-      'Simple e-commerce websites',
-      'Mobile-friendly / responsive design',
-      'Website maintenance & updates',
-      'Website optimization (performance & SEO)',
-      'Contact forms & integrations (WhatsApp, email)',
-    ],
-  },
-  {
     title: 'Software Development',
     slug: 'software-development',
     description: 'Custom software built around your business needs. Tailored solutions to automate processes, manage data, and work more efficiently.',

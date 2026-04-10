@@ -154,6 +154,8 @@ const userSchema = new mongoose.Schema({
     secondaryColor: { type: String, trim: true, default: '' },
     logoUrl: { type: String, trim: true, default: '' },
     toneOfVoice: { type: String, trim: true, default: '' },
+    publicProfileAccentColor: { type: String, trim: true, default: '' },
+    publicProfileTextColor: { type: String, trim: true, default: '' },
   },
   approvedAt: {
     type: Date,

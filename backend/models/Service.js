@@ -10,10 +10,8 @@ const serviceSchema = new mongoose.Schema(
     slug: {
       type: String,
       required: [true, 'Service slug is required'],
-      unique: true,
       trim: true,
       lowercase: true,
-      index: true,
     },
     description: {
       type: String,
@@ -106,6 +104,16 @@ const serviceSchema = new mongoose.Schema(
 
 serviceSchema.index({ isActive: 1, order: 1, createdAt: -1 });
 serviceSchema.index({ isDeleted: 1, isActive: 1, order: 1 });
+/**
+ * Slug unique only among non-deleted rows (soft-deleted services must not block reusing the slug).
+ * If creates still fail with E11000 after deploy, drop the legacy index in MongoDB:
+ *   db.services.dropIndex("slug_1")
+ * then restart so this partial index can be created (or run `node` with mongoose syncIndexes if you use it).
+ */
+serviceSchema.index(
+  { slug: 1 },
+  { unique: true, partialFilterExpression: { isDeleted: { $ne: true } } },
+);
 
 const Service = mongoose.model('Service', serviceSchema);
 

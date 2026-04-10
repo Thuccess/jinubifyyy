@@ -31,6 +31,55 @@ const extractFilename = (input) => {
   }
 };
 
+const HEX_COLOR_RE = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+
+/**
+ * Normalize optional hex for brand guideline color fields. Empty string allowed.
+ * @returns {string|{error:string}}
+ */
+function normalizeGuidelineHex(value) {
+  if (value === undefined || value === null) return undefined;
+  const s = String(value).trim();
+  if (s === '') return '';
+  if (!HEX_COLOR_RE.test(s)) return { error: 'Color must be empty or #RGB / #RRGGBB hex' };
+  return s;
+}
+
+/**
+ * Merge incoming brandGuidelines with existing doc; only keys present on incoming are updated.
+ * Validates hex fields when provided.
+ */
+function mergeBrandGuidelines(existing, incoming) {
+  if (incoming === undefined) return { ok: true, value: undefined };
+  if (incoming === null || typeof incoming !== 'object' || Array.isArray(incoming)) {
+    return { ok: false, message: 'brandGuidelines must be an object' };
+  }
+  const ex = existing && typeof existing === 'object' ? { ...existing } : {};
+  const out = { ...ex };
+  const colorKeys = [
+    'primaryColor',
+    'secondaryColor',
+    'publicProfileAccentColor',
+    'publicProfileTextColor',
+  ];
+  for (const key of colorKeys) {
+    if (!Object.prototype.hasOwnProperty.call(incoming, key)) continue;
+    const n = normalizeGuidelineHex(incoming[key]);
+    if (n && typeof n === 'object' && n.error) {
+      return { ok: false, message: `${key}: ${n.error}` };
+    }
+    if (n !== undefined) out[key] = n;
+  }
+  if (Object.prototype.hasOwnProperty.call(incoming, 'logoUrl')) {
+    out.logoUrl = incoming.logoUrl == null ? '' : String(incoming.logoUrl).trim().slice(0, 2000);
+  }
+  if (Object.prototype.hasOwnProperty.call(incoming, 'toneOfVoice')) {
+    out.toneOfVoice =
+      incoming.toneOfVoice == null ? '' : String(incoming.toneOfVoice).trim().slice(0, 2000);
+  }
+  return { ok: true, value: out };
+}
+
 function profilePayload(user) {
   if (!user) return null;
   return {
@@ -54,12 +103,17 @@ function profilePayload(user) {
     servicesOffered: Array.isArray(user.servicesOffered) ? user.servicesOffered : [],
     socialLinks: canonicalizeSocialLinks(user.socialLinks || []),
     preferredChannels: user.preferredChannels || [],
-    brandGuidelines: user.brandGuidelines || {
-      primaryColor: '',
-      secondaryColor: '',
-      logoUrl: '',
-      toneOfVoice: '',
-    },
+    brandGuidelines: (() => {
+      const bg = user.brandGuidelines || {};
+      return {
+        primaryColor: bg.primaryColor || '',
+        secondaryColor: bg.secondaryColor || '',
+        logoUrl: bg.logoUrl || '',
+        toneOfVoice: bg.toneOfVoice || '',
+        publicProfileAccentColor: bg.publicProfileAccentColor || '',
+        publicProfileTextColor: bg.publicProfileTextColor || '',
+      };
+    })(),
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };
@@ -572,7 +626,14 @@ router.put(
       if (publicTagline !== undefined) updateData.publicTagline = publicTagline;
       if (publicBio !== undefined) updateData.publicBio = publicBio;
       if (preferredChannels !== undefined) updateData.preferredChannels = preferredChannels;
-      if (brandGuidelines !== undefined) updateData.brandGuidelines = brandGuidelines;
+      if (brandGuidelines !== undefined) {
+        const currentUser = await User.findById(req.user._id).select('brandGuidelines').lean();
+        const merged = mergeBrandGuidelines(currentUser?.brandGuidelines, brandGuidelines);
+        if (!merged.ok) {
+          return res.status(400).json({ message: merged.message || 'Invalid brand guidelines' });
+        }
+        updateData.brandGuidelines = merged.value;
+      }
       if (profileSlug !== undefined && profileSlug !== null) {
         updateData.profileSlug = String(profileSlug).trim().toLowerCase();
       }

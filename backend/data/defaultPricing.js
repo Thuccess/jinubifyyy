@@ -147,54 +147,6 @@ export const DEFAULT_PRICING_PACKAGES = [
     ],
   },
   {
-    serviceSlug: 'website-design-development',
-    packages: [
-      {
-        name: 'Basic Website',
-        price: '$250',
-        description: 'Best for small businesses.',
-        features: [
-          'Up to 5 pages',
-          'Mobile-friendly design',
-          'Contact form',
-          'Basic SEO setup',
-        ],
-        ctaText: 'Get Basic Site',
-        isFeatured: false,
-        order: 0,
-      },
-      {
-        name: 'Business Website',
-        price: '$450',
-        description: 'Ideal for SMEs and organizations.',
-        features: [
-          'Up to 10 pages',
-          'Professional design',
-          'SEO optimization',
-          'WhatsApp integration',
-          '1 month free maintenance',
-        ],
-        ctaText: 'Choose Business',
-        isFeatured: true,
-        order: 1,
-      },
-      {
-        name: 'NGO / Advanced Website',
-        price: '$650+',
-        description: 'Designed for NGOs and larger organizations.',
-        features: [
-          'Custom layout',
-          'Donation or data collection forms',
-          'Content management system (CMS)',
-          'Enhanced security & performance',
-        ],
-        ctaText: 'Contact for Quote',
-        isFeatured: false,
-        order: 2,
-      },
-    ],
-  },
-  {
     serviceSlug: 'mobile-app-development',
     packages: [
       {

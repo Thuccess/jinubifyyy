@@ -8,6 +8,7 @@ import { useIdentityAccess } from '@/components/identity/useIdentityAccess';
 import { useIdentityProfile } from '@/components/identity/useIdentityProfile';
 import { glassCard } from '@/components/identity/identityStyles';
 import { userAPI } from '@/services/api';
+import { colorInputValue, isValidProfileHex } from '@/lib/publicProfileTheme';
 
 export default function IdentityProfileEditor() {
   const { profile, loading, refresh } = useIdentityProfile();
@@ -30,7 +31,14 @@ export default function IdentityProfileEditor() {
     location: '',
     servicesOffered: [] as string[],
     photoURL: '',
-    brandGuidelines: { logoUrl: '' as string, primaryColor: '', secondaryColor: '', toneOfVoice: '' },
+    brandGuidelines: {
+      logoUrl: '' as string,
+      primaryColor: '',
+      secondaryColor: '',
+      toneOfVoice: '',
+      publicProfileAccentColor: '',
+      publicProfileTextColor: '',
+    },
   });
 
   useEffect(() => {
@@ -53,6 +61,8 @@ export default function IdentityProfileEditor() {
         primaryColor: profile.brandGuidelines?.primaryColor || '',
         secondaryColor: profile.brandGuidelines?.secondaryColor || '',
         toneOfVoice: profile.brandGuidelines?.toneOfVoice || '',
+        publicProfileAccentColor: profile.brandGuidelines?.publicProfileAccentColor || '',
+        publicProfileTextColor: profile.brandGuidelines?.publicProfileTextColor || '',
       },
     });
   }, [profile]);
@@ -100,9 +110,7 @@ export default function IdentityProfileEditor() {
         setForm((prev) => ({ ...prev, brandGuidelines: nextBg }));
         await userAPI.updateProfile({
           brandGuidelines: {
-            primaryColor: profile?.brandGuidelines?.primaryColor,
-            secondaryColor: profile?.brandGuidelines?.secondaryColor,
-            toneOfVoice: profile?.brandGuidelines?.toneOfVoice,
+            ...form.brandGuidelines,
             logoUrl: u,
           },
         });
@@ -144,6 +152,13 @@ export default function IdentityProfileEditor() {
     if (!canEditIdentity) return;
     setSaving(true);
     setMessage(null);
+    const accent = form.brandGuidelines.publicProfileAccentColor.trim();
+    const textC = form.brandGuidelines.publicProfileTextColor.trim();
+    if (!isValidProfileHex(accent) || !isValidProfileHex(textC)) {
+      setMessage('Card colors must be empty or valid hex (#RGB or #RRGGBB).');
+      setSaving(false);
+      return;
+    }
     try {
       const services = form.servicesOffered.map((s) => s.trim()).filter(Boolean);
       await userAPI.updateProfile({
@@ -158,7 +173,11 @@ export default function IdentityProfileEditor() {
         location: form.location,
         servicesOffered: services,
         photoURL: form.photoURL,
-        brandGuidelines: form.brandGuidelines,
+        brandGuidelines: {
+          ...form.brandGuidelines,
+          publicProfileAccentColor: accent,
+          publicProfileTextColor: textC,
+        },
       });
       await refresh();
       await refreshUser();
@@ -320,6 +339,103 @@ export default function IdentityProfileEditor() {
                 </div>
               </>
             )}
+
+            <div className="rounded-xl border border-border-card bg-bg-secondary/40 p-4 space-y-3">
+              <div>
+                <p className="text-xs font-semibold text-text-primary">Public card &amp; QR page colors</p>
+                <p className="mt-1 text-[11px] text-text-muted leading-relaxed">
+                  Optional accent and text colors for your public profile when someone opens your link or scans your QR.
+                  Leave empty to match the site theme.
+                </p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="text-[11px] font-semibold text-text-muted">Accent (links, highlights)</label>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <input
+                      type="color"
+                      aria-label="Accent color"
+                      disabled={!canEditIdentity}
+                      className="h-9 w-11 cursor-pointer rounded-lg border border-border-card bg-transparent p-0 disabled:opacity-45"
+                      value={colorInputValue(form.brandGuidelines.publicProfileAccentColor, '#6366f1')}
+                      onChange={(e) =>
+                        setForm((p) => ({
+                          ...p,
+                          brandGuidelines: { ...p.brandGuidelines, publicProfileAccentColor: e.target.value },
+                        }))
+                      }
+                    />
+                    <input
+                      type="text"
+                      disabled={!canEditIdentity}
+                      placeholder="#RRGGBB or empty"
+                      value={form.brandGuidelines.publicProfileAccentColor}
+                      onChange={(e) =>
+                        setForm((p) => ({
+                          ...p,
+                          brandGuidelines: {
+                            ...p.brandGuidelines,
+                            publicProfileAccentColor: e.target.value.trim(),
+                          },
+                        }))
+                      }
+                      className="min-w-0 flex-1 rounded-xl border border-border-card bg-bg-secondary px-2 py-2 text-xs disabled:opacity-45"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-text-muted">Text</label>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <input
+                      type="color"
+                      aria-label="Text color"
+                      disabled={!canEditIdentity}
+                      className="h-9 w-11 cursor-pointer rounded-lg border border-border-card bg-transparent p-0 disabled:opacity-45"
+                      value={colorInputValue(form.brandGuidelines.publicProfileTextColor, '#f8fafc')}
+                      onChange={(e) =>
+                        setForm((p) => ({
+                          ...p,
+                          brandGuidelines: { ...p.brandGuidelines, publicProfileTextColor: e.target.value },
+                        }))
+                      }
+                    />
+                    <input
+                      type="text"
+                      disabled={!canEditIdentity}
+                      placeholder="#RRGGBB or empty"
+                      value={form.brandGuidelines.publicProfileTextColor}
+                      onChange={(e) =>
+                        setForm((p) => ({
+                          ...p,
+                          brandGuidelines: {
+                            ...p.brandGuidelines,
+                            publicProfileTextColor: e.target.value.trim(),
+                          },
+                        }))
+                      }
+                      className="min-w-0 flex-1 rounded-xl border border-border-card bg-bg-secondary px-2 py-2 text-xs disabled:opacity-45"
+                    />
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                disabled={!canEditIdentity}
+                onClick={() =>
+                  setForm((p) => ({
+                    ...p,
+                    brandGuidelines: {
+                      ...p.brandGuidelines,
+                      publicProfileAccentColor: '',
+                      publicProfileTextColor: '',
+                    },
+                  }))
+                }
+                className="text-xs font-semibold text-brand-primary hover:underline"
+              >
+                Reset to site default (clear both)
+              </button>
+            </div>
 
             <button
               type="button"

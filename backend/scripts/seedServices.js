@@ -71,23 +71,6 @@ const STATIC_SERVICES = [
     order: 2,
   },
   {
-    title: 'Website Design & Development',
-    slug: 'website-design-development',
-    description: 'Websites that work for your business—fast, mobile-friendly, and secure.',
-    intro: 'Websites that work for your business. We build fast, mobile-friendly, and secure websites that showcase your brand and help convert visitors into customers.',
-    bulletsLabel: 'Website solutions:',
-    bullets: [
-      'Business & corporate websites',
-      'NGO & organization websites',
-      'Landing pages for promotions',
-      'Simple e-commerce websites',
-      'Website maintenance & updates',
-    ],
-    hasDemo: true,
-    isActive: true,
-    order: 3,
-  },
-  {
     title: 'Mobile App Development',
     slug: 'mobile-app-development',
     description: 'Bring your ideas to your customers\' pockets with practical mobile apps.',
@@ -101,7 +84,7 @@ const STATIC_SERVICES = [
     ],
     hasDemo: true,
     isActive: true,
-    order: 4,
+    order: 3,
   },
   {
     title: 'Software Development',
@@ -118,7 +101,7 @@ const STATIC_SERVICES = [
     ],
     hasDemo: false,
     isActive: true,
-    order: 5,
+    order: 4,
   },
   {
     title: 'Cloud & Hosting Services',
@@ -135,7 +118,7 @@ const STATIC_SERVICES = [
     ],
     hasDemo: true,
     isActive: true,
-    order: 6,
+    order: 5,
   },
   {
     title: 'Printing Services',
@@ -152,7 +135,7 @@ const STATIC_SERVICES = [
     ],
     hasDemo: false,
     isActive: true,
-    order: 7,
+    order: 6,
   },
 ];
 

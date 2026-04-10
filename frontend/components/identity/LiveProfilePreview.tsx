@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { SocialLink } from '@/types';
 import { glassCard } from '@/components/identity/identityStyles';
+import { rgbaFromHex } from '@/lib/publicProfileTheme';
 
 export type ProfileDraft = {
   accountType?: 'personal' | 'business';
@@ -16,7 +17,14 @@ export type ProfileDraft = {
   email?: string;
   profileSlug?: string | null;
   socialLinks?: SocialLink[];
-  brandGuidelines?: { logoUrl?: string; primaryColor?: string; secondaryColor?: string; toneOfVoice?: string };
+  brandGuidelines?: {
+    logoUrl?: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+    toneOfVoice?: string;
+    publicProfileAccentColor?: string;
+    publicProfileTextColor?: string;
+  };
 };
 
 export function LiveProfilePreview({
@@ -37,6 +45,48 @@ export function LiveProfilePreview({
       : draft.photoURL?.trim() || '';
   const lead = draft.publicTagline?.trim() || '';
   const slugShow = slugPreview || 'your-handle';
+  const accentColor = draft.brandGuidelines?.publicProfileAccentColor?.trim() ?? '';
+  const textColor = draft.brandGuidelines?.publicProfileTextColor?.trim() ?? '';
+  const usePublicProfileColors = Boolean(accentColor || textColor);
+
+  const overlayThemeStyle = useMemo((): React.CSSProperties | undefined => {
+    if (!usePublicProfileColors) return undefined;
+    return {
+      '--pp-text': textColor
+        ? textColor
+        : 'rgba(255,255,255,0.92)',
+      '--pp-muted': textColor
+        ? rgbaFromHex(textColor, 0.72) || 'rgba(255,255,255,0.65)'
+        : 'rgba(255,255,255,0.65)',
+      '--pp-accent': accentColor || '#93c5fd',
+    } as React.CSSProperties;
+  }, [accentColor, textColor, usePublicProfileColors]);
+
+  const titleClass = usePublicProfileColors
+    ? 'mt-1 text-xl font-bold tracking-tight text-[color:var(--pp-text)]'
+    : 'mt-1 text-xl font-bold tracking-tight text-white';
+  const slugClass = usePublicProfileColors
+    ? 'mt-0.5 text-sm text-[color:var(--pp-muted)]'
+    : 'mt-0.5 text-sm text-violet-200/90';
+  const leadClass = usePublicProfileColors
+    ? 'mt-2 line-clamp-2 text-sm text-[color:var(--pp-text)]'
+    : 'mt-2 line-clamp-2 text-sm text-white/85';
+  const chipClass = usePublicProfileColors
+    ? 'rounded-full border border-solid px-2.5 py-0.5 text-[11px] font-medium text-[color:var(--pp-text)]'
+    : 'rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] font-medium text-white/95 ring-1 ring-white/20';
+  const chipStyle: React.CSSProperties | undefined = usePublicProfileColors
+    ? accentColor
+      ? {
+          borderColor: rgbaFromHex(accentColor, 0.45),
+          backgroundColor: rgbaFromHex(accentColor, 0.15),
+        }
+      : textColor
+        ? {
+            borderColor: rgbaFromHex(textColor, 0.35),
+            backgroundColor: rgbaFromHex(textColor, 0.1),
+          }
+        : { borderColor: 'rgba(255,255,255,0.25)', backgroundColor: 'rgba(255,255,255,0.08)' }
+    : undefined;
 
   return (
     <div
@@ -53,17 +103,25 @@ export function LiveProfilePreview({
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 px-5 pb-6 pt-12 backdrop-blur-[12px]">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-white/70">Public preview</p>
-          <h2 className="mt-1 text-xl font-bold tracking-tight text-white">{displayName}</h2>
-          <p className="mt-0.5 text-sm text-violet-200/90">@{slugShow}</p>
-          {lead ? <p className="mt-2 line-clamp-2 text-sm text-white/85">{lead}</p> : null}
+        <div
+          className="absolute inset-x-0 bottom-0 px-5 pb-6 pt-12 backdrop-blur-[12px]"
+          style={overlayThemeStyle}
+        >
+          <p
+            className={
+              usePublicProfileColors
+                ? 'text-[10px] font-semibold uppercase tracking-wider text-[color:var(--pp-muted)]'
+                : 'text-[10px] font-semibold uppercase tracking-wider text-white/70'
+            }
+          >
+            Public preview
+          </p>
+          <h2 className={titleClass}>{displayName}</h2>
+          <p className={slugClass}>@{slugShow}</p>
+          {lead ? <p className={leadClass}>{lead}</p> : null}
           <div className="mt-4 flex flex-wrap gap-2">
             {(draft.socialLinks || []).slice(0, 6).map((l) => (
-              <span
-                key={l.platform}
-                className="rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] font-medium text-white/95 ring-1 ring-white/20"
-              >
+              <span key={l.platform} className={chipClass} style={chipStyle}>
                 {l.platform}
               </span>
             ))}

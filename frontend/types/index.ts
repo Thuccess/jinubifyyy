@@ -39,6 +39,8 @@ export interface User {
     secondaryColor?: string;
     logoUrl?: string;
     toneOfVoice?: string;
+    publicProfileAccentColor?: string;
+    publicProfileTextColor?: string;
   };
   lastLoginAt?: Date | string;
 }

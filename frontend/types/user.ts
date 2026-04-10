@@ -25,6 +25,8 @@ export interface UserProfile {
     secondaryColor?: string;
     logoUrl?: string;
     toneOfVoice?: string;
+    publicProfileAccentColor?: string;
+    publicProfileTextColor?: string;
   };
   createdAt: string;
   updatedAt: string;
@@ -49,6 +51,8 @@ export interface UpdateProfileData {
     secondaryColor?: string;
     logoUrl?: string;
     toneOfVoice?: string;
+    publicProfileAccentColor?: string;
+    publicProfileTextColor?: string;
   };
 }
 

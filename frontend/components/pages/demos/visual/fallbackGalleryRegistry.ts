@@ -54,17 +54,6 @@ const REGISTRY: Record<string, string[]> = {
     'Image editing & design',
     'Branded merchandise design',
   ],
-  'website-design-development': [
-    'Business websites',
-    'Corporate websites',
-    'NGO & organization websites',
-    'Landing pages for promotions',
-    'Simple e-commerce websites',
-    'Mobile-friendly / responsive design',
-    'Website maintenance & updates',
-    'Website optimization (performance & SEO)',
-    'Contact forms & integrations (WhatsApp, email)',
-  ],
   'mobile-app-development': [
     'Android app development',
     'iOS app development',

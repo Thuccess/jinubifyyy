@@ -49,6 +49,8 @@ function toSessionUser(u) {
       secondaryColor: '',
       logoUrl: '',
       toneOfVoice: '',
+      publicProfileAccentColor: '',
+      publicProfileTextColor: '',
     },
     lastLoginAt: o.lastLoginAt,
     isActive: o.isActive !== false,
@@ -407,7 +409,14 @@ router.get('/me', authenticate, verifyApproved, async (req, res) => {
           publicBio: '',
           socialLinks: [],
           preferredChannels: [],
-          brandGuidelines: { primaryColor: '', secondaryColor: '', logoUrl: '', toneOfVoice: '' },
+          brandGuidelines: {
+            primaryColor: '',
+            secondaryColor: '',
+            logoUrl: '',
+            toneOfVoice: '',
+            publicProfileAccentColor: '',
+            publicProfileTextColor: '',
+          },
           lastLoginAt: req.user.lastLoginAt,
         };
     if (!merged?.email) {

@@ -242,6 +242,8 @@ export type PublicProfilePayload = {
     toneOfVoice: string;
     primaryColor: string;
     secondaryColor: string;
+    publicProfileAccentColor: string;
+    publicProfileTextColor: string;
   };
   qrCodeUrl: string;
   verified: boolean;
