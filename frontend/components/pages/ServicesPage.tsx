@@ -72,7 +72,7 @@ const ServiceSection: React.FC<{ item: ServiceDisplayItem; featured?: boolean }>
           <button
             type="button"
             onClick={() => router.push('/pricing')}
-            className="btn-primary inline-flex items-center gap-2"
+            className="btn-contrast-mode inline-flex items-center gap-2"
           >
             View Packages <ArrowRightIcon className="h-4 w-4" />
           </button>

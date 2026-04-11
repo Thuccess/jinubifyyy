@@ -184,7 +184,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
           <div className="animate-fade-in-up hero-gap-after-cta" style={{ animationDelay: '400ms' }}>
             <Link
               href={c.ctaHref || '/request-quote'}
-              className="relative overflow-hidden btn-shine btn-primary group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 ring-2 ring-[color:var(--accent-soft)] focus-visible:ring-offset-2"
+              className="relative overflow-hidden btn-shine group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 ring-2 ring-black/15 dark:ring-white/25 focus-visible:ring-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-[color:var(--bg-primary)] !bg-black !text-white hover:!bg-neutral-800 dark:!bg-white dark:!text-black dark:hover:!bg-neutral-200"
             >
               {c.ctaText}{' '}
               <span className="ml-2 inline-flex">
@@ -192,7 +192,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
                   icon={PaperAirplaneIcon}
                   size="sm"
                   tone="inverted"
-                  className="transition-transform duration-300 group-hover:translate-x-1"
+                  className="!text-white dark:!text-black transition-transform duration-300 group-hover:translate-x-1"
                 />
               </span>
             </Link>

@@ -90,7 +90,7 @@ const ContactForm: React.FC = () => {
                 <button
                     type="submit"
                     disabled={status === 'submitting'}
-                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-base font-medium btn-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-all transform hover:scale-105"
+                    className="w-full btn-contrast-mode btn-contrast-mode--compact border border-transparent focus-visible:ring-offset-2"
                 >
                     {status === 'submitting' ? 'Preparing Message...' : 'Send Message'}
                 </button>

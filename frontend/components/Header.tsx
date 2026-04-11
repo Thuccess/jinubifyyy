@@ -284,7 +284,7 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLogi
                   </button>
                   <button
                     onClick={handleSignUpClick}
-                    className="px-4 py-2 text-sm font-medium btn-primary rounded-lg focus-visible:ring-offset-2"
+                    className="px-4 py-2 text-sm font-medium rounded-lg focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-[color:var(--bg-primary)] !bg-black !text-white hover:!bg-neutral-800 dark:!bg-white dark:!text-black dark:hover:!bg-neutral-200 transition-colors"
                   >
                     Sign Up
                   </button>
@@ -422,7 +422,11 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLogi
                   <button type="button" onClick={handleMobileSignIn} className="block w-full text-left py-3 px-4 text-text-secondary hover:text-text-primary font-medium min-h-[44px] rounded-lg hover:bg-surface-muted/90 transition-colors duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]">
                     Sign In
                   </button>
-                  <button type="button" onClick={handleMobileSignUp} className="block w-full text-center py-3 px-6 rounded-lg btn-primary font-medium min-h-[44px] focus-visible:ring-offset-2">
+                  <button
+                    type="button"
+                    onClick={handleMobileSignUp}
+                    className="block w-full text-center py-3 px-6 rounded-lg font-medium min-h-[44px] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-[color:var(--bg-primary)] !bg-black !text-white hover:!bg-neutral-800 dark:!bg-white dark:!text-black dark:hover:!bg-neutral-200 transition-colors"
+                  >
                     Sign Up
                   </button>
                 </>

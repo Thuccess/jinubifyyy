@@ -647,6 +647,62 @@ button,
   transform: none !important;
 }
 
+/**
+ * High-contrast CTA: black in light mode, white in dark mode.
+ * Use instead of .btn-primary where theme must not use brand token colors.
+ */
+.btn-contrast-mode {
+  background-color: #0a0a0a !important;
+  color: #fafafa !important;
+  border-radius: 0.75rem !important;
+  padding: 1rem 2rem !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  transition:
+    background-color var(--btn-duration) var(--btn-ease),
+    color var(--btn-duration) var(--btn-ease),
+    transform var(--btn-duration) var(--btn-ease),
+    box-shadow var(--btn-duration) var(--btn-ease) !important;
+  outline: none;
+}
+.btn-contrast-mode svg {
+  color: currentColor !important;
+}
+.btn-contrast-mode:hover:not(:disabled) {
+  background-color: #262626 !important;
+  transform: scale(1.02) !important;
+}
+html.dark .btn-contrast-mode {
+  background-color: #fafafa !important;
+  color: #0a0a0a !important;
+}
+html.dark .btn-contrast-mode:hover:not(:disabled) {
+  background-color: #e5e5e5 !important;
+}
+.btn-contrast-mode:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--cta-bg),
+    0 0 0 4px var(--accent-ring),
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+.btn-contrast-mode:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+/** Same as btn-contrast-mode but contact-form padding (matches prior btn-primary on form) */
+.btn-contrast-mode--compact {
+  padding: 0.75rem 1rem !important;
+}
+
 .btn-secondary {
   /* Derived from the primary CTA (same sizing/behavior, toned-down palette) */
   background-color: var(--surface-muted) !important;
