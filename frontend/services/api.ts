@@ -1342,7 +1342,7 @@ export const adminCmsAPI = {
     const response = await api.delete<{ data: Record<string, unknown> }>(`/admin/cms/nav/${id}`);
     return response.data;
   },
-  getPages: async (params?: { type?: string; status?: string; search?: string }) => {
+  getPages: async (params?: { type?: string; status?: string; search?: string; includeDeleted?: boolean }) => {
     const response = await api.get<{ data: Array<Record<string, unknown>> }>('/admin/cms/pages', {
       params,
     });

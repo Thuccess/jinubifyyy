@@ -137,7 +137,17 @@ router.delete('/nav/:id', async (req, res) => {
 router.get('/pages', async (req, res) => {
   try {
     const { type, status, search } = req.query;
+    const includeDeleted = String(req.query.includeDeleted || '').toLowerCase() === 'true';
+    if (includeDeleted) {
+      const role = req.user?.role;
+      if (role !== 'admin' && role !== 'super_admin') {
+        return res.status(403).json({ message: 'Only admins can list deleted pages' });
+      }
+    }
     const query = {};
+    if (!includeDeleted) {
+      query.isDeleted = false;
+    }
     if (type) query.type = type;
     if (status) query.status = status;
     if (search) {
@@ -187,6 +197,9 @@ router.post('/pages', async (req, res) => {
     res.status(201).json({ data: doc });
   } catch (e) {
     console.error('Admin CMS pages create:', e);
+    if (e.code === 11000) {
+      return res.status(400).json({ message: 'A page with this slug already exists' });
+    }
     res.status(500).json({ message: 'Server error', error: e.message });
   }
 });
@@ -206,19 +219,26 @@ router.get('/pages/:id', async (req, res) => {
 router.put('/pages/:id', async (req, res) => {
   try {
     const { slug, title, type, seo, isVisible, isDeleted, status, order } = req.body;
-    const update = {};
-    if (slug !== undefined) update.slug = slug.trim().toLowerCase();
-    if (title !== undefined) update.title = title;
-    if (type !== undefined) update.type = type;
+    const set = {};
+    if (slug !== undefined) set.slug = slug.trim().toLowerCase();
+    if (title !== undefined) set.title = title;
+    if (type !== undefined) set.type = type;
     if (seo !== undefined) {
-      update.seo = {
+      set.seo = {
         metaTitle: seo?.metaTitle || '',
         metaDescription: seo?.metaDescription || '',
         keywords: Array.isArray(seo?.keywords) ? seo.keywords : [],
       };
     }
-    if (typeof isVisible === 'boolean') update.isVisible = isVisible;
-    if (typeof isDeleted === 'boolean') update.isDeleted = isDeleted;
+    if (typeof isVisible === 'boolean') set.isVisible = isVisible;
+    if (typeof isDeleted === 'boolean') {
+      const role = req.user?.role;
+      if (role !== 'admin' && role !== 'super_admin') {
+        return res.status(403).json({ message: 'Only admins can change delete state' });
+      }
+      set.isDeleted = isDeleted;
+    }
+    let inc = null;
     if (status) {
       if (status === 'published') {
         const role = req.user?.role;
@@ -226,18 +246,18 @@ router.put('/pages/:id', async (req, res) => {
           return res.status(403).json({ message: 'Only admins can publish pages' });
         }
       }
-      update.status = status;
+      set.status = status;
       if (status === 'published') {
-        update.lastPublishedAt = new Date();
-        update.lastPublishedBy = req.user?._id;
-        update.$inc = { version: 1 };
+        set.lastPublishedAt = new Date();
+        set.lastPublishedBy = req.user?._id;
+        inc = { version: 1 };
       }
     }
-    if (typeof order === 'number') update.order = order;
-    update.updatedAt = new Date();
+    if (typeof order === 'number') set.order = order;
+    set.updatedAt = new Date();
     const doc = await Page.findByIdAndUpdate(
       req.params.id,
-      update.$inc ? { $set: update, $inc: update.$inc } : { $set: update },
+      inc ? { $set: set, $inc: inc } : { $set: set },
       { new: true }
     );
     if (!doc) return res.status(404).json({ message: 'Page not found' });
@@ -245,18 +265,30 @@ router.put('/pages/:id', async (req, res) => {
     res.json({ data: doc });
   } catch (e) {
     console.error('Admin CMS page update:', e);
+    if (e.code === 11000) {
+      return res.status(400).json({ message: 'A page with this slug already exists' });
+    }
     res.status(500).json({ message: 'Server error', error: e.message });
   }
 });
 
 router.delete('/pages/:id', async (req, res) => {
   try {
+    const role = req.user?.role;
+    if (role !== 'admin' && role !== 'super_admin') {
+      return res.status(403).json({ message: 'Only admins can delete pages' });
+    }
+    const now = new Date();
     const doc = await Page.findByIdAndUpdate(
       req.params.id,
-      { $set: { isDeleted: true, updatedAt: new Date() } },
+      { $set: { isDeleted: true, updatedAt: now } },
       { new: true }
     );
     if (!doc) return res.status(404).json({ message: 'Page not found' });
+    await Section.updateMany(
+      { page: doc._id, isDeleted: { $ne: true } },
+      { $set: { isDeleted: true, updatedAt: now } }
+    );
     invalidateCmsPublicSiteCache();
     res.json({ data: doc });
   } catch (e) {

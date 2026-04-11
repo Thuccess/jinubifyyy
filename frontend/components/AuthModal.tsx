@@ -8,10 +8,8 @@ import { authAPI, storeAuth } from '../services/api';
 import { User } from '../types';
 
 const inputClass =
-  'w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-[color:var(--surface-card)] text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] focus:border-[color:var(--border-accent)] transition-colors duration-200';
-const labelClass = 'block text-sm font-medium text-text-primary mb-1';
-const oauthBtnClass =
-  'flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-border-subtle bg-[color:var(--surface-muted)] text-text-primary hover:bg-[color:var(--surface-card)] text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]';
+  'w-full h-11 px-4 rounded-xl border border-border-subtle bg-[color:var(--surface-card)] text-text-primary placeholder:text-text-muted transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] focus:border-[color:var(--border-accent)]';
+const labelClass = 'block text-sm font-medium text-text-primary mb-1.5';
 
 const getApiErrorMessage = (err: unknown) => {
   const e = err as { response?: { data?: { message?: string } } };
@@ -94,17 +92,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
     }
   };
 
-  const handleOAuth = (provider: 'google' | 'github') => {
-    setError('');
-    const base = (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL)?.replace(/\/api\/?$/, '') || '';
-    const url = base ? `${base}/api/auth/${provider}` : '';
-    if (url) {
-      window.location.href = url;
-    } else {
-      setError(`${provider === 'google' ? 'Google' : 'GitHub'} sign-in: connect your OAuth endpoint in AuthModal handleOAuth.`);
-    }
-  };
-
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -169,15 +156,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-2xl overflow-hidden surface surface--modal border border-border-card transition-colors duration-300">
+              <Dialog.Panel className="w-full max-w-md mx-auto md:max-w-4xl md:mx-0 overflow-hidden surface surface--modal border border-border-card rounded-2xl shadow-xl shadow-black/10 dark:shadow-black/40 transition-colors duration-300">
                 {view === 'signUp' ? (
                   <PublicSignUpSteps
                     key={isOpen ? 'signup-open' : 'signup-closed'}
                     inputClass={inputClass}
                     labelClass={labelClass}
-                    oauthBtnClass={oauthBtnClass}
-                    onOAuthGoogle={() => handleOAuth('google')}
-                    onOAuthGithub={() => handleOAuth('github')}
                     onClose={onClose}
                     onComplete={(email) => {
                       setVerificationEmail(email);
@@ -193,151 +177,154 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, view: initialVie
                   />
                 ) : (
                   <div className="flex flex-col md:flex-row min-h-[520px] md:min-h-[560px]">
-                    <div className="hidden md:flex bg-[color:var(--bg-secondary)] p-6 md:p-8 md:w-[42%] flex-col justify-center border-b md:border-b-0 md:border-r border-border-subtle transition-colors duration-300">
-                      <h2 className="text-2xl md:text-3xl font-bold text-text-primary mb-2">Welcome back</h2>
-                      <p className="text-text-secondary text-sm md:text-base">
-                        Sign in to your dashboard and continue where you left off.
-                      </p>
+                    <div className="hidden md:flex md:w-[44%] flex-col justify-between p-8 md:p-10 border-b md:border-b-0 md:border-r border-border-subtle bg-gradient-to-br from-brand-soft/25 via-[color:var(--bg-secondary)] to-[color:var(--surface-muted)] transition-colors duration-300">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-widest text-text-secondary">Jinubify</p>
+                        <h2 className="mt-4 text-2xl md:text-3xl font-bold tracking-tight text-text-primary">Welcome back</h2>
+                        <p className="mt-2 text-sm md:text-base text-text-secondary leading-relaxed max-w-xs">
+                          Sign in to manage your profile, connect with others, and keep building.
+                        </p>
+                      </div>
+                      <p className="text-xs text-text-muted">Secure sign-in · Encrypted session</p>
                     </div>
 
-                    <div className="flex-1 flex flex-col p-6 md:p-8 bg-[color:var(--bg-primary)] transition-colors duration-300">
-                      <div className="flex justify-between items-start mb-6">
-                        <div>
-                          <Dialog.Title as="h3" className="text-xl md:text-2xl font-bold text-text-primary">
-                            Sign In
+                    <div className="flex-1 flex flex-col p-6 md:p-8 bg-[color:var(--bg-primary)] transition-colors duration-300 md:max-w-none">
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="min-w-0">
+                          <Dialog.Title as="h3" className="text-xl md:text-2xl font-bold text-text-primary tracking-tight">
+                            Welcome back 👋
                           </Dialog.Title>
-                          <p className="mt-1 text-sm text-text-secondary">Enter your credentials to access your account.</p>
+                          <p className="mt-1.5 text-sm text-text-secondary">Sign in to continue to Jinubify</p>
                         </div>
                         <button
                           type="button"
                           onClick={onClose}
-                          className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-muted/90 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
+                          className="shrink-0 p-2 rounded-xl text-text-muted hover:text-text-primary hover:bg-surface-muted/90 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
                           aria-label="Close"
                         >
-                          <XMarkIcon className="h-6 w-6" />
+                          <XMarkIcon className="h-5 w-5 md:h-6 md:w-6" />
                         </button>
                       </div>
 
-                      <form onSubmit={handleSignIn} className="flex flex-col gap-4 flex-1">
-                        <div className="flex gap-3">
-                          <button type="button" onClick={() => handleOAuth('google')} className={oauthBtnClass}>
-                            <span className="font-semibold">G</span> Google
-                          </button>
-                          <button type="button" onClick={() => handleOAuth('github')} className={oauthBtnClass}>
-                            <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
-                              <path
-                                fillRule="evenodd"
-                                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 2.24-1.296 2.75-1.026 2.75-1.026.544 1.379.202 2.397.098 2.65.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                            Github
-                          </button>
-                        </div>
-                        <p className="text-center text-xs text-text-muted">Or</p>
-                        <div>
-                          <label htmlFor="email" className={labelClass}>
-                            Email
-                          </label>
-                          <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            required
-                            className={inputClass}
-                            placeholder="eg. john@example.com"
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="password" className={labelClass}>
-                            Password
-                          </label>
-                          <div className="relative">
+                      <form onSubmit={handleSignIn} className="flex flex-col flex-1 mt-6">
+                        <div className="space-y-4 flex-1 flex flex-col">
+                          <div>
+                            <label htmlFor="email" className={labelClass}>
+                              Email
+                            </label>
                             <input
-                              type={showPassword ? 'text' : 'password'}
-                              id="password"
-                              name="password"
-                              value={formData.password}
+                              type="email"
+                              id="email"
+                              name="email"
+                              value={formData.email}
                               onChange={handleInputChange}
                               required
-                              minLength={6}
-                              className={`${inputClass} pr-10`}
-                              placeholder="Enter your password"
+                              className={inputClass}
+                              placeholder="you@company.com"
+                              autoComplete="email"
                             />
+                          </div>
+                          <div>
+                            <label htmlFor="password" className={labelClass}>
+                              Password
+                            </label>
+                            <div className="relative">
+                              <input
+                                type={showPassword ? 'text' : 'password'}
+                                id="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                required
+                                minLength={6}
+                                className={`${inputClass} pr-11`}
+                                placeholder="Enter your password"
+                                autoComplete="current-password"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowPassword((p) => !p)}
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-muted/80 transition-all duration-200"
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                              >
+                                {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap items-center justify-between gap-2 gap-y-2">
+                            <div className="flex items-center min-h-[44px]">
+                              <input
+                                id="remember-me"
+                                type="checkbox"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                                className="h-4 w-4 rounded border-border-subtle text-[color:var(--accent-primary)] focus:ring-2 focus:ring-[color:var(--accent-ring)]"
+                              />
+                              <label htmlFor="remember-me" className="ml-2 text-sm text-text-secondary cursor-pointer">
+                                Remember me
+                              </label>
+                            </div>
+                            <a
+                              href="mailto:support@jinubify.com?subject=Password%20help"
+                              className="text-sm font-medium text-text-primary hover:underline underline-offset-2 transition-colors min-h-[44px] inline-flex items-center"
+                            >
+                              Forgot password?
+                            </a>
+                          </div>
+
+                          {error && (
+                            <div className="p-3 rounded-xl text-sm bg-[color:var(--surface-muted)] border border-border-strong text-text-primary">
+                              {error}
+                            </div>
+                          )}
+                          {successMessage && (
+                            <div className="p-3 rounded-xl text-sm bg-[color:var(--surface-muted)] border border-border-card text-text-primary whitespace-pre-line">
+                              {successMessage}
+                            </div>
+                          )}
+                          {(successMessage || error === 'Please activate your account via email') && (
                             <button
                               type="button"
-                              onClick={() => setShowPassword((p) => !p)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded text-text-muted hover:text-text-primary transition-colors"
-                              aria-label={showPassword ? 'Hide password' : 'Show password'}
+                              onClick={() => handleResendVerification()}
+                              disabled={resendLoading || resendCooldown > 0}
+                              className="w-full h-11 rounded-xl font-semibold btn-secondary disabled:opacity-60 transition-all duration-200 hover:opacity-90 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
                             >
-                              {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                              {resendLoading
+                                ? 'Sending...'
+                                : resendCooldown > 0
+                                  ? `Resend verification (${resendCooldown}s)`
+                                  : 'Resend verification email'}
                             </button>
-                          </div>
-                        </div>
-                        <div className="flex items-center">
-                          <input
-                            id="remember-me"
-                            type="checkbox"
-                            checked={rememberMe}
-                            onChange={(e) => setRememberMe(e.target.checked)}
-                            className="h-4 w-4 rounded border-border-subtle text-[color:var(--accent-primary)] focus:ring-[color:var(--accent-ring)]"
-                          />
-                          <label htmlFor="remember-me" className="ml-2 text-sm text-text-secondary">
-                            Remember me
-                          </label>
-                        </div>
-                        {error && (
-                          <div className="p-3 rounded-lg text-sm bg-[color:var(--surface-muted)] border border-border-strong text-text-primary">
-                            {error}
-                          </div>
-                        )}
-                        {successMessage && (
-                          <div className="p-3 rounded-lg text-sm bg-[color:var(--surface-muted)] border border-border-card text-text-primary whitespace-pre-line">
-                            {successMessage}
-                          </div>
-                        )}
-                        {(successMessage || error === 'Please activate your account via email') && (
+                          )}
+                          {resendMessage && (
+                            <div className="p-3 rounded-xl text-sm bg-[color:var(--surface-muted)] border border-border-card text-text-primary">
+                              {resendMessage}
+                            </div>
+                          )}
+
                           <button
-                            type="button"
-                            onClick={() => handleResendVerification()}
-                            disabled={resendLoading || resendCooldown > 0}
-                            className="w-full py-3 rounded-xl font-semibold btn-secondary disabled:opacity-60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
+                            type="submit"
+                            disabled={loading}
+                            className="w-full h-11 mt-2 rounded-xl font-semibold btn-primary disabled:opacity-60 transition-all duration-200 hover:opacity-90 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
                           >
-                            {resendLoading
-                              ? 'Sending...'
-                              : resendCooldown > 0
-                                ? `Resend Verification Email (${resendCooldown}s)`
-                                : 'Resend Verification Email'}
+                            {loading ? 'Signing in...' : 'Sign in'}
                           </button>
-                        )}
-                        {resendMessage && (
-                          <div className="p-3 rounded-lg text-sm bg-[color:var(--surface-muted)] border border-border-card text-text-primary">
-                            {resendMessage}
-                          </div>
-                        )}
-                        <button
-                          type="submit"
-                          disabled={loading}
-                          className="w-full py-3 rounded-xl font-semibold btn-primary disabled:opacity-60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
-                        >
-                          {loading ? 'Signing in...' : 'Sign In'}
-                        </button>
-                        <p className="text-center text-sm text-text-secondary">
-                          Don&apos;t have an account?{' '}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setView('signUp');
-                              setError('');
-                              setSuccessMessage('');
-                            }}
-                            className="font-medium text-text-primary hover:underline"
-                          >
-                            Sign Up
-                          </button>
-                        </p>
+                          <p className="text-center text-sm text-text-secondary pt-2">
+                            Don&apos;t have an account?{' '}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setView('signUp');
+                                setError('');
+                                setSuccessMessage('');
+                              }}
+                              className="font-semibold text-text-primary hover:underline underline-offset-2"
+                            >
+                              Sign up
+                            </button>
+                          </p>
+                        </div>
                       </form>
                     </div>
                   </div>

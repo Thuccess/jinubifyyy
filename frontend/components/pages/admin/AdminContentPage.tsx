@@ -242,6 +242,7 @@ const AdminContentPage: React.FC = () => {
       title: string;
       type?: string;
       isVisible?: boolean;
+      isDeleted?: boolean;
       status?: string;
       order?: number;
       seo?: { metaTitle?: string; metaDescription?: string; keywords?: string[] };
@@ -255,6 +256,7 @@ const AdminContentPage: React.FC = () => {
     status: 'all',
     search: '',
   });
+  const [showDeletedPages, setShowDeletedPages] = useState(false);
   const [editingPage, setEditingPage] = useState<Record<string, unknown> | null>(null);
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const [draggingSectionId, setDraggingSectionId] = useState<string | null>(null);
@@ -409,12 +411,13 @@ const AdminContentPage: React.FC = () => {
   const loadPages = useCallback(async () => {
     setLoading(true);
     try {
-      const params: { type?: string; status?: string; search?: string } = {};
+      const params: { type?: string; status?: string; search?: string; includeDeleted?: boolean } = {};
       if (pageFilters.type !== 'all') params.type = pageFilters.type;
       if (pageFilters.status !== 'all') params.status = pageFilters.status;
       if (pageFilters.search.trim()) params.search = pageFilters.search.trim();
+      if (showDeletedPages) params.includeDeleted = true;
       const res = await adminCmsAPI.getPages(params);
-      const data = (res.data || []) as Array<{ _id: string; slug: string; title: string }>;
+      const data = (res.data || []) as Array<{ _id: string; slug: string; title: string; isDeleted?: boolean }>;
       setPages(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error('Load pages error:', e);
@@ -423,7 +426,64 @@ const AdminContentPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [pageFilters]);
+  }, [pageFilters, showDeletedPages]);
+
+  const handleDeletePage = async (p: { _id: string; slug: string }) => {
+    const slugNorm = String(p.slug || '')
+      .trim()
+      .replace(/^\/+/, '')
+      .toLowerCase();
+    if (slugNorm === 'home') {
+      if (
+        !window.confirm(
+          'This is the home page. Soft-deleting it will remove it from the public site until an admin restores it. Continue?'
+        )
+      ) {
+        return;
+      }
+    } else if (!window.confirm(`Soft-delete page "${p.slug}"? It will disappear from the public site until restored.`)) {
+      return;
+    }
+    setSaving(p._id);
+    try {
+      await adminCmsAPI.deletePage(p._id);
+      if (selectedPageId === p._id) {
+        setSelectedPageId(null);
+        setPageDetail(null);
+        setEditingPage(null);
+      }
+      await loadPages();
+      refetchCms();
+    } catch (e: unknown) {
+      console.error('Delete page error:', e);
+      const msg =
+        e && typeof e === 'object' && 'response' in e
+          ? String((e as { response?: { data?: { message?: string } } }).response?.data?.message || '')
+          : '';
+      showError(msg || 'Failed to delete page. You may need admin permissions.');
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const handleRestorePage = async (id: string) => {
+    if (!window.confirm('Restore this page? It returns to the default list; visibility still follows its settings.')) return;
+    setSaving(id);
+    try {
+      await adminCmsAPI.updatePage(id, { isDeleted: false });
+      await loadPages();
+      refetchCms();
+    } catch (e: unknown) {
+      console.error('Restore page error:', e);
+      const msg =
+        e && typeof e === 'object' && 'response' in e
+          ? String((e as { response?: { data?: { message?: string } } }).response?.data?.message || '')
+          : '';
+      showError(msg || 'Failed to restore page.');
+    } finally {
+      setSaving(null);
+    }
+  };
 
   const loadPageDetail = useCallback(async (pageId: string) => {
     setSelectedPageId(pageId);
@@ -551,6 +611,7 @@ const AdminContentPage: React.FC = () => {
   }, [activeSection, loadPages]);
 
   const sortedNav = [...navItems].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const isCmsAdmin = currentUser?.role === 'admin' || currentUser?.role === 'super_admin';
 
   return (
     <AdminLayout
@@ -794,6 +855,25 @@ const AdminContentPage: React.FC = () => {
                     <option value="published">Published</option>
                     <option value="archived">Archived</option>
                   </select>
+                  {isCmsAdmin && (
+                    <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 cursor-pointer whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={showDeletedPages}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setShowDeletedPages(checked);
+                          if (!checked && editingPage && (editingPage as { isDeleted?: boolean }).isDeleted === true) {
+                            setEditingPage(null);
+                            setSelectedPageId(null);
+                            setPageDetail(null);
+                          }
+                        }}
+                        className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-brand-primary"
+                      />
+                      Show deleted pages
+                    </label>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -810,8 +890,26 @@ const AdminContentPage: React.FC = () => {
                       </thead>
                       <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                         {pages.map((p) => (
-                          <tr key={p._id} className={selectedPageId === p._id ? 'bg-brand-soft/40 dark:bg-brand-soft/10' : ''}>
-                            <td className="px-3 py-2 font-mono text-xs text-slate-700 dark:text-slate-300">{p.slug}</td>
+                          <tr
+                            key={p._id}
+                            className={[
+                              p.isDeleted ? 'bg-amber-50/50 dark:bg-amber-900/10 border-l-4 border-amber-400 dark:border-amber-600' : '',
+                              selectedPageId === p._id && !p.isDeleted ? 'bg-brand-soft/40 dark:bg-brand-soft/10' : '',
+                              selectedPageId === p._id && p.isDeleted ? 'ring-2 ring-inset ring-brand-primary/35 dark:ring-brand-primary/25' : '',
+                            ]
+                              .filter(Boolean)
+                              .join(' ')}
+                          >
+                            <td className="px-3 py-2 font-mono text-xs text-slate-700 dark:text-slate-300">
+                              <span className="inline-flex items-center gap-2">
+                                {p.slug}
+                                {p.isDeleted && (
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100">
+                                    Deleted
+                                  </span>
+                                )}
+                              </span>
+                            </td>
                             <td className="px-3 py-2 text-slate-900 dark:text-white">{p.title || '—'}</td>
                             <td className="px-3 py-2 text-xs text-slate-600 dark:text-slate-300">{p.type || '—'}</td>
                             <td className="px-3 py-2 text-xs">
@@ -827,7 +925,7 @@ const AdminContentPage: React.FC = () => {
                                 {p.status}
                               </span>
                             </td>
-                            <td className="px-3 py-2 text-right space-x-2">
+                            <td className="px-3 py-2 text-right space-x-2 whitespace-nowrap">
                               <button
                                 type="button"
                                 onClick={() => {
@@ -838,6 +936,26 @@ const AdminContentPage: React.FC = () => {
                               >
                                 Edit
                               </button>
+                              {isCmsAdmin && p.isDeleted && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleRestorePage(p._id)}
+                                  disabled={saving === p._id}
+                                  className="text-xs px-2 py-1 rounded border border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50"
+                                >
+                                  Restore
+                                </button>
+                              )}
+                              {isCmsAdmin && !p.isDeleted && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeletePage(p)}
+                                  disabled={saving === p._id}
+                                  className="text-xs px-2 py-1 rounded border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50"
+                                >
+                                  Delete
+                                </button>
+                              )}
                             </td>
                           </tr>
                         ))}
@@ -891,9 +1009,13 @@ const AdminContentPage: React.FC = () => {
                               setEditingPage(created as any);
                             }
                             refetchCms();
-                          } catch (e) {
+                          } catch (e: unknown) {
                             console.error('Update page meta error:', e);
-                            showError('Failed to save page. Please check the fields and try again.');
+                            const apiMsg =
+                              e && typeof e === 'object' && 'response' in e
+                                ? String((e as { response?: { data?: { message?: string } } }).response?.data?.message || '')
+                                : '';
+                            showError(apiMsg || 'Failed to save page. Please check the fields and try again.');
                           } finally {
                             setSaving(null);
                           }
