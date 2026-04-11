@@ -1,6 +1,7 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import Contact from '../models/Contact.js';
+import { createOrderFromWebsiteContact } from '../utils/createOrderFromWebsiteContact.js';
 import nodemailer from 'nodemailer';
 import { contactLimiter } from '../middleware/rateLimiter.js';
 import { requireAdmin } from '../middleware/admin.js';
@@ -54,6 +55,12 @@ router.post(
         message,
       });
       await contact.save();
+
+      try {
+        await createOrderFromWebsiteContact(contact);
+      } catch (orderErr) {
+        console.error('createOrderFromWebsiteContact:', orderErr);
+      }
 
       // Send email notification (optional, requires SMTP configuration)
       if (process.env.SMTP_USER && process.env.SMTP_PASS) {

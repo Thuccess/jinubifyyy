@@ -3,7 +3,7 @@
 import type { ImageProps } from 'next/image';
 import Image from 'next/image';
 import { useMemo, useState } from 'react';
-import { shouldBypassImageOptimizer } from '@/utils/image';
+import { DEFAULT_NEXT_IMAGE_QUALITY, shouldBypassImageOptimizer } from '@/utils/image';
 
 const PLACEHOLDER_SRC = '/search-engine-logo.png';
 
@@ -18,6 +18,7 @@ export default function SmartImage({
   alt,
   onError,
   unoptimized,
+  quality,
   ...rest
 }: ImageProps) {
   const baseSrc = typeof src === 'string' ? src : '';
@@ -34,6 +35,7 @@ export default function SmartImage({
   return (
     <Image
       {...rest}
+      quality={quality ?? DEFAULT_NEXT_IMAGE_QUALITY}
       src={resolvedSrc}
       alt={alt}
       unoptimized={finalUnoptimized}

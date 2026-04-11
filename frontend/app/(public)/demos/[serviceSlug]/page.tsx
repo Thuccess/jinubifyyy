@@ -1,11 +1,20 @@
 import type { Metadata } from 'next';
-import DemoGalleryPage from '@/components/pages/DemoGalleryPage';
+import DemosSlugRouter from '@/components/pages/demos/DemosSlugRouter';
 
-export const metadata: Metadata = {
-  title: 'Service Demos | Jinubify',
-  description: 'Explore demos and case studies for this service.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ serviceSlug: string }>;
+}): Promise<Metadata> {
+  const { serviceSlug } = await params;
+  const label = decodeURIComponent(serviceSlug).replace(/-/g, ' ');
+  return {
+    title: `${label} | Demos | Jinubify`,
+    description: 'Explore website demos or service demo galleries from Jinubify.',
+  };
+}
 
-export default function Page() {
-  return <DemoGalleryPage />;
+export default async function Page({ params }: { params: Promise<{ serviceSlug: string }> }) {
+  const { serviceSlug } = await params;
+  return <DemosSlugRouter slug={serviceSlug} />;
 }

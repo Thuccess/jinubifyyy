@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
 import Image from '@/components/NextImage';
 import { TwitterIcon, LinkedInIcon, GlobeIcon } from '../icons/Socials';
 import { ChevronLeftIcon, ChevronRightIcon } from '../icons/Icons';
@@ -50,21 +49,28 @@ const TeamPage: React.FC = () => {
       try {
         const res = await teamAPI.get();
         if (!cancelled && res) {
+          const showMembersSection = res.showMembersSection !== false;
+          const fromApi = res.members || [];
+          const members =
+            fromApi.length > 0
+              ? fromApi
+              : showMembersSection
+                ? fallbackMembers.map((m) => ({
+                    name: m.name,
+                    role: m.role,
+                    imageUrl: m.imageUrl,
+                    bio: m.bio,
+                    detailedBio: m.detailedBio,
+                    department: m.department,
+                    social: m.social,
+                  }))
+                : [];
           setContent({
             hero: res.hero ?? defaultHero,
             ceoFounder: { ...defaultCeo, ...res.ceoFounder },
             stripHeading: res.stripHeading ?? defaultStripHeading,
-            members: (res.members || []).length
-              ? res.members
-              : fallbackMembers.map((m) => ({
-                  name: m.name,
-                  role: m.role,
-                  imageUrl: m.imageUrl,
-                  bio: m.bio,
-                  detailedBio: m.detailedBio,
-                  department: m.department,
-                  social: m.social,
-                })),
+            showMembersSection,
+            members,
           });
         }
       } catch {
@@ -73,6 +79,7 @@ const TeamPage: React.FC = () => {
             hero: defaultHero,
             ceoFounder: defaultCeo,
             stripHeading: defaultStripHeading,
+            showMembersSection: true,
             members: fallbackMembers.map((m) => ({
               name: m.name,
               role: m.role,
@@ -170,22 +177,6 @@ const TeamPage: React.FC = () => {
     <div className="animate-fade-in team-page" data-page="team">
       <header className="py-16 sm:py-20 lg:py-24" aria-labelledby="team-hero-title">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="mb-4 text-sm" aria-label="Breadcrumb">
-            <ol className="flex flex-wrap items-center gap-2 text-text-muted">
-              <li>
-                <Link
-                  href="/"
-                  className="hover:text-brand-primary rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)]"
-                >
-                  Home
-                </Link>
-              </li>
-              <li aria-hidden="true">/</li>
-              <li className="text-text-secondary" aria-current="page">
-                Our Team
-              </li>
-            </ol>
-          </nav>
           <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">{hero.eyebrow}</p>
           <h1
             id="team-hero-title"

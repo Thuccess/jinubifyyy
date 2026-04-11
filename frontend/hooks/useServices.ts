@@ -140,6 +140,35 @@ export const useDemoByServiceAndSlug = (serviceSlug: string | undefined, demoSlu
   });
 };
 
+export const useWebsiteDemos = (params?: { category?: string; featured?: boolean; q?: string }) => {
+  return useQuery({
+    queryKey: ['demos', 'website', params],
+    queryFn: () => demosAPI.getWebsiteDemos(params),
+    staleTime: 60 * 1000,
+  });
+};
+
+export const useWebsiteDemosAdmin = () => {
+  return useQuery({
+    queryKey: ['demos', 'website', 'admin'],
+    queryFn: () => demosAPI.getWebsiteDemosAdmin(),
+    staleTime: 30 * 1000,
+  });
+};
+
+export const useWebsiteDemoBySlug = (
+  slug: string | undefined,
+  options?: { enabled?: boolean }
+) => {
+  return useQuery({
+    queryKey: ['demos', 'website', 'detail', slug],
+    queryFn: () => demosAPI.getWebsiteDemoBySlug(slug as string),
+    enabled: (options?.enabled ?? true) && !!slug,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+};
+
 export const useDemoMutations = () => {
   const queryClient = useQueryClient();
 
@@ -169,6 +198,17 @@ export const useDemoMutations = () => {
     reorderDemos: useMutation({
       mutationFn: (order: { id: string; order: number }[]) => demosAPI.reorderDemos(order),
       onSuccess: invalidate,
+    }),
+    updateDemoFeatured: useMutation({
+      mutationFn: ({ id, isFeatured }: { id: string; isFeatured: boolean }) =>
+        demosAPI.updateDemoFeatured(id, isFeatured),
+      onSuccess: () => {
+        invalidate();
+        queryClient.invalidateQueries({ queryKey: ['demos', 'website'] });
+      },
+    }),
+    recordWebsiteDemoClick: useMutation({
+      mutationFn: (slug: string) => demosAPI.recordWebsiteDemoClick(slug),
     }),
   };
 };

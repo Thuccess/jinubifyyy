@@ -4,7 +4,11 @@ import clsx from 'clsx';
 import type { ImageProps } from 'next/image';
 import Image from 'next/image';
 import { useMemo, useState, useEffect } from 'react';
-import { resolveImageUrl, shouldBypassImageOptimizer } from '@/utils/image';
+import {
+  DEFAULT_NEXT_IMAGE_QUALITY,
+  resolveImageUrl,
+  shouldBypassImageOptimizer,
+} from '@/utils/image';
 import { SkeletonMedia } from './SkeletonMedia';
 import {
   resolveSmartImageSizes,
@@ -70,7 +74,7 @@ export default function SmartImage({
 }: SmartImageProps) {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [quality, setQuality] = useState(75);
+  const [quality, setQuality] = useState(DEFAULT_NEXT_IMAGE_QUALITY);
 
   useEffect(() => {
     setQuality(pickImageQuality());

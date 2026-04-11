@@ -100,7 +100,12 @@ router.get('/', async (req, res) => {
 router.get('/with-demos', async (req, res) => {
   res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400');
   try {
-    const demoServiceIds = await Demo.distinct('service', { isActive: true });
+    const demoServiceIds = await Demo.distinct('service', {
+      isActive: true,
+      isDeleted: { $ne: true },
+      websiteDemo: { $ne: true },
+      service: { $exists: true, $ne: null },
+    });
     if (demoServiceIds.length === 0) {
       return res.json({ data: [] });
     }

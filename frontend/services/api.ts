@@ -887,6 +887,8 @@ export interface TeamPagePayload {
   hero?: { eyebrow?: string; heading?: string; subtitle?: string };
   ceoFounder?: CeoFounderPayload;
   stripHeading?: string;
+  /** Public /team: show rotating member spotlight and strip (default true). */
+  showMembersSection?: boolean;
   members?: TeamMemberPayload[];
 }
 
@@ -1169,6 +1171,27 @@ export const demosAPI = {
     });
     return response.data;
   },
+  getWebsiteDemos: async (params?: { category?: string; featured?: boolean; q?: string }) => {
+    const response = await api.get('/demos/website', {
+      params: {
+        ...params,
+        featured: typeof params?.featured === 'boolean' ? String(params.featured) : undefined,
+      },
+    });
+    return response.data;
+  },
+  getWebsiteDemosAdmin: async () => {
+    const response = await api.get('/demos/website/manage');
+    return response.data;
+  },
+  getWebsiteDemoBySlug: async (slug: string) => {
+    const response = await api.get(`/demos/website/${encodeURIComponent(slug)}`);
+    return response.data;
+  },
+  recordWebsiteDemoClick: async (slug: string) => {
+    const response = await api.post(`/demos/website/${encodeURIComponent(slug)}/click`);
+    return response.data;
+  },
   getDemoBySlug: async (slug: string) => {
     const response = await api.get(`/demos/by-slug/${slug}`);
     return response.data;
@@ -1181,44 +1204,16 @@ export const demosAPI = {
     const response = await api.get(`/demos/by-service-demo/${serviceSlug}/${demoSlug}`);
     return response.data;
   },
-  createDemo: async (data: {
-    service: string;
-    title: string;
-    slug: string;
-    description: string;
-    category?: string;
-    demoUrl?: string;
-    repoUrl?: string;
-    techStack?: string[];
-    tags?: string[];
-    isFeatured?: boolean;
-    embeddedConfig?: unknown;
-    isActive?: boolean;
-    order?: number;
-    images?: { url: string; order: number }[];
-    coverImageUrl?: string;
-  }) => {
+  createDemo: async (data: Record<string, unknown>) => {
     const response = await api.post('/demos', data);
     return response.data;
   },
-  updateDemo: async (id: string, data: Partial<{
-    service: string;
-    title: string;
-    slug: string;
-    description: string;
-    category: string;
-    demoUrl: string;
-    repoUrl: string;
-    techStack: string[];
-    tags: string[];
-    isFeatured: boolean;
-    embeddedConfig: unknown;
-    isActive: boolean;
-    order: number;
-    images: { url: string; order: number }[];
-    coverImageUrl: string;
-  }>) => {
+  updateDemo: async (id: string, data: Record<string, unknown>) => {
     const response = await api.put(`/demos/${id}`, data);
+    return response.data;
+  },
+  updateDemoFeatured: async (id: string, isFeatured: boolean) => {
+    const response = await api.patch(`/demos/${id}/featured`, { isFeatured });
     return response.data;
   },
   deleteDemo: async (id: string) => {

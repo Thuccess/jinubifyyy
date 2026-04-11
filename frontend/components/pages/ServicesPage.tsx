@@ -12,6 +12,7 @@ import {
 } from '../icons/Icons';
 import { useServices } from '../../hooks/useServices';
 import { Skeleton, SkeletonCard, SkeletonText } from '../ui/skeleton';
+import { isWebDesignDevelopmentService } from '../../utils/isWebDesignDevelopmentService';
 
 /** CMS-driven service item for public display */
 type ServiceDisplayItem = {
@@ -46,7 +47,8 @@ const processSteps = [
 
 const ServiceSection: React.FC<{ item: ServiceDisplayItem; featured?: boolean }> = ({ item, featured }) => {
   const router = useRouter();
-  const handleViewDemo = () => router.push(`/demos/${item.slug}`);
+  const showWebDemoActions = isWebDesignDevelopmentService(item);
+  const handleViewDemo = () => router.push('/demos');
   return (
     <AnimatedSection>
       <div className={`rounded-lg border p-6 sm:p-8 flex flex-col gap-4 ${featured ? 'border-brand-primary bg-brand-soft/30 shadow-card' : 'border-border-card bg-[color:var(--surface-card)] shadow-card'}`}>
@@ -62,13 +64,15 @@ const ServiceSection: React.FC<{ item: ServiceDisplayItem; featured?: boolean }>
           ))}
         </ul>
         <div className="mt-4 pt-6 border-t border-border-subtle flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={handleViewDemo}
-            className="btn-primary inline-flex items-center gap-2"
-          >
-            View Demo <ArrowRightIcon className="h-4 w-4" />
-          </button>
+          {showWebDemoActions ? (
+            <button
+              type="button"
+              onClick={handleViewDemo}
+              className="btn-primary inline-flex items-center gap-2"
+            >
+              View Demo <ArrowRightIcon className="h-4 w-4" />
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={() => router.push('/pricing')}
@@ -76,13 +80,15 @@ const ServiceSection: React.FC<{ item: ServiceDisplayItem; featured?: boolean }>
           >
             View Packages <ArrowRightIcon className="h-4 w-4" />
           </button>
-          <button
-            type="button"
-            onClick={() => router.push('/contact')}
-            className="btn-primary inline-flex items-center"
-          >
-            Contact us
-          </button>
+          {showWebDemoActions ? (
+            <button
+              type="button"
+              onClick={() => router.push('/contact')}
+              className="btn-primary inline-flex items-center"
+            >
+              Contact us
+            </button>
+          ) : null}
         </div>
       </div>
     </AnimatedSection>

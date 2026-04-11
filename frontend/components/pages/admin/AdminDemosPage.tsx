@@ -7,6 +7,7 @@ import { useNotification } from '../../admin/useNotification';
 import { ImageUrlWithUpload } from '../../ui/ImageUrlWithUpload';
 import { useServices, useDemos, useDemoMutations } from '../../../hooks/useServices';
 import Link from 'next/link';
+import AdminWebsiteDemosPanel from './AdminWebsiteDemosPanel';
 
 interface ImageEntry {
   url: string;
@@ -29,8 +30,11 @@ interface DemoFormState {
   coverImageUrl: string;
 }
 
+type DemosAdminTab = 'website' | 'service';
+
 const AdminDemosPage: React.FC = () => {
   const { showNotification, NotificationComponent } = useNotification();
+  const [adminTab, setAdminTab] = useState<DemosAdminTab>('website');
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -220,18 +224,55 @@ const AdminDemosPage: React.FC = () => {
   return (
     <>
       <AdminLayout
-        title="Service Demos Management"
-        subtitle="Manage service demonstration pages"
+        title={adminTab === 'website' ? 'Website demos' : 'Service-linked demos'}
+        subtitle={
+          adminTab === 'website'
+            ? 'Showcase templates and live site previews for the public /demos catalog'
+            : 'Demos attached to a service (legacy gallery pages)'
+        }
         actions={
-          <button
-            onClick={handleCreate}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-primary hover:opacity-90 text-text-inverted rounded-lg text-sm font-medium transition-colors"
-          >
-            <PlusIcon className="h-4 w-4" />
-            Add Demo
-          </button>
+          adminTab === 'service' ? (
+            <button
+              onClick={handleCreate}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-brand-primary hover:opacity-90 text-text-inverted rounded-lg text-sm font-medium transition-colors"
+            >
+              <PlusIcon className="h-4 w-4" />
+              Add service demo
+            </button>
+          ) : null
         }
       >
+        <div className="mb-8 flex flex-wrap gap-2 border-b border-border-subtle pb-4">
+          <button
+            type="button"
+            onClick={() => setAdminTab('website')}
+            className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+              adminTab === 'website'
+                ? 'bg-brand-primary text-text-inverted'
+                : 'bg-surface-muted text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            Website showcases
+          </button>
+          <button
+            type="button"
+            onClick={() => setAdminTab('service')}
+            className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+              adminTab === 'service'
+                ? 'bg-brand-primary text-text-inverted'
+                : 'bg-surface-muted text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            Service-linked
+          </button>
+        </div>
+
+        {adminTab === 'website' ? (
+          <AdminWebsiteDemosPanel />
+        ) : null}
+
+        {adminTab === 'service' ? (
+          <>
         {/* Search */}
         <div className="mb-6">
           <div className="relative">
@@ -270,9 +311,6 @@ const AdminDemosPage: React.FC = () => {
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
                       Slug
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                      Images
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
                       Status
@@ -403,6 +441,8 @@ const AdminDemosPage: React.FC = () => {
             </div>
           )}
         </div>
+          </>
+        ) : null}
       </AdminLayout>
 
       {/* Create/Edit Modal */}

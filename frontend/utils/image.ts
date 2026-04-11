@@ -1,6 +1,13 @@
 import { env, isProduction } from '../config/env';
 
 /**
+ * Default `quality` for `next/image` when the prop is omitted.
+ * Applied by `@/components/NextImage` (ui SmartImage) across the app.
+ * When `unoptimized` is true (e.g. many `/uploads/` URLs), Next.js ignores `quality`.
+ */
+export const DEFAULT_NEXT_IMAGE_QUALITY = 88;
+
+/**
  * Resolve an image URL so that:
  * - Absolute URLs are returned as-is (except for legacy /api/uploads fix)
  * - Relative URLs are prefixed with the backend origin derived from NEXT_PUBLIC_API_URL (env.apiUrl without /api)

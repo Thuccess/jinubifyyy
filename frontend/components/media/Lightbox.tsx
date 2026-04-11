@@ -185,6 +185,7 @@ export default function Lightbox({
               sizes={SMART_IMAGE_SIZES.modal}
               className="object-contain"
               priority
+              quality={98}
             />
           </div>
         </div>

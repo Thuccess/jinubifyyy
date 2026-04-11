@@ -3,7 +3,11 @@
 import clsx from 'clsx';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
-import { resolveImageUrl, shouldBypassImageOptimizer } from '@/utils/image';
+import {
+  DEFAULT_NEXT_IMAGE_QUALITY,
+  resolveImageUrl,
+  shouldBypassImageOptimizer,
+} from '@/utils/image';
 import { pickImageQuality } from './utils';
 
 export type AvatarMediaProps = {
@@ -38,7 +42,7 @@ export function AvatarMedia({
 }: AvatarMediaProps) {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [quality, setQuality] = useState(75);
+  const [quality, setQuality] = useState(DEFAULT_NEXT_IMAGE_QUALITY);
 
   useEffect(() => {
     setQuality(pickImageQuality());

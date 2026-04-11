@@ -1,3 +1,5 @@
+import { DEFAULT_NEXT_IMAGE_QUALITY } from '@/utils/image';
+
 /**
  * Parse a YouTube watch/embed/short URL into a video id.
  */
@@ -34,21 +36,25 @@ export function isLikelyVideoUrl(url: string): boolean {
   );
 }
 
-/** Heuristic for Connection API / save-data — returns a lower next/image quality when slow. */
+/**
+ * Heuristic for Connection API / save-data — `next/image` JPEG/WebP quality when the
+ * optimizer runs (skipped for many `/uploads/` URLs via `shouldBypassImageOptimizer`).
+ * Values are intentionally higher than Next’s default 75 so photos stay sharper on typical connections.
+ */
 export function pickImageQuality(): number {
-  if (typeof navigator === 'undefined') return 75;
+  if (typeof navigator === 'undefined') return DEFAULT_NEXT_IMAGE_QUALITY;
   try {
     const nav = navigator as Navigator & {
       connection?: { saveData?: boolean; effectiveType?: string };
     };
-    if (nav.connection?.saveData) return 50;
+    if (nav.connection?.saveData) return 62;
     const t = nav.connection?.effectiveType;
-    if (t === 'slow-2g' || t === '2g') return 45;
-    if (t === '3g') return 60;
+    if (t === 'slow-2g' || t === '2g') return 55;
+    if (t === '3g') return 72;
   } catch {
     // ignore
   }
-  return 75;
+  return DEFAULT_NEXT_IMAGE_QUALITY;
 }
 
 export const TRANSPARENT_PLACEHOLDER = '/media/transparent-placeholder.svg';

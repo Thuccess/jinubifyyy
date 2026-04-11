@@ -35,6 +35,7 @@ const defaultPayload: TeamPagePayload = {
   },
   ceoFounder: { ...defaultCeoFounder },
   stripHeading: 'Browse team',
+  showMembersSection: true,
   members: [],
 };
 
@@ -71,6 +72,7 @@ const TeamManagement: React.FC = () => {
         hero: res.hero ?? defaultPayload.hero,
         ceoFounder: { ...defaultCeoFounder, ...res.ceoFounder },
         stripHeading: res.stripHeading ?? defaultPayload.stripHeading,
+        showMembersSection: res.showMembersSection !== false,
         members: (res.members || []).map((m, i) => ({ ...m, order: m.order ?? i })),
       });
     } catch (err) {
@@ -464,7 +466,7 @@ const TeamManagement: React.FC = () => {
           </Section>
 
           <Section id="strip" title="Browse strip">
-            <p className="text-xs text-text-muted mb-2">Heading above the team member thumbnails strip.</p>
+            <p className="text-xs text-text-muted mb-2">Heading above the team member thumbnails strip (only shown when the team members section is visible).</p>
             <div>
               <label className={labelBase}>Strip heading</label>
               <input type="text" value={data.stripHeading || ''} onChange={(e) => setData((p) => ({ ...p, stripHeading: e.target.value }))} className={inputBase} placeholder="e.g. Browse team" />
@@ -472,6 +474,18 @@ const TeamManagement: React.FC = () => {
           </Section>
 
           <Section id="members" title="Team members">
+            <label className="flex items-center gap-3 cursor-pointer mb-6">
+              <input
+                type="checkbox"
+                checked={data.showMembersSection !== false}
+                onChange={(e) => setData((p) => ({ ...p, showMembersSection: e.target.checked }))}
+                className="h-4 w-4 rounded border-border-subtle text-brand-primary focus:ring-brand-ring"
+              />
+              <span className="text-sm font-medium text-text-primary">Show team members section on public Team page</span>
+            </label>
+            <p className="text-xs text-text-muted -mt-4 mb-6">
+              When off, the featured profile and thumbnail strip are hidden; hero and CEO spotlight (if enabled) still show. You can keep member profiles here for later.
+            </p>
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm text-text-secondary">Add, edit, or remove members. Order is preserved when you save.</p>
               <button

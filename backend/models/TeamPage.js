@@ -43,6 +43,8 @@ const teamPageSchema = new mongoose.Schema(
     },
     ceoFounder: { type: ceoFounderSchema, default: () => ({}) },
     stripHeading: { type: String, trim: true, default: 'Browse team' },
+    /** When false, the rotating spotlight + thumbnail strip are hidden on /team (members still stored for admin). */
+    showMembersSection: { type: Boolean, default: true },
     members: [teamMemberSchema],
   },
   { timestamps: true }

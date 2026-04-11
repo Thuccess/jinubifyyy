@@ -3,7 +3,7 @@ import DemosLandingPage from '@/components/pages/DemosLandingPage';
 
 export const metadata: Metadata = {
   title: 'Demos | Jinubify',
-  description: 'Explore service demos and case studies from Jinubify.',
+  description: 'Browse website showcases and service demo galleries from Jinubify.',
 };
 
 export default function Page() {

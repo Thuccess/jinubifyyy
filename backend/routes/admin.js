@@ -971,6 +971,12 @@ router.get('/orders', async (req, res) => {
         { 'customer.name': { $regex: s, $options: 'i' } },
         { 'customer.email': { $regex: s, $options: 'i' } },
         { 'customer.phone': { $regex: s, $options: 'i' } },
+        { 'order.service': { $regex: s, $options: 'i' } },
+        { 'order.packageName': { $regex: s, $options: 'i' } },
+        { 'order.serviceSlug': { $regex: s, $options: 'i' } },
+        { 'order.sourcePage': { $regex: s, $options: 'i' } },
+        { 'order.pricingCategory': { $regex: s, $options: 'i' } },
+        { adminNotes: { $regex: s, $options: 'i' } },
       ];
     }
 
@@ -1250,6 +1256,7 @@ router.put('/team', async (req, res) => {
         hero: body.hero || {},
         ceoFounder: body.ceoFounder != null ? body.ceoFounder : undefined,
         stripHeading: body.stripHeading != null ? body.stripHeading : 'Browse team',
+        showMembersSection: body.showMembersSection !== false,
         members: body.members || [],
       });
       return res.json(doc.toObject ? doc.toObject() : doc);
@@ -1258,6 +1265,7 @@ router.put('/team', async (req, res) => {
     if (body.hero != null) update.hero = body.hero;
     if (body.ceoFounder != null) update.ceoFounder = body.ceoFounder;
     if (body.stripHeading != null) update.stripHeading = body.stripHeading;
+    if (body.showMembersSection !== undefined) update.showMembersSection = Boolean(body.showMembersSection);
     if (body.members != null) update.members = body.members;
     const updated = await TeamPage.findByIdAndUpdate(doc._id, { $set: update }, { new: true }).lean();
     res.json(updated);

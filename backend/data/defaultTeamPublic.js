@@ -19,5 +19,6 @@ export const defaultTeamPublicPayload = {
     social: { linkedin: '', twitter: '', website: '' },
   },
   stripHeading: 'Browse team',
+  showMembersSection: true,
   members: [],
 };

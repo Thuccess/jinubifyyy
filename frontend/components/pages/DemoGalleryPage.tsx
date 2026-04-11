@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 import AnimatedSection from '../AnimatedSection';
 import { useDemosByServiceSlug } from '../../hooks/useServices';
 import { normalizeImageUrl } from '../../utils/image';
@@ -88,33 +87,10 @@ const DemoGalleryPage: React.FC = () => {
     );
   }
 
-  const serviceName = demo.service?.title || 'Demos';
-
   return (
     <div className="animate-fade-in demo-gallery-page" data-page="demo-gallery">
       <header className="py-16 sm:py-20 lg:py-24" aria-labelledby="gallery-title">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <nav className="mb-6 text-sm" aria-label="Breadcrumb">
-            <ol className="flex flex-wrap items-center gap-2 text-text-secondary">
-              <li>
-                <Link
-                  href="/demos"
-                  className="rounded hover:text-brand-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)]"
-                >
-                  Demos
-                </Link>
-              </li>
-              <li aria-hidden="true">/</li>
-              <li>
-                <Link
-                  href={`/demos/${serviceSlug}`}
-                  className="rounded hover:text-brand-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)]"
-                >
-                  {serviceName}
-                </Link>
-              </li>
-            </ol>
-          </nav>
           <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Demo gallery</p>
           <h1 id="gallery-title" className="mt-3 max-w-2xl text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
             {demo.title}

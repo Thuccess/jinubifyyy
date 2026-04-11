@@ -14,8 +14,10 @@ import {
   ServerStackIcon,
   DocumentTextIcon,
 } from '../icons/Icons';
-import { useDemos } from '../../hooks/useServices';
+import { useServicesWithDemos } from '../../hooks/useServices';
 import SkeletonBlock from '../skeletons/SkeletonBlock';
+import WebsiteDemosCatalogSection from './demos/WebsiteDemosCatalogSection';
+import { isWebDesignDevelopmentService } from '../../utils/isWebDesignDevelopmentService';
 
 interface DemoDisplayItem {
   id?: string;
@@ -57,15 +59,16 @@ const DemosHero: React.FC = () => (
         See Our Demos
       </h1>
       <p className="mt-5 text-base text-text-secondary leading-relaxed max-w-xl sm:text-lg">
-        Explore live demos and samples for each service. See what we deliver before you commit.
+        Browse website showcases, then explore service-specific galleries when you are ready to go deeper.
       </p>
     </div>
   </header>
 );
 
-const DemoCard: React.FC<{ item: DemoDisplayItem }> = ({ item }) => {
+const ServiceExploreCard: React.FC<{ item: DemoDisplayItem }> = ({ item }) => {
   const router = useRouter();
-  const handleViewDemo = () => router.push(`/demos/${item.slug}`);
+  const showWebDemoActions = isWebDesignDevelopmentService(item);
+  const handleViewDemo = () => router.push('/demos');
   const tagline = getTagline(item.intro);
   const icon = slugToIcon[item.slug] ?? null;
 
@@ -85,13 +88,15 @@ const DemoCard: React.FC<{ item: DemoDisplayItem }> = ({ item }) => {
           <h2 className="text-lg font-bold text-text-primary">{item.title}</h2>
           <p className="text-text-secondary text-sm leading-relaxed line-clamp-2 flex-grow">{tagline}</p>
           <div className="pt-2 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={handleViewDemo}
-              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold btn-primary rounded-md min-h-[40px]"
-            >
-              View Demo <ArrowRightIcon className="h-4 w-4" aria-hidden />
-            </button>
+            {showWebDemoActions ? (
+              <button
+                type="button"
+                onClick={handleViewDemo}
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold btn-primary rounded-md min-h-[40px]"
+              >
+                View Demo <ArrowRightIcon className="h-4 w-4" aria-hidden />
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={() => router.push('/pricing')}
@@ -99,13 +104,15 @@ const DemoCard: React.FC<{ item: DemoDisplayItem }> = ({ item }) => {
             >
               View Packages
             </button>
-            <button
-              type="button"
-              onClick={() => router.push('/contact')}
-              className="inline-flex items-center px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary rounded-md transition-colors min-h-[40px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
-            >
-              Contact us
-            </button>
+            {showWebDemoActions ? (
+              <button
+                type="button"
+                onClick={() => router.push('/contact')}
+                className="inline-flex items-center px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary rounded-md transition-colors min-h-[40px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
+              >
+                Contact us
+              </button>
+            ) : null}
           </div>
         </div>
       </div>
@@ -164,78 +171,84 @@ const PricingLinkSection: React.FC = () => {
   );
 };
 
-const DemosLandingPage: React.FC = () => {
-  const { data, isLoading, isError, refetch } = useDemos({ active: true });
-  const demos = (data?.data || []) as Array<{
+const ServiceDemosSection: React.FC = () => {
+  const { data, isLoading, isError, refetch } = useServicesWithDemos();
+  const services = (data?.data || []) as Array<{
     _id: string;
     title: string;
     slug: string;
+    intro?: string;
     description?: string;
-    service?: { slug: string; title: string };
   }>;
 
-  const displayList: DemoDisplayItem[] = demos.map((d) => ({
-    id: d._id,
-    title: d.title,
-    slug: d.slug,
-    intro: d.description ?? '',
+  const displayList: DemoDisplayItem[] = services.map((s) => ({
+    id: s._id,
+    title: s.title,
+    slug: s.slug,
+    intro: s.intro || s.description || '',
   }));
 
+  return (
+    <section className="border-t border-border-subtle py-16 sm:py-20" aria-labelledby="service-demos-heading">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <h2 id="service-demos-heading" className="text-xl font-bold text-text-primary sm:text-2xl">
+          Explore by service
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm text-text-secondary sm:text-base">
+          Open a service gallery to see screenshots and examples for that line of work.
+        </p>
+
+        <div className="mt-10">
+          {isLoading ? (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="rounded-2xl border border-border-card bg-[color:var(--surface-card)] p-4 shadow-card">
+                  <SkeletonBlock className="h-44 w-full" rounded="xl" />
+                  <SkeletonBlock className="mt-4 h-4 w-3/4" rounded="full" />
+                </div>
+              ))}
+            </div>
+          ) : isError ? (
+            <p className="text-sm text-text-secondary">
+              Couldn&apos;t load services.{' '}
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className="font-semibold text-brand-primary hover:underline"
+              >
+                Retry
+              </button>
+            </p>
+          ) : displayList.length === 0 ? (
+            <p className="text-sm text-text-muted">No service galleries yet.</p>
+          ) : (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {displayList.map((item, index) => (
+                <ServiceExploreCard key={item.id ?? item.slug ?? index} item={item} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const DemosLandingPage: React.FC = () => {
   useEffect(() => {
     document.title = 'Demos | Jinubify';
-    return () => { document.title = 'Jinubify'; };
+    return () => {
+      document.title = 'Jinubify';
+    };
   }, []);
 
   return (
     <div className="animate-fade-in demos-page" data-page="demos">
       <DemosHero />
 
-      <div className="py-10 sm:py-14">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-2">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="rounded-2xl border border-border-card bg-[color:var(--surface-card)] p-4 shadow-card">
-                  <SkeletonBlock className="h-44 w-full" rounded="xl" />
-                  <SkeletonBlock className="mt-4 h-4 w-3/4" rounded="full" />
-                  <SkeletonBlock className="mt-2 h-3 w-full" rounded="full" />
-                  <SkeletonBlock className="mt-2 h-3 w-5/6" rounded="full" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <>
-              {isError && (
-                <div className="text-center mb-6">
-                  <p className="text-text-secondary text-sm">
-                    Couldn&apos;t load demos.{' '}
-                    <button
-                      type="button"
-                      onClick={() => refetch()}
-                      className="text-brand-primary font-semibold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] rounded"
-                    >
-                      Try again
-                    </button>
-                  </p>
-                </div>
-              )}
-              {!isError && demos.length === 0 && (
-                <p className="text-center text-text-secondary text-sm mb-6">
-                  No demos have been configured yet. Create demos in the admin dashboard.
-                </p>
-              )}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {displayList.map((item, index) => (
-                  <DemoCard
-                    key={item.id ?? item.slug ?? index}
-                    item={item}
-                  />
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+      <WebsiteDemosCatalogSection />
+
+      <ServiceDemosSection />
 
       <WhyChooseSection />
       <PricingLinkSection />

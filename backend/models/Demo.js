@@ -1,11 +1,26 @@
 import mongoose from 'mongoose';
 
+/** URL-safe slug from title */
+export function slugifyTitle(title) {
+  return String(title || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 const demoSchema = new mongoose.Schema(
   {
+    /** When true, this is a global website showcase demo (optional service). */
+    websiteDemo: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
     service: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Service',
-      required: [true, 'Service reference is required'],
+      default: null,
       index: true,
     },
     title: {
@@ -22,8 +37,13 @@ const demoSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: [true, 'Demo description is required'],
       trim: true,
+      default: '',
+    },
+    shortDescription: {
+      type: String,
+      trim: true,
+      default: '',
     },
     category: {
       type: String,
@@ -35,6 +55,62 @@ const demoSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: '',
+    },
+    previewMode: {
+      type: String,
+      enum: ['iframe', 'new_tab'],
+      default: 'new_tab',
+    },
+    /** Primary card image (website demos); legacy uses coverImageUrl. */
+    thumbnail: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    gallery: {
+      type: [String],
+      default: [],
+    },
+    video: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    features: {
+      type: [String],
+      default: [],
+    },
+    ctaPrimary: {
+      type: String,
+      trim: true,
+      default: 'View Demo',
+    },
+    ctaSecondary: {
+      type: String,
+      trim: true,
+      default: 'Get This Website',
+    },
+    price: {
+      type: Number,
+      default: null,
+      min: 0,
+    },
+    /** Public listing: active = visible, hidden = not listed */
+    visibility: {
+      type: String,
+      enum: ['active', 'hidden'],
+      default: 'active',
+      index: true,
+    },
+    views: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    clicks: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
     repoUrl: {
       type: String,
@@ -108,10 +184,39 @@ const demoSchema = new mongoose.Schema(
   }
 );
 
-demoSchema.index({ service: 1, slug: 1 }, { unique: true });
+demoSchema.index(
+  { service: 1, slug: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      websiteDemo: { $ne: true },
+      service: { $type: 'objectId' },
+    },
+  }
+);
+
+demoSchema.index(
+  { slug: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { websiteDemo: true },
+  }
+);
+
 demoSchema.index({ isActive: 1, isDeleted: 1, order: 1, createdAt: -1 });
+demoSchema.index({ websiteDemo: 1, visibility: 1, isFeatured: 1, createdAt: -1 });
+
+demoSchema.pre('validate', function preValidate(next) {
+  if (this.websiteDemo) {
+    if (this.service == null) {
+      /* ok */
+    }
+  } else if (!this.service) {
+    this.invalidate('service', 'Service is required for service-linked demos');
+  }
+  next();
+});
 
 const Demo = mongoose.model('Demo', demoSchema);
 
 export default Demo;
-
