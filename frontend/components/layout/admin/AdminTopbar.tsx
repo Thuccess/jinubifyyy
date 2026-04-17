@@ -20,6 +20,11 @@ const AdminTopbar: React.FC<AdminTopbarProps> = ({ title, subtitle, actions, onM
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const logoSrc = theme === 'dark' ? '/logo/logo-light.png' : '/logo/logo-dark.png';
+  const getNextThemeLabel = () => {
+    if (theme === 'light') return 'dark';
+    if (theme === 'dark') return 'system';
+    return 'light';
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -92,7 +97,7 @@ const AdminTopbar: React.FC<AdminTopbarProps> = ({ title, subtitle, actions, onM
         <button
           onClick={toggleTheme}
           className="p-2 rounded-lg hover:bg-surface-muted/90 text-text-secondary transition-colors duration-300 ease-out"
-          aria-label="Toggle theme"
+          aria-label={`Switch to ${getNextThemeLabel()} mode`}
         >
           {theme === 'dark' ? (
             <SunIcon className="h-5 w-5" />

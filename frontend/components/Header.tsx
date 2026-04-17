@@ -61,6 +61,12 @@ const NavLink: React.FC<{
 };
 
 const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLoginSuccess, onLogout }) => {
+  const getNextThemeLabel = () => {
+    if (theme === 'light') return 'dark';
+    if (theme === 'dark') return 'system';
+    return 'light';
+  };
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -198,9 +204,9 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLogi
               <button 
                 onClick={toggleTheme} 
                 className="p-2 rounded-full text-text-secondary hover:text-text-primary hover:bg-surface-muted/70 transition-colors duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]" 
-                aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+                aria-label={`Switch to ${getNextThemeLabel()} mode`}
               >
-                {theme === 'light' ? <MoonIcon className="h-5 w-5" /> : <SunIcon className="h-5 w-5" />}
+                {theme === 'dark' ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
               </button>
 
               <div className="hidden md:block border-l border-border-subtle h-6"></div>
@@ -439,9 +445,9 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, currentUser, onLogi
                 type="button"
                 onClick={toggleTheme}
                 className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-muted/80 transition-colors duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--accent-ring)]"
-                aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+                aria-label={`Switch to ${getNextThemeLabel()} mode`}
               >
-                {theme === 'light' ? <MoonIcon className="h-6 w-6" /> : <SunIcon className="h-6 w-6" />}
+                {theme === 'dark' ? <SunIcon className="h-6 w-6" /> : <MoonIcon className="h-6 w-6" />}
               </button>
             </div>
 

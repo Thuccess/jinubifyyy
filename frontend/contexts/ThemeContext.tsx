@@ -28,58 +28,51 @@ const SSR_THEME: Theme = 'light';
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(SSR_THEME);
-  const [userPreference, setUserPreference] = useState<Theme | null>(null);
   const [mounted, setMounted] = useState(false);
 
   const toggleTheme = () => {
-    setTheme(prevTheme => {
-      const nextTheme: Theme = prevTheme === 'light' ? 'dark' : 'light';
-      setUserPreference(nextTheme);
-      return nextTheme;
+    setTheme((prevTheme) => {
+      if (prevTheme === 'light') return 'dark';
+      if (prevTheme === 'dark') return 'system';
+      return 'light';
     });
+  };
+
+  const resolveAppliedTheme = (mode: Theme): 'light' | 'dark' => {
+    if (mode === 'light' || mode === 'dark') return mode;
+    if (typeof window === 'undefined') return 'light';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   };
 
   // After mount: apply stored or system theme so server and initial client HTML match, then sync.
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme') as Theme | null;
-    const preference = storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : null;
-    setUserPreference(preference);
-    if (preference) {
-      setTheme(preference);
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
-    }
+    const preference: Theme =
+      storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system'
+        ? storedTheme
+        : 'system';
+    setTheme(preference);
     setMounted(true);
   }, []);
 
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.toggle('dark', theme === 'dark');
-    if (mounted && userPreference) {
-      localStorage.setItem('theme', userPreference);
-    } else if (mounted) {
-      localStorage.removeItem('theme');
+    const appliedTheme = resolveAppliedTheme(theme);
+    root.classList.toggle('dark', appliedTheme === 'dark');
+    if (mounted) {
+      localStorage.setItem('theme', theme);
     }
-  }, [theme, userPreference, mounted]);
+  }, [theme, mounted]);
 
   useEffect(() => {
     if (!mounted || typeof window === 'undefined') return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-    const applySystemTheme = () => {
-      if (userPreference == null) {
-        setTheme(mediaQuery.matches ? 'dark' : 'light');
-      }
-    };
-
-    applySystemTheme();
-
-    const listener = (event: MediaQueryListEvent) => {
-      if (userPreference == null) {
-        setTheme(event.matches ? 'dark' : 'light');
-      }
+    const listener = (_event: MediaQueryListEvent) => {
+      if (theme !== 'system') return;
+      const root = window.document.documentElement;
+      root.classList.toggle('dark', mediaQuery.matches);
     };
 
     if (typeof mediaQuery.addEventListener === 'function') {
@@ -95,7 +88,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         mediaQuery.removeListener(listener);
       }
     };
-  }, [userPreference, mounted]);
+  }, [theme, mounted]);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
