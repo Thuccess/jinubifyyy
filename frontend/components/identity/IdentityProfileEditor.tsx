@@ -25,6 +25,12 @@ export default function IdentityProfileEditor() {
     profileSlug: '',
     publicTagline: '',
     publicBio: '',
+    professionalTitle: '',
+    skillsExpertise: [] as string[],
+    workExperience: [] as string[],
+    educationCertifications: [] as string[],
+    achievementsProjects: [] as string[],
+    personalInterests: [] as string[],
     email: '',
     phone: '',
     website: '',
@@ -50,6 +56,14 @@ export default function IdentityProfileEditor() {
       profileSlug: profile.profileSlug || '',
       publicTagline: profile.publicTagline || '',
       publicBio: profile.publicBio || '',
+      professionalTitle: profile.professionalTitle || '',
+      skillsExpertise: profile.skillsExpertise?.length ? [...profile.skillsExpertise] : [''],
+      workExperience: profile.workExperience?.length ? [...profile.workExperience] : [''],
+      educationCertifications: profile.educationCertifications?.length
+        ? [...profile.educationCertifications]
+        : [''],
+      achievementsProjects: profile.achievementsProjects?.length ? [...profile.achievementsProjects] : [''],
+      personalInterests: profile.personalInterests?.length ? [...profile.personalInterests] : [''],
       email: profile.email || '',
       phone: profile.phone || '',
       website: profile.website || '',
@@ -148,6 +162,49 @@ export default function IdentityProfileEditor() {
       servicesOffered: prev.servicesOffered.filter((_, idx) => idx !== i),
     }));
 
+  const setListItem = (
+    field:
+      | 'skillsExpertise'
+      | 'workExperience'
+      | 'educationCertifications'
+      | 'achievementsProjects'
+      | 'personalInterests',
+    i: number,
+    v: string,
+  ) => {
+    setForm((prev) => {
+      const next = [...prev[field]];
+      next[i] = v;
+      return { ...prev, [field]: next };
+    });
+  };
+
+  const addListRow = (
+    field:
+      | 'skillsExpertise'
+      | 'workExperience'
+      | 'educationCertifications'
+      | 'achievementsProjects'
+      | 'personalInterests',
+  ) => {
+    setForm((prev) => ({ ...prev, [field]: [...prev[field], ''] }));
+  };
+
+  const removeListRow = (
+    field:
+      | 'skillsExpertise'
+      | 'workExperience'
+      | 'educationCertifications'
+      | 'achievementsProjects'
+      | 'personalInterests',
+    i: number,
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: prev[field].filter((_, idx) => idx !== i),
+    }));
+  };
+
   const handleSave = async () => {
     if (!canEditIdentity) return;
     setSaving(true);
@@ -161,6 +218,11 @@ export default function IdentityProfileEditor() {
     }
     try {
       const services = form.servicesOffered.map((s) => s.trim()).filter(Boolean);
+      const skills = form.skillsExpertise.map((s) => s.trim()).filter(Boolean);
+      const experience = form.workExperience.map((s) => s.trim()).filter(Boolean);
+      const education = form.educationCertifications.map((s) => s.trim()).filter(Boolean);
+      const achievements = form.achievementsProjects.map((s) => s.trim()).filter(Boolean);
+      const interests = form.personalInterests.map((s) => s.trim()).filter(Boolean);
       await userAPI.updateProfile({
         name: form.name,
         accountType: form.accountType,
@@ -168,6 +230,12 @@ export default function IdentityProfileEditor() {
         profileSlug: form.profileSlug.trim() || null,
         publicTagline: form.publicTagline,
         publicBio: form.publicBio,
+        professionalTitle: form.professionalTitle,
+        skillsExpertise: skills,
+        workExperience: experience,
+        educationCertifications: education,
+        achievementsProjects: achievements,
+        personalInterests: interests,
         phone: form.phone,
         website: form.website,
         location: form.location,
@@ -275,8 +343,60 @@ export default function IdentityProfileEditor() {
                   />
                 </div>
                 <Field label="Full name" value={form.name} onChange={(v) => setForm((p) => ({ ...p, name: v }))} disabled={!canEditIdentity} />
+                <Field
+                  label="Professional title"
+                  value={form.professionalTitle}
+                  onChange={(v) => setForm((p) => ({ ...p, professionalTitle: v }))}
+                  disabled={!canEditIdentity}
+                  hint="Example: Product Designer, Software Engineer, Growth Consultant"
+                />
                 <Field label="Username (slug)" value={form.profileSlug} onChange={(v) => setForm((p) => ({ ...p, profileSlug: v }))} disabled={!canEditIdentity} hint="Lowercase, numbers, hyphens. Min 3 characters." />
                 <Field label="Bio" value={form.publicBio} onChange={(v) => setForm((p) => ({ ...p, publicBio: v }))} multiline disabled={!canEditIdentity} />
+                <ListField
+                  label="Skills & expertise"
+                  placeholder="Add a skill"
+                  values={form.skillsExpertise}
+                  canEdit={canEditIdentity}
+                  onChange={(i, v) => setListItem('skillsExpertise', i, v)}
+                  onAdd={() => addListRow('skillsExpertise')}
+                  onRemove={(i) => removeListRow('skillsExpertise', i)}
+                />
+                <ListField
+                  label="Work experience"
+                  placeholder="Role at company (years)"
+                  values={form.workExperience}
+                  canEdit={canEditIdentity}
+                  onChange={(i, v) => setListItem('workExperience', i, v)}
+                  onAdd={() => addListRow('workExperience')}
+                  onRemove={(i) => removeListRow('workExperience', i)}
+                />
+                <ListField
+                  label="Education & certifications"
+                  placeholder="Degree or certification"
+                  values={form.educationCertifications}
+                  canEdit={canEditIdentity}
+                  onChange={(i, v) => setListItem('educationCertifications', i, v)}
+                  onAdd={() => addListRow('educationCertifications')}
+                  onRemove={(i) => removeListRow('educationCertifications', i)}
+                />
+                <ListField
+                  label="Achievements & notable projects"
+                  placeholder="Achievement or project highlight"
+                  values={form.achievementsProjects}
+                  canEdit={canEditIdentity}
+                  onChange={(i, v) => setListItem('achievementsProjects', i, v)}
+                  onAdd={() => addListRow('achievementsProjects')}
+                  onRemove={(i) => removeListRow('achievementsProjects', i)}
+                />
+                <ListField
+                  label="Personal interests (optional)"
+                  placeholder="Add an interest"
+                  values={form.personalInterests}
+                  canEdit={canEditIdentity}
+                  onChange={(i, v) => setListItem('personalInterests', i, v)}
+                  onAdd={() => addListRow('personalInterests')}
+                  onRemove={(i) => removeListRow('personalInterests', i)}
+                />
                 <Field label="Email" value={form.email} onChange={() => {}} disabled hint="Managed in Settings." />
                 <Field label="Phone" value={form.phone} onChange={(v) => setForm((p) => ({ ...p, phone: v }))} disabled={!canEditIdentity} />
                 <Field label="Website" value={form.website} onChange={(v) => setForm((p) => ({ ...p, website: v }))} disabled={!canEditIdentity} />
@@ -447,6 +567,54 @@ export default function IdentityProfileEditor() {
             </button>
           </>
         )}
+      </div>
+    </div>
+  );
+}
+
+function ListField({
+  label,
+  placeholder,
+  values,
+  canEdit,
+  onChange,
+  onAdd,
+  onRemove,
+}: {
+  label: string;
+  placeholder: string;
+  values: string[];
+  canEdit: boolean;
+  onChange: (index: number, value: string) => void;
+  onAdd: () => void;
+  onRemove: (index: number) => void;
+}) {
+  return (
+    <div>
+      <label className="text-xs font-semibold text-text-muted">{label}</label>
+      <div className="mt-2 space-y-2">
+        {values.map((value, i) => (
+          <div key={i} className="flex gap-2">
+            <input
+              value={value}
+              disabled={!canEdit}
+              onChange={(e) => onChange(i, e.target.value)}
+              className="flex-1 rounded-xl border border-border-card bg-bg-secondary px-3 py-2 text-sm"
+              placeholder={placeholder}
+            />
+            <button
+              type="button"
+              disabled={!canEdit || values.length <= 1}
+              onClick={() => onRemove(i)}
+              className="rounded-xl border border-border-card px-2 text-xs"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+        <button type="button" disabled={!canEdit} onClick={onAdd} className="text-xs font-semibold text-brand-primary">
+          + Add item
+        </button>
       </div>
     </div>
   );

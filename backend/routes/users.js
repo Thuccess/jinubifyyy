@@ -94,6 +94,14 @@ function profilePayload(user) {
     industry: user.industry,
     publicTagline: user.publicTagline || '',
     publicBio: user.publicBio || '',
+    professionalTitle: user.professionalTitle || '',
+    skillsExpertise: Array.isArray(user.skillsExpertise) ? user.skillsExpertise : [],
+    workExperience: Array.isArray(user.workExperience) ? user.workExperience : [],
+    educationCertifications: Array.isArray(user.educationCertifications)
+      ? user.educationCertifications
+      : [],
+    achievementsProjects: Array.isArray(user.achievementsProjects) ? user.achievementsProjects : [],
+    personalInterests: Array.isArray(user.personalInterests) ? user.personalInterests : [],
     accountType: user.accountType,
     profileSlug: user.profileSlug,
     qrCodeUrl: user.qrCodeUrl,
@@ -187,6 +195,14 @@ const normalizeWebsiteField = (raw) => {
     throw new Error('Invalid website URL');
   }
   return u.toString();
+};
+
+const normalizeStringArrayField = (value, maxItems, maxItemLength) => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => String(item || '').trim().slice(0, maxItemLength))
+    .filter(Boolean)
+    .slice(0, maxItems);
 };
 
 // @route   GET /api/users/profile
@@ -552,6 +568,21 @@ router.put(
     body('industry').optional().trim(),
     body('publicTagline').optional().trim().isLength({ max: 220 }).withMessage('Tagline is too long'),
     body('publicBio').optional().trim().isLength({ max: 4000 }).withMessage('Bio is too long'),
+    body('professionalTitle')
+      .optional()
+      .trim()
+      .isLength({ max: 220 })
+      .withMessage('Professional title is too long'),
+    body('skillsExpertise').optional().isArray(),
+    body('skillsExpertise.*').optional().trim().isLength({ max: 120 }),
+    body('workExperience').optional().isArray(),
+    body('workExperience.*').optional().trim().isLength({ max: 300 }),
+    body('educationCertifications').optional().isArray(),
+    body('educationCertifications.*').optional().trim().isLength({ max: 300 }),
+    body('achievementsProjects').optional().isArray(),
+    body('achievementsProjects.*').optional().trim().isLength({ max: 300 }),
+    body('personalInterests').optional().isArray(),
+    body('personalInterests.*').optional().trim().isLength({ max: 120 }),
     body('preferredChannels').optional().isArray().withMessage('Preferred channels must be an array'),
     body('profileSlug')
       .optional({ values: 'falsy' })
@@ -587,6 +618,12 @@ router.put(
         industry,
         publicTagline,
         publicBio,
+        professionalTitle,
+        skillsExpertise,
+        workExperience,
+        educationCertifications,
+        achievementsProjects,
+        personalInterests,
         preferredChannels,
         brandGuidelines,
         profileSlug,
@@ -625,6 +662,22 @@ router.put(
       if (industry !== undefined) updateData.industry = industry;
       if (publicTagline !== undefined) updateData.publicTagline = publicTagline;
       if (publicBio !== undefined) updateData.publicBio = publicBio;
+      if (professionalTitle !== undefined) updateData.professionalTitle = professionalTitle;
+      if (skillsExpertise !== undefined) {
+        updateData.skillsExpertise = normalizeStringArrayField(skillsExpertise, 30, 120);
+      }
+      if (workExperience !== undefined) {
+        updateData.workExperience = normalizeStringArrayField(workExperience, 20, 300);
+      }
+      if (educationCertifications !== undefined) {
+        updateData.educationCertifications = normalizeStringArrayField(educationCertifications, 20, 300);
+      }
+      if (achievementsProjects !== undefined) {
+        updateData.achievementsProjects = normalizeStringArrayField(achievementsProjects, 20, 300);
+      }
+      if (personalInterests !== undefined) {
+        updateData.personalInterests = normalizeStringArrayField(personalInterests, 30, 120);
+      }
       if (preferredChannels !== undefined) updateData.preferredChannels = preferredChannels;
       if (brandGuidelines !== undefined) {
         const currentUser = await User.findById(req.user._id).select('brandGuidelines').lean();
@@ -642,9 +695,7 @@ router.put(
       if (websiteNorm !== undefined) updateData.website = websiteNorm;
       if (location !== undefined) updateData.location = String(location).trim();
       if (servicesOffered !== undefined) {
-        updateData.servicesOffered = Array.isArray(servicesOffered)
-          ? servicesOffered.map((s) => String(s || '').trim()).filter(Boolean).slice(0, 24)
-          : [];
+        updateData.servicesOffered = normalizeStringArrayField(servicesOffered, 24, 120);
       }
 
       const user = await User.findByIdAndUpdate(req.user._id, { $set: updateData }, { new: true, runValidators: true });

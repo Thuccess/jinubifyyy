@@ -143,6 +143,53 @@ const userSchema = new mongoose.Schema({
     default: '',
     maxlength: 4000,
   },
+  /** Professional title shown on personal public profile */
+  professionalTitle: {
+    type: String,
+    trim: true,
+    default: '',
+    maxlength: 220,
+  },
+  /** Skills and areas of expertise for personal profiles */
+  skillsExpertise: [
+    {
+      type: String,
+      trim: true,
+      maxlength: 120,
+    },
+  ],
+  /** Work history highlights (short entries) */
+  workExperience: [
+    {
+      type: String,
+      trim: true,
+      maxlength: 300,
+    },
+  ],
+  /** Education and certification highlights */
+  educationCertifications: [
+    {
+      type: String,
+      trim: true,
+      maxlength: 300,
+    },
+  ],
+  /** Notable achievements and projects */
+  achievementsProjects: [
+    {
+      type: String,
+      trim: true,
+      maxlength: 300,
+    },
+  ],
+  /** Personal interests (optional) */
+  personalInterests: [
+    {
+      type: String,
+      trim: true,
+      maxlength: 120,
+    },
+  ],
   preferredChannels: [
     {
       type: String,

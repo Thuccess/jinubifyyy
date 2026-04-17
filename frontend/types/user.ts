@@ -11,6 +11,12 @@ export interface UserProfile {
   industry?: string;
   publicTagline?: string;
   publicBio?: string;
+  professionalTitle?: string;
+  skillsExpertise?: string[];
+  workExperience?: string[];
+  educationCertifications?: string[];
+  achievementsProjects?: string[];
+  personalInterests?: string[];
   accountType?: 'personal' | 'business';
   profileSlug?: string | null;
   qrCodeUrl?: string;
@@ -39,6 +45,12 @@ export interface UpdateProfileData {
   industry?: string;
   publicTagline?: string;
   publicBio?: string;
+  professionalTitle?: string;
+  skillsExpertise?: string[];
+  workExperience?: string[];
+  educationCertifications?: string[];
+  achievementsProjects?: string[];
+  personalInterests?: string[];
   preferredChannels?: string[];
   profileSlug?: string | null;
   accountType?: 'personal' | 'business';

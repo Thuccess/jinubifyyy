@@ -231,6 +231,12 @@ export type PublicProfilePayload = {
   industry: string;
   tagline: string | null;
   about: string;
+  professionalTitle?: string;
+  skillsExpertise?: string[];
+  workExperience?: string[];
+  educationCertifications?: string[];
+  achievementsProjects?: string[];
+  personalInterests?: string[];
   heroImageUrl: string;
   photoURL?: string;
   phone: string;

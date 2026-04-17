@@ -45,7 +45,7 @@ router.get('/profile/:slug', async (req, res) => {
       isActive: { $ne: false },
     })
       .select(
-        'name company accountType socialLinks status profileSlug phone website email photoURL industry qrCodeUrl publicTagline publicBio brandGuidelines preferredChannels',
+        'name company accountType socialLinks status profileSlug phone website email photoURL industry qrCodeUrl publicTagline publicBio professionalTitle skillsExpertise workExperience educationCertifications achievementsProjects personalInterests brandGuidelines preferredChannels',
       )
       .lean();
 
@@ -105,6 +105,22 @@ router.get('/profile/:slug', async (req, res) => {
         industry,
         tagline,
         about,
+        professionalTitle: (user.professionalTitle && String(user.professionalTitle).trim()) || '',
+        skillsExpertise: Array.isArray(user.skillsExpertise)
+          ? user.skillsExpertise.map((entry) => String(entry || '').trim()).filter(Boolean)
+          : [],
+        workExperience: Array.isArray(user.workExperience)
+          ? user.workExperience.map((entry) => String(entry || '').trim()).filter(Boolean)
+          : [],
+        educationCertifications: Array.isArray(user.educationCertifications)
+          ? user.educationCertifications.map((entry) => String(entry || '').trim()).filter(Boolean)
+          : [],
+        achievementsProjects: Array.isArray(user.achievementsProjects)
+          ? user.achievementsProjects.map((entry) => String(entry || '').trim()).filter(Boolean)
+          : [],
+        personalInterests: Array.isArray(user.personalInterests)
+          ? user.personalInterests.map((entry) => String(entry || '').trim()).filter(Boolean)
+          : [],
         heroImageUrl,
         phone: (user.phone && String(user.phone).trim()) || '',
         website: websiteUrl,
