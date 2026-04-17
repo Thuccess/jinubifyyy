@@ -469,7 +469,7 @@ const ProfileCardPage: React.FC = () => {
                 style={articleProfileColorStyle}
                 aria-label={`Profile of ${profile.displayName}`}
               >
-                <section className="relative h-[52svh] min-h-[300px] w-full bg-white">
+                <section className="relative w-full min-h-[140px] h-36 overflow-hidden bg-white sm:min-h-[168px] sm:h-44 md:min-h-[196px] md:h-52 lg:min-h-[224px] lg:h-60">
                   {coverImage && !imgError ? (
                     // eslint-disable-next-line @next/next/no-img-element -- remote user media
                     <img
@@ -486,35 +486,43 @@ const ProfileCardPage: React.FC = () => {
                       onError={() => setImgError(true)}
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-white text-5xl font-bold text-zinc-400" aria-hidden>
+                    <div className="flex h-full w-full items-center justify-center bg-white text-3xl font-bold text-zinc-400 sm:text-4xl md:text-5xl" aria-hidden>
                       {profile.displayName.charAt(0).toUpperCase()}
                     </div>
                   )}
-
+                  <div
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/20 to-transparent sm:h-16 md:h-20"
+                    aria-hidden
+                  />
                 </section>
+
+                <div className="border-t border-black bg-black">
+                  <div className="mx-auto flex w-full max-w-4xl justify-start px-4 pt-3 pb-2 sm:px-6 sm:pt-4 sm:pb-3 md:px-10 md:pt-5 md:pb-4 lg:px-14">
+                    <div className="ring-[3px] ring-white sm:ring-4 md:ring-[5px] rounded-full shadow-[0_12px_28px_-8px_rgba(0,0,0,0.55)]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={
+                          avatarImage ||
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.displayName)}&background=random`
+                        }
+                        alt={`${profile.displayName} avatar`}
+                        width={112}
+                        height={112}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-16 w-16 rounded-full border border-black/10 object-cover sm:h-[4.5rem] sm:w-[4.5rem] md:h-24 md:w-24 lg:h-28 lg:w-28"
+                      />
+                    </div>
+                  </div>
+                </div>
 
                 <section className="border-t border-black bg-black">
                   <div
-                    className={`mx-auto w-full max-w-4xl px-4 pb-5 pt-4 sm:px-6 sm:pb-6 sm:pt-5 md:px-10 md:pb-8 lg:px-14 backdrop-blur-[22px] ${cardBottomOverlayClass}`}
+                    className={`mx-auto w-full max-w-4xl px-4 pb-5 pt-2 sm:px-6 sm:pb-6 sm:pt-3 md:px-10 md:pb-8 md:pt-4 lg:px-14 backdrop-blur-[22px] ${cardBottomOverlayClass}`}
                   >
                     <div>
-                      <div className="flex flex-col items-start">
-                        <div className="rounded-[14px] border-[4px] border-black bg-white p-1.5 shadow-[0_20px_42px_-14px_rgba(0,0,0,0.8)]">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={
-                              avatarImage ||
-                              `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.displayName)}&background=random`
-                            }
-                            alt={`${profile.displayName} avatar`}
-                            width={88}
-                            height={88}
-                            loading="lazy"
-                            decoding="async"
-                            className="h-[76px] w-[76px] rounded-[10px] border border-black/15 object-cover md:h-[88px] md:w-[88px]"
-                          />
-                        </div>
-                        <div className="mt-2.5 min-w-0 w-full">
+                      <div className="flex flex-col items-stretch">
+                        <div className="min-w-0 w-full">
                           <div
                             className={`sticky top-0 z-20 -mx-1 mb-2 rounded-xl border px-3 py-2.5 backdrop-blur-xl sm:-mx-2 sm:px-4 ${
                               accentColor || textColor
