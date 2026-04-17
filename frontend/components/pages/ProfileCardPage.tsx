@@ -9,8 +9,8 @@ import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { FaEnvelope, FaGlobe, FaPhone } from 'react-icons/fa';
-import { ConnectionIcon, LinkIcon } from '@/components/icons/Icons';
+import { FaEnvelope, FaGlobe, FaImages, FaPhone } from 'react-icons/fa';
+import { LinkIcon } from '@/components/icons/Icons';
 import {
   normalizeSocialPlatformId,
   SOCIAL_PLATFORM_META,
@@ -98,10 +98,11 @@ const ProfileCardPage: React.FC = () => {
   const [displayedViews, setDisplayedViews] = useState(0);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [imgError, setImgError] = useState(false);
-  const [isLinksOpen, setIsLinksOpen] = useState(false);
+  const [activeGalleryIndex, setActiveGalleryIndex] = useState<number | null>(null);
   const [showConnectPrompt, setShowConnectPrompt] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalView, setAuthModalView] = useState<'signIn' | 'signUp'>('signUp');
+  const [actionNote, setActionNote] = useState<string | null>(null);
 
   const openSignUpModal = useCallback(() => {
     setAuthModalView('signUp');
@@ -210,6 +211,7 @@ const ProfileCardPage: React.FC = () => {
   const educationCertifications = (profile?.educationCertifications || []).filter(Boolean);
   const achievementsProjects = (profile?.achievementsProjects || []).filter(Boolean);
   const personalInterests = (profile?.personalInterests || []).filter(Boolean);
+  const galleryImages = (profile?.galleryImages || []).filter(Boolean).slice(0, 4);
   const accentColor = profile?.brandGuidelines?.publicProfileAccentColor?.trim() ?? '';
   const textColor = profile?.brandGuidelines?.publicProfileTextColor?.trim() ?? '';
   const usePublicProfileColors = Boolean(accentColor || textColor);
@@ -375,16 +377,57 @@ const ProfileCardPage: React.FC = () => {
   }, [currentUser?._id, isConnected, isConnecting, profile?.userId]);
 
   const handleConnectIconClick = useCallback(() => {
-    if (!currentUser) {
-      setShowConnectPrompt(true);
+    const hasAuthToken =
+      typeof window !== 'undefined' &&
+      Boolean(window.localStorage.getItem('token') || window.sessionStorage.getItem('token'));
+    if (!hasAuthToken || !currentUser?._id) {
+      setShowConnectPrompt(false);
+      setActionNote(null);
+      openSignUpModal();
       return;
     }
+    if (currentUser._id === profile?.userId) {
+      setActionNote('This is your profile.');
+      return;
+    }
+    if (isConnected) {
+      setActionNote('Already connected.');
+      return;
+    }
+    if (isConnecting) return;
+    setActionNote(null);
     // Frontend-only placeholder hook for upcoming backend connect flow.
     void handleConnect();
-  }, [currentUser, handleConnect]);
+  }, [currentUser, handleConnect, isConnected, isConnecting, openSignUpModal, profile?.userId]);
+
+  useEffect(() => {
+    if (!actionNote) return;
+    const t = window.setTimeout(() => setActionNote(null), 1800);
+    return () => window.clearTimeout(t);
+  }, [actionNote]);
+
+  useEffect(() => {
+    if (activeGalleryIndex == null) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setActiveGalleryIndex(null);
+      if (e.key === 'ArrowRight' && galleryImages.length > 0) {
+        setActiveGalleryIndex((idx) => ((idx ?? 0) + 1) % galleryImages.length);
+      }
+      if (e.key === 'ArrowLeft' && galleryImages.length > 0) {
+        setActiveGalleryIndex((idx) => ((idx ?? 0) - 1 + galleryImages.length) % galleryImages.length);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [activeGalleryIndex, galleryImages.length]);
 
   return (
-    <div className={`relative w-full min-h-[100svh] antialiased overflow-x-hidden ${pageTextClass}`}>
+    <div className={`relative w-full min-h-[100svh] antialiased overflow-x-hidden scroll-smooth ${pageTextClass}`}>
       <div className="pointer-events-none absolute inset-0 bg-transparent" />
 
       <div className="relative min-h-[100svh] flex flex-col items-center justify-center">
@@ -414,9 +457,7 @@ const ProfileCardPage: React.FC = () => {
         {state === 'ready' && profile && (
           <div className="w-full">
             <div
-              className={`transition-all duration-500 ease-out hover:scale-[1.012] hover:-translate-y-0.5 hover:z-10 motion-reduce:transform-none ${
-                cardVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.98]'
-              }`}
+              className={`transition-opacity duration-500 ease-out ${cardVisible ? 'opacity-100' : 'opacity-0'}`}
               style={{
                 perspective: '1200px',
                 width: '100vw',
@@ -450,72 +491,6 @@ const ProfileCardPage: React.FC = () => {
                     </div>
                   )}
 
-                  <div className="absolute right-4 top-4 z-20 flex items-center gap-2 md:right-6 md:top-6">
-                    <button
-                      type="button"
-                      onClick={handleConnectIconClick}
-                      title="Connections"
-                      style={accentColor || textColor ? chipSurfaceStyle : undefined}
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold backdrop-blur-xl ${chipClass}`}
-                    >
-                      <ConnectionIcon className="h-3.5 w-3.5" />
-                      {displayedViews.toLocaleString()}
-                    </button>
-                    <button
-                      type="button"
-                      title="Links"
-                      onClick={() => setIsLinksOpen((v) => !v)}
-                      style={accentColor || textColor ? chipSurfaceStyle : undefined}
-                      className={`inline-flex h-9 w-9 items-center justify-center rounded-full border backdrop-blur-xl transition ${chipClass}`}
-                      aria-expanded={isLinksOpen}
-                      aria-label="Open social links"
-                    >
-                      <LinkIcon className="h-4 w-4" />
-                    </button>
-                  </div>
-
-                  {isLinksOpen ? (
-                    <div
-                      className={`absolute right-4 top-14 z-30 w-60 rounded-2xl border p-2 backdrop-blur-xl shadow-2xl ${
-                        isDark ? 'border-white/15 bg-black/65' : 'border-black/12 bg-white/75'
-                      }`}
-                    >
-                      {filteredSocialLinks.length === 0 ? (
-                        <p className={`px-3 py-2 text-xs ${isDark ? 'text-white/80' : 'text-slate-700/85'}`}>No social links yet.</p>
-                      ) : (
-                        <ul className="space-y-1">
-                          {filteredSocialLinks.map((link) => {
-                            const id = normalizeSocialPlatformId(link.platform);
-                            if (!id) return null;
-                            const meta = SOCIAL_PLATFORM_META[id];
-                            const label = meta.label;
-                            const BrandIcon = meta.Icon;
-                            return (
-                              <li key={`${link.platform}-${link.url}`}>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setIsLinksOpen(false);
-                                    openTracked(`social:${link.platform}`, link.url);
-                                  }}
-                                  className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm transition ${
-                                    isDark ? 'text-white/95 hover:bg-white/10' : 'text-slate-800 hover:bg-black/5'
-                                  }`}
-                                >
-                                  <BrandIcon
-                                    className="h-4 w-4"
-                                    style={{ color: meta.color || '#FFFFFF' }}
-                                    aria-hidden
-                                  />
-                                  <span className="truncate">{label}</span>
-                                </button>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      )}
-                    </div>
-                  ) : null}
                 </section>
 
                 <section className="border-t border-black bg-black">
@@ -573,18 +548,6 @@ const ProfileCardPage: React.FC = () => {
                     </div>
 
                     <div className={`mt-4 border-t pt-3.5 sm:pt-4 ${isDark ? 'border-white/12' : 'border-black/12'}`}>
-                    {bioText ? (
-                      <div
-                        className={`rounded-2xl border p-3.5 md:p-4 ${glassPanelClass}`}
-                        style={accentColor || textColor ? glassPanelStyle : undefined}
-                      >
-                        <p className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${statsLabelClass}`}>
-                          Bio
-                        </p>
-                        <p className={`text-xs sm:text-sm leading-relaxed ${bodyLeadClass}`}>{bioText}</p>
-                      </div>
-                    ) : null}
-
                     <div
                       className={`mt-3.5 grid grid-cols-2 gap-2 rounded-2xl border px-3 py-2 ${glassPanelClass}`}
                       style={accentColor || textColor ? glassPanelStyle : undefined}
@@ -602,6 +565,81 @@ const ProfileCardPage: React.FC = () => {
                         </p>
                       </div>
                     </div>
+                    <div className="mt-2.5 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={handleConnectIconClick}
+                        title="Connections"
+                        style={accentColor || textColor ? chipSurfaceStyle : undefined}
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold backdrop-blur-xl ${chipClass}`}
+                      >
+                        <LinkIcon className="h-3.5 w-3.5" />
+                        Connect
+                      </button>
+                      <button
+                        type="button"
+                        title="Gallery"
+                        onClick={() => {
+                          if (galleryImages.length > 0) {
+                            setActiveGalleryIndex(0);
+                          } else {
+                            setActionNote('No gallery images yet.');
+                          }
+                        }}
+                        style={accentColor || textColor ? chipSurfaceStyle : undefined}
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold backdrop-blur-xl ${chipClass}`}
+                        aria-label="Open gallery"
+                      >
+                        <FaImages className="h-3.5 w-3.5" />
+                        Gallery
+                      </button>
+                    </div>
+                    {actionNote ? (
+                      <p className={`mt-2 text-xs ${statsLabelClass}`}>{actionNote}</p>
+                    ) : null}
+
+                    {galleryImages.length > 0 ? (
+                      <div
+                        className={`mt-4 rounded-2xl border p-3.5 md:p-4 ${glassPanelClass}`}
+                        style={accentColor || textColor ? glassPanelStyle : undefined}
+                      >
+                        <p className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${statsLabelClass}`}>
+                          Gallery
+                        </p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {galleryImages.map((img, index) => (
+                            <button
+                              key={`gallery-${index}-${img}`}
+                              type="button"
+                              onClick={() => setActiveGalleryIndex(index)}
+                              className="overflow-hidden rounded-xl border border-black/15"
+                              aria-label={`Open gallery image ${index + 1}`}
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={img}
+                                alt={`${profile.displayName} gallery image ${index + 1}`}
+                                className="h-32 w-full object-cover transition hover:scale-[1.02]"
+                                loading="lazy"
+                                decoding="async"
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {bioText ? (
+                      <div
+                        className={`mt-4 rounded-2xl border p-3.5 md:p-4 ${glassPanelClass}`}
+                        style={accentColor || textColor ? glassPanelStyle : undefined}
+                      >
+                        <p className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${statsLabelClass}`}>
+                          Bio
+                        </p>
+                        <p className={`text-xs sm:text-sm leading-relaxed ${bodyLeadClass}`}>{bioText}</p>
+                      </div>
+                    ) : null}
 
                     {featuredSocialLinks.length > 0 ? (
                       <div
@@ -835,6 +873,54 @@ const ProfileCardPage: React.FC = () => {
           </div>
         )}
       </div>
+      {activeGalleryIndex != null && galleryImages[activeGalleryIndex] ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
+          <button
+            type="button"
+            className="absolute inset-0"
+            aria-label="Close gallery image"
+            onClick={() => setActiveGalleryIndex(null)}
+          />
+          <div className="relative z-10 w-full max-w-3xl">
+            {galleryImages.length > 1 ? (
+              <button
+                type="button"
+                onClick={() =>
+                  setActiveGalleryIndex((idx) => ((idx ?? 0) - 1 + galleryImages.length) % galleryImages.length)
+                }
+                className="absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/60 px-3 py-1 text-sm text-white"
+                aria-label="Previous image"
+              >
+                Prev
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => setActiveGalleryIndex(null)}
+              className="absolute right-2 top-2 z-20 rounded-full bg-black/60 px-3 py-1 text-sm text-white"
+              aria-label="Close"
+            >
+              Close
+            </button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={galleryImages[activeGalleryIndex]}
+              alt={`${profile?.displayName || 'Profile'} gallery view ${activeGalleryIndex + 1}`}
+              className="max-h-[85vh] w-full rounded-2xl object-contain transition-opacity duration-200"
+            />
+            {galleryImages.length > 1 ? (
+              <button
+                type="button"
+                onClick={() => setActiveGalleryIndex((idx) => ((idx ?? 0) + 1) % galleryImages.length)}
+                className="absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/60 px-3 py-1 text-sm text-white"
+                aria-label="Next image"
+              >
+                Next
+              </button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
       {showConnectPrompt ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <button

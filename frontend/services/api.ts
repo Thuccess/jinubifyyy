@@ -239,6 +239,7 @@ export type PublicProfilePayload = {
   personalInterests?: string[];
   heroImageUrl: string;
   photoURL?: string;
+  galleryImages?: string[];
   phone: string;
   website: string;
   email: string;

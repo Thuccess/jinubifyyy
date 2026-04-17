@@ -26,6 +26,13 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'https://ui-avatars.com/api/?name=User&background=random',
   },
+  galleryImages: [
+    {
+      type: String,
+      trim: true,
+      maxlength: 2000,
+    },
+  ],
   phone: {
     type: String,
     trim: true,

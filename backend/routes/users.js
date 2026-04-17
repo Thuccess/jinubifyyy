@@ -87,6 +87,7 @@ function profilePayload(user) {
     name: user.name,
     email: user.email,
     photoURL: user.photoURL,
+    galleryImages: Array.isArray(user.galleryImages) ? user.galleryImages : [],
     balance: user.balance,
     status: user.status,
     rejectionReason: user.rejectionReason || '',
@@ -203,6 +204,24 @@ const normalizeStringArrayField = (value, maxItems, maxItemLength) => {
     .map((item) => String(item || '').trim().slice(0, maxItemLength))
     .filter(Boolean)
     .slice(0, maxItems);
+};
+
+const normalizeUrlArrayField = (value, maxItems) => {
+  if (!Array.isArray(value)) return [];
+  const urls = [];
+  for (const raw of value) {
+    const s = String(raw || '').trim();
+    if (!s) continue;
+    try {
+      const u = new URL(s);
+      if (!['http:', 'https:'].includes(u.protocol)) continue;
+      urls.push(u.toString().slice(0, 2000));
+    } catch {
+      // Skip invalid URLs silently; request validation handles strict checks.
+    }
+    if (urls.length >= maxItems) break;
+  }
+  return urls;
 };
 
 // @route   GET /api/users/profile
@@ -564,6 +583,21 @@ router.put(
           throw new Error('Photo URL must be a valid URL');
         }
       }),
+    body('galleryImages').optional().isArray({ max: 4 }).withMessage('Gallery supports up to 4 images'),
+    body('galleryImages.*')
+      .optional()
+      .trim()
+      .isLength({ max: 2000 })
+      .withMessage('Gallery image URL is too long')
+      .custom((v) => {
+        if (v === '' || v === null || v === undefined) return true;
+        try {
+          const u = new URL(String(v));
+          return ['http:', 'https:'].includes(u.protocol);
+        } catch {
+          throw new Error('Gallery image URL must be a valid URL');
+        }
+      }),
     body('company').optional().trim(),
     body('industry').optional().trim(),
     body('publicTagline').optional().trim().isLength({ max: 220 }).withMessage('Tagline is too long'),
@@ -614,6 +648,7 @@ router.put(
       const {
         name,
         photoURL,
+        galleryImages,
         company,
         industry,
         publicTagline,
@@ -658,6 +693,9 @@ router.put(
 
       if (name !== undefined) updateData.name = name;
       if (photoURL !== undefined) updateData.photoURL = photoURL;
+      if (galleryImages !== undefined) {
+        updateData.galleryImages = normalizeUrlArrayField(galleryImages, 4);
+      }
       if (company !== undefined) updateData.company = company;
       if (industry !== undefined) updateData.industry = industry;
       if (publicTagline !== undefined) updateData.publicTagline = publicTagline;

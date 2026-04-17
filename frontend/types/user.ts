@@ -3,6 +3,7 @@ export interface UserProfile {
   name: string;
   email: string;
   photoURL: string;
+  galleryImages?: string[];
   role: 'user' | 'admin';
   balance: number;
   status?: string;
@@ -41,6 +42,7 @@ export interface UserProfile {
 export interface UpdateProfileData {
   name?: string;
   photoURL?: string;
+  galleryImages?: string[];
   company?: string;
   industry?: string;
   publicTagline?: string;

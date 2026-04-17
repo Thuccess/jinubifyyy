@@ -37,6 +37,7 @@ export default function IdentityProfileEditor() {
     location: '',
     servicesOffered: [] as string[],
     photoURL: '',
+    galleryImages: [] as string[],
     brandGuidelines: {
       logoUrl: '' as string,
       primaryColor: '',
@@ -70,6 +71,7 @@ export default function IdentityProfileEditor() {
       location: profile.location || '',
       servicesOffered: profile.servicesOffered?.length ? [...profile.servicesOffered] : [''],
       photoURL: profile.photoURL || '',
+      galleryImages: profile.galleryImages?.length ? [...profile.galleryImages].slice(0, 4) : [],
       brandGuidelines: {
         logoUrl: profile.brandGuidelines?.logoUrl || '',
         primaryColor: profile.brandGuidelines?.primaryColor || '',
@@ -141,6 +143,57 @@ export default function IdentityProfileEditor() {
           ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
           : undefined;
       setMessage(msg || 'Upload failed.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const onGalleryImagesSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (!files.length || !canEditIdentity) return;
+    const availableSlots = Math.max(0, 4 - form.galleryImages.length);
+    if (availableSlots <= 0) {
+      setMessage('Gallery already has 4 images. Remove one to add another.');
+      return;
+    }
+    const toUpload = files.slice(0, availableSlots);
+    if (files.length > availableSlots) {
+      setMessage(`Only ${availableSlots} more image(s) can be added (max 4).`);
+    }
+    for (const file of toUpload) {
+      if (!file.type.startsWith('image/')) {
+        setMessage('Gallery accepts image files only.');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setMessage('Each gallery image must be under 5MB.');
+        return;
+      }
+    }
+    setUploading(true);
+    try {
+      const uploadedUrls: string[] = [];
+      for (const file of toUpload) {
+        const { url, image } = await userAPI.uploadProfileImage(file);
+        const uploaded = url || image || '';
+        if (uploaded) uploadedUrls.push(uploaded);
+      }
+      if (!uploadedUrls.length) {
+        setMessage('Gallery upload failed.');
+        return;
+      }
+      const nextImages = [...form.galleryImages, ...uploadedUrls].slice(0, 4);
+      setForm((prev) => ({ ...prev, galleryImages: nextImages }));
+      await userAPI.updateProfile({ galleryImages: nextImages });
+      await refresh();
+      setMessage('Gallery updated.');
+    } catch (err: unknown) {
+      const msg =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          : undefined;
+      setMessage(msg || 'Gallery upload failed.');
     } finally {
       setUploading(false);
     }
@@ -241,6 +294,7 @@ export default function IdentityProfileEditor() {
         location: form.location,
         servicesOffered: services,
         photoURL: form.photoURL,
+        galleryImages: form.galleryImages.slice(0, 4),
         brandGuidelines: {
           ...form.brandGuidelines,
           publicProfileAccentColor: accent,
@@ -341,6 +395,45 @@ export default function IdentityProfileEditor() {
                     onChange={(v) => setForm((p) => ({ ...p, brandGuidelines: { ...p.brandGuidelines, logoUrl: v } }))}
                     disabled={!canEditIdentity}
                   />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-text-muted">Gallery images (max 4)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    disabled={!canEditIdentity || uploading || form.galleryImages.length >= 4}
+                    onChange={(e) => void onGalleryImagesSelect(e)}
+                    className="mt-2 block w-full text-xs text-text-secondary file:mr-2 file:rounded-lg file:border-0 file:bg-brand-soft file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-brand-primary"
+                  />
+                  {form.galleryImages.length > 0 ? (
+                    <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                      {form.galleryImages.map((img, i) => (
+                        <div key={`${img}-${i}`} className="relative">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={img}
+                            alt={`Gallery image ${i + 1}`}
+                            className="h-20 w-full rounded-lg border border-border-card object-cover"
+                          />
+                          <button
+                            type="button"
+                            disabled={!canEditIdentity}
+                            onClick={() =>
+                              setForm((prev) => ({
+                                ...prev,
+                                galleryImages: prev.galleryImages.filter((_, idx) => idx !== i),
+                              }))
+                            }
+                            className="absolute right-1 top-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white"
+                            aria-label={`Remove gallery image ${i + 1}`}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
                 <Field label="Full name" value={form.name} onChange={(v) => setForm((p) => ({ ...p, name: v }))} disabled={!canEditIdentity} />
                 <Field

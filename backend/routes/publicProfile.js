@@ -45,7 +45,7 @@ router.get('/profile/:slug', async (req, res) => {
       isActive: { $ne: false },
     })
       .select(
-        'name company accountType socialLinks status profileSlug phone website email photoURL industry qrCodeUrl publicTagline publicBio professionalTitle skillsExpertise workExperience educationCertifications achievementsProjects personalInterests brandGuidelines preferredChannels',
+        'name company accountType socialLinks status profileSlug phone website email photoURL galleryImages industry qrCodeUrl publicTagline publicBio professionalTitle skillsExpertise workExperience educationCertifications achievementsProjects personalInterests brandGuidelines preferredChannels',
       )
       .lean();
 
@@ -122,6 +122,9 @@ router.get('/profile/:slug', async (req, res) => {
           ? user.personalInterests.map((entry) => String(entry || '').trim()).filter(Boolean)
           : [],
         heroImageUrl,
+        galleryImages: Array.isArray(user.galleryImages)
+          ? user.galleryImages.map((entry) => String(entry || '').trim()).filter(Boolean).slice(0, 4)
+          : [],
         phone: (user.phone && String(user.phone).trim()) || '',
         website: websiteUrl,
         email: user.email,
