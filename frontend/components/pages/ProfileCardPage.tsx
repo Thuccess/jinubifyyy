@@ -203,6 +203,13 @@ const ProfileCardPage: React.FC = () => {
 
   const isDark = theme === 'dark';
   const lead = profile ? heroLead(profile) : '';
+  const bioText = profile?.about?.trim() || '';
+  const professionalTitle = profile?.professionalTitle?.trim() || '';
+  const skillsExpertise = (profile?.skillsExpertise || []).filter(Boolean);
+  const workExperience = (profile?.workExperience || []).filter(Boolean);
+  const educationCertifications = (profile?.educationCertifications || []).filter(Boolean);
+  const achievementsProjects = (profile?.achievementsProjects || []).filter(Boolean);
+  const personalInterests = (profile?.personalInterests || []).filter(Boolean);
   const accentColor = profile?.brandGuidelines?.publicProfileAccentColor?.trim() ?? '';
   const textColor = profile?.brandGuidelines?.publicProfileTextColor?.trim() ?? '';
   const usePublicProfileColors = Boolean(accentColor || textColor);
@@ -377,7 +384,7 @@ const ProfileCardPage: React.FC = () => {
   }, [currentUser, handleConnect]);
 
   return (
-    <div className={`relative w-full min-h-[100svh] antialiased overflow-hidden ${pageTextClass}`}>
+    <div className={`relative w-full min-h-[100svh] antialiased overflow-x-hidden ${pageTextClass}`}>
       <div className="pointer-events-none absolute inset-0 bg-transparent" />
 
       <div className="relative min-h-[100svh] flex flex-col items-center justify-center">
@@ -417,11 +424,11 @@ const ProfileCardPage: React.FC = () => {
               }}
             >
               <article
-                className="relative h-[100svh] w-full overflow-hidden"
+                className="relative min-h-[100svh] w-full"
                 style={articleProfileColorStyle}
                 aria-label={`Profile of ${profile.displayName}`}
               >
-                <div className="absolute inset-x-0 top-0 h-[52%] bg-white">
+                <section className="relative h-[52svh] min-h-[300px] w-full bg-white">
                   {coverImage && !imgError ? (
                     // eslint-disable-next-line @next/next/no-img-element -- remote user media
                     <img
@@ -442,123 +449,144 @@ const ProfileCardPage: React.FC = () => {
                       {profile.displayName.charAt(0).toUpperCase()}
                     </div>
                   )}
-                </div>
 
-                <div
-                  className="pointer-events-none absolute inset-x-0 top-[52%] h-[48%] bg-black"
-                  aria-hidden
-                />
-                <div className="pointer-events-none absolute inset-x-0 top-[52%] h-[2px] bg-black" aria-hidden />
-
-                <div className="absolute right-4 top-4 z-20 flex items-center gap-2 md:right-6 md:top-6">
-                  <button
-                    type="button"
-                    onClick={handleConnectIconClick}
-                    title="Connections"
-                    style={accentColor || textColor ? chipSurfaceStyle : undefined}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold backdrop-blur-xl ${chipClass}`}
-                  >
-                    <ConnectionIcon className="h-3.5 w-3.5" />
-                    {displayedViews.toLocaleString()}
-                  </button>
-                  <button
-                    type="button"
-                    title="Links"
-                    onClick={() => setIsLinksOpen((v) => !v)}
-                    style={accentColor || textColor ? chipSurfaceStyle : undefined}
-                    className={`inline-flex h-9 w-9 items-center justify-center rounded-full border backdrop-blur-xl transition ${chipClass}`}
-                    aria-expanded={isLinksOpen}
-                    aria-label="Open social links"
-                  >
-                    <LinkIcon className="h-4 w-4" />
-                  </button>
-                </div>
-
-                {isLinksOpen ? (
-                  <div
-                    className={`absolute right-4 top-14 z-30 w-60 rounded-2xl border p-2 backdrop-blur-xl shadow-2xl ${
-                      isDark ? 'border-white/15 bg-black/65' : 'border-black/12 bg-white/75'
-                    }`}
-                  >
-                    {filteredSocialLinks.length === 0 ? (
-                      <p className={`px-3 py-2 text-xs ${isDark ? 'text-white/80' : 'text-slate-700/85'}`}>No social links yet.</p>
-                    ) : (
-                      <ul className="space-y-1">
-                        {filteredSocialLinks.map((link) => {
-                          const id = normalizeSocialPlatformId(link.platform);
-                          if (!id) return null;
-                          const meta = SOCIAL_PLATFORM_META[id];
-                          const label = meta.label;
-                          const BrandIcon = meta.Icon;
-                          return (
-                            <li key={`${link.platform}-${link.url}`}>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setIsLinksOpen(false);
-                                  openTracked(`social:${link.platform}`, link.url);
-                                }}
-                                className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm transition ${
-                                  isDark ? 'text-white/95 hover:bg-white/10' : 'text-slate-800 hover:bg-black/5'
-                                }`}
-                              >
-                                <BrandIcon
-                                  className="h-4 w-4"
-                                  style={{ color: meta.color || '#FFFFFF' }}
-                                  aria-hidden
-                                />
-                                <span className="truncate">{label}</span>
-                              </button>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    )}
+                  <div className="absolute right-4 top-4 z-20 flex items-center gap-2 md:right-6 md:top-6">
+                    <button
+                      type="button"
+                      onClick={handleConnectIconClick}
+                      title="Connections"
+                      style={accentColor || textColor ? chipSurfaceStyle : undefined}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold backdrop-blur-xl ${chipClass}`}
+                    >
+                      <ConnectionIcon className="h-3.5 w-3.5" />
+                      {displayedViews.toLocaleString()}
+                    </button>
+                    <button
+                      type="button"
+                      title="Links"
+                      onClick={() => setIsLinksOpen((v) => !v)}
+                      style={accentColor || textColor ? chipSurfaceStyle : undefined}
+                      className={`inline-flex h-9 w-9 items-center justify-center rounded-full border backdrop-blur-xl transition ${chipClass}`}
+                      aria-expanded={isLinksOpen}
+                      aria-label="Open social links"
+                    >
+                      <LinkIcon className="h-4 w-4" />
+                    </button>
                   </div>
-                ) : null}
 
-                <div className="absolute inset-x-0 bottom-0 top-[47%] flex flex-col justify-end pointer-events-none">
+                  {isLinksOpen ? (
+                    <div
+                      className={`absolute right-4 top-14 z-30 w-60 rounded-2xl border p-2 backdrop-blur-xl shadow-2xl ${
+                        isDark ? 'border-white/15 bg-black/65' : 'border-black/12 bg-white/75'
+                      }`}
+                    >
+                      {filteredSocialLinks.length === 0 ? (
+                        <p className={`px-3 py-2 text-xs ${isDark ? 'text-white/80' : 'text-slate-700/85'}`}>No social links yet.</p>
+                      ) : (
+                        <ul className="space-y-1">
+                          {filteredSocialLinks.map((link) => {
+                            const id = normalizeSocialPlatformId(link.platform);
+                            if (!id) return null;
+                            const meta = SOCIAL_PLATFORM_META[id];
+                            const label = meta.label;
+                            const BrandIcon = meta.Icon;
+                            return (
+                              <li key={`${link.platform}-${link.url}`}>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setIsLinksOpen(false);
+                                    openTracked(`social:${link.platform}`, link.url);
+                                  }}
+                                  className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm transition ${
+                                    isDark ? 'text-white/95 hover:bg-white/10' : 'text-slate-800 hover:bg-black/5'
+                                  }`}
+                                >
+                                  <BrandIcon
+                                    className="h-4 w-4"
+                                    style={{ color: meta.color || '#FFFFFF' }}
+                                    aria-hidden
+                                  />
+                                  <span className="truncate">{label}</span>
+                                </button>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+                    </div>
+                  ) : null}
+                </section>
+
+                <section className="border-t border-black bg-black">
                   <div
-                    className={`pointer-events-auto px-5 pb-5 pt-16 sm:px-6 sm:pb-6 md:px-10 md:pb-8 lg:px-14 backdrop-blur-[22px] border-t ${cardBottomOverlayClass}`}
+                    className={`mx-auto w-full max-w-4xl px-4 pb-5 pt-4 sm:px-6 sm:pb-6 sm:pt-5 md:px-10 md:pb-8 lg:px-14 backdrop-blur-[22px] ${cardBottomOverlayClass}`}
                   >
-                    <div className="mx-auto w-full max-w-4xl">
-                    <div className="-mt-[3.35rem] mb-3 flex items-center gap-3 md:-mt-[3.85rem] md:gap-4">
-                      <div className="shrink-0 rounded-[14px] border-[4px] border-black bg-white p-1.5 shadow-[0_20px_42px_-14px_rgba(0,0,0,0.8)]">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={
-                            avatarImage ||
-                            `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.displayName)}&background=random`
-                          }
-                          alt={`${profile.displayName} avatar`}
-                          width={88}
-                          height={88}
-                          loading="lazy"
-                          decoding="async"
-                          className="h-[76px] w-[76px] rounded-[10px] border border-black/15 object-cover md:h-[88px] md:w-[88px]"
-                        />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2 gap-y-1">
-                          <h1
-                            className={`truncate text-2xl sm:text-[1.65rem] md:text-[2.1rem] font-bold tracking-tight leading-tight ${headingTextClass}`}
-                          >
-                            {profile.displayName}
-                          </h1>
-                          {profile.verified ? <VerifiedAccountBadge isDark={badgeIsDark} /> : null}
+                    <div>
+                      <div className="flex flex-col items-start">
+                        <div className="rounded-[14px] border-[4px] border-black bg-white p-1.5 shadow-[0_20px_42px_-14px_rgba(0,0,0,0.8)]">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={
+                              avatarImage ||
+                              `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.displayName)}&background=random`
+                            }
+                            alt={`${profile.displayName} avatar`}
+                            width={88}
+                            height={88}
+                            loading="lazy"
+                            decoding="async"
+                            className="h-[76px] w-[76px] rounded-[10px] border border-black/15 object-cover md:h-[88px] md:w-[88px]"
+                          />
                         </div>
-                        <p className={`text-sm ${subheadingMutedClass}`}>@{profile.slug}</p>
+                        <div className="mt-2.5 min-w-0 w-full">
+                          <div
+                            className={`sticky top-0 z-20 -mx-1 mb-2 rounded-xl border px-3 py-2.5 backdrop-blur-xl sm:-mx-2 sm:px-4 ${
+                              accentColor || textColor
+                                ? glassPanelClass
+                                : isDark
+                                  ? 'border-white/20 bg-black/62'
+                                  : 'border-black/15 bg-white/78'
+                            }`}
+                            style={accentColor || textColor ? glassPanelStyle : undefined}
+                          >
+                            <div className="flex flex-wrap items-center gap-2 gap-y-1">
+                              <h1
+                                className={`truncate text-[1.3rem] sm:text-[1.45rem] md:text-[1.7rem] font-bold tracking-tight leading-tight ${headingTextClass}`}
+                              >
+                                {profile.displayName}
+                              </h1>
+                              {profile.verified ? <VerifiedAccountBadge isDark={badgeIsDark} /> : null}
+                            </div>
+                            <p className={`text-sm ${subheadingMutedClass}`}>@{profile.slug}</p>
+                          </div>
+                          {professionalTitle ? (
+                            <p className={`mt-0.5 text-xs sm:text-sm ${subheadingMutedClass}`}>{professionalTitle}</p>
+                          ) : null}
+                          {lead ? (
+                            <p className={`mt-2 text-sm sm:text-[15px] md:text-base leading-snug line-clamp-2 ${bodyLeadClass}`}>
+                              {lead}
+                            </p>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
 
-                    {lead ? (
-                      <p className={`mt-2 text-sm sm:text-[15px] md:text-base leading-snug line-clamp-2 ${bodyLeadClass}`}>
-                        {lead}
-                      </p>
+                    <div className={`mt-4 border-t pt-3.5 sm:pt-4 ${isDark ? 'border-white/12' : 'border-black/12'}`}>
+                    {bioText ? (
+                      <div
+                        className={`rounded-2xl border p-3.5 md:p-4 ${glassPanelClass}`}
+                        style={accentColor || textColor ? glassPanelStyle : undefined}
+                      >
+                        <p className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${statsLabelClass}`}>
+                          Bio
+                        </p>
+                        <p className={`text-xs sm:text-sm leading-relaxed ${bodyLeadClass}`}>{bioText}</p>
+                      </div>
                     ) : null}
 
                     <div
-                      className={`mt-4 grid grid-cols-2 gap-2 rounded-2xl border px-3 py-2 ${glassPanelClass}`}
+                      className={`mt-3.5 grid grid-cols-2 gap-2 rounded-2xl border px-3 py-2 ${glassPanelClass}`}
                       style={accentColor || textColor ? glassPanelStyle : undefined}
                     >
                       <div>
@@ -643,8 +671,88 @@ const ProfileCardPage: React.FC = () => {
                       </div>
                     ) : null}
 
+                    {skillsExpertise.length > 0 ? (
+                      <div
+                        className={`mt-4 rounded-2xl border p-3.5 md:p-4 ${glassPanelClass}`}
+                        style={accentColor || textColor ? glassPanelStyle : undefined}
+                      >
+                        <p className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${statsLabelClass}`}>
+                          Skills & expertise
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {skillsExpertise.map((skill, index) => (
+                            <span
+                              key={`${skill}-${index}`}
+                              style={accentColor || textColor ? socialPillStyle : undefined}
+                              className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] ${socialPillClass}`}
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {workExperience.length > 0 ? (
+                      <InfoListBlock
+                        title="Work experience"
+                        items={workExperience}
+                        isDark={isDark}
+                        className={glassPanelClass}
+                        style={accentColor || textColor ? glassPanelStyle : undefined}
+                        labelClass={statsLabelClass}
+                        textClass={bodyLeadClass}
+                      />
+                    ) : null}
+
+                    {educationCertifications.length > 0 ? (
+                      <InfoListBlock
+                        title="Education & certifications"
+                        items={educationCertifications}
+                        isDark={isDark}
+                        className={glassPanelClass}
+                        style={accentColor || textColor ? glassPanelStyle : undefined}
+                        labelClass={statsLabelClass}
+                        textClass={bodyLeadClass}
+                      />
+                    ) : null}
+
+                    {achievementsProjects.length > 0 ? (
+                      <InfoListBlock
+                        title="Achievements & notable projects"
+                        items={achievementsProjects}
+                        isDark={isDark}
+                        className={glassPanelClass}
+                        style={accentColor || textColor ? glassPanelStyle : undefined}
+                        labelClass={statsLabelClass}
+                        textClass={bodyLeadClass}
+                      />
+                    ) : null}
+
+                    {personalInterests.length > 0 ? (
+                      <div
+                        className={`mt-4 rounded-2xl border p-3.5 md:p-4 ${glassPanelClass}`}
+                        style={accentColor || textColor ? glassPanelStyle : undefined}
+                      >
+                        <p className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${statsLabelClass}`}>
+                          Personal interests
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {personalInterests.map((interest, index) => (
+                            <span
+                              key={`${interest}-${index}`}
+                              style={accentColor || textColor ? socialPillStyle : undefined}
+                              className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] ${socialPillClass}`}
+                            >
+                              {interest}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+
                     <div
-                      className={`mt-4 rounded-2xl border px-3.5 py-3 backdrop-blur-xl ${glassPanelClass}`}
+                      className={`mt-4 rounded-2xl border px-3 py-3 backdrop-blur-xl sm:px-3.5 ${glassPanelClass}`}
                       style={accentColor || textColor ? glassPanelStyle : undefined}
                     >
                       <p className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${statsLabelClass}`}>
@@ -720,7 +828,7 @@ const ProfileCardPage: React.FC = () => {
                     </p>
                     </div>
                   </div>
-                </div>
+                </section>
               </article>
             </div>
 
@@ -798,3 +906,35 @@ const ProfileCardPage: React.FC = () => {
 };
 
 export default ProfileCardPage;
+
+function InfoListBlock({
+  title,
+  items,
+  isDark,
+  className,
+  style,
+  labelClass,
+  textClass,
+}: {
+  title: string;
+  items: string[];
+  isDark: boolean;
+  className: string;
+  style?: React.CSSProperties;
+  labelClass: string;
+  textClass: string;
+}) {
+  return (
+    <div className={`mt-4 rounded-2xl border p-3.5 md:p-4 ${className}`} style={style}>
+      <p className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${labelClass}`}>{title}</p>
+      <ul className={`space-y-1.5 text-xs sm:text-sm ${textClass}`}>
+        {items.map((item, index) => (
+          <li key={`${item}-${index}`} className={`flex gap-2 ${isDark ? 'text-white/85' : 'text-slate-800/85'}`}>
+            <span aria-hidden className="mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-current" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
