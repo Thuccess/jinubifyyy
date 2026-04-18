@@ -3,12 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from '@/components/NextImage';
-import { TwitterIcon, InstagramIcon, YouTubeIcon, FacebookIcon, LinkedInIcon, TikTokIcon } from './icons/Socials';
-import { PaperAirplaneIcon, CogIcon } from './icons/Icons';
+import { TwitterIcon, FacebookIcon, LinkedInIcon, TikTokIcon } from './icons/Socials';
+import { PaperAirplaneIcon } from './icons/Icons';
 import { useTheme } from '../contexts/ThemeContext';
 import { useCms } from '../contexts/CmsContext';
 import type { Theme } from '../types';
 import { useSocialLinks } from '../hooks/useSocialLinks';
+import { mergeCompanySocials } from '@/config/companySocialLinks';
 
 interface FooterProps {
     currentUser?: {
@@ -35,6 +36,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
     const { theme } = useTheme();
     const { site } = useCms();
     const { socials } = useSocialLinks();
+    const merged = mergeCompanySocials(socials);
 
     useEffect(() => {
         setMounted(true);
@@ -47,12 +49,10 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
     const ctaButtonText = (settings.footerCtaButtonText as string) ?? 'Get Started Free';
 
     const socialLinks = [
-        { name: 'X', href: socials?.twitter ?? '', icon: <TwitterIcon className="w-5 h-5" /> },
-        { name: 'Instagram', href: socials?.instagram ?? '', icon: <InstagramIcon className="w-5 h-5" /> },
-        { name: 'YouTube', href: socials?.youtube ?? '', icon: <YouTubeIcon className="w-5 h-5" /> },
-        { name: 'Facebook', href: socials?.facebook ?? '', icon: <FacebookIcon className="w-5 h-5" /> },
-        { name: 'LinkedIn', href: socials?.linkedin ?? '', icon: <LinkedInIcon className="w-5 h-5" /> },
-        { name: 'TikTok', href: socials?.tiktok ?? '', icon: <TikTokIcon className="w-5 h-5" /> },
+        { name: 'TikTok', href: merged.tiktok, icon: <TikTokIcon className="w-5 h-5" /> },
+        { name: 'Facebook', href: merged.facebook, icon: <FacebookIcon className="w-5 h-5" /> },
+        { name: 'LinkedIn', href: merged.linkedin, icon: <LinkedInIcon className="w-5 h-5" /> },
+        { name: 'X', href: merged.twitter, icon: <TwitterIcon className="w-5 h-5" /> },
     ].filter((l) => Boolean(l.href));
 
     const footerLinks = {

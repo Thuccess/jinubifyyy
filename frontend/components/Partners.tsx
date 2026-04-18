@@ -1,19 +1,33 @@
 import React from 'react';
-import { YouTubeIcon, TwitterIcon, InstagramIcon, TikTokIcon, FacebookIcon } from './icons/Socials';
+import { TwitterIcon, TikTokIcon, FacebookIcon, LinkedInIcon } from './icons/Socials';
 import type { PartnersContent } from './cms/sectionTypes';
+import { COMPANY_SOCIAL_HREF_BY_NAME, COMPANY_SOCIAL_STRIP } from '@/config/companySocialLinks';
 
 const PARTNER_ICONS: Record<string, React.ReactNode> = {
-  YouTube: <YouTubeIcon className="h-8 w-auto" />,
-  Twitter: <TwitterIcon className="h-8 w-auto" />,
-  Instagram: <InstagramIcon className="h-8 w-auto" />,
   TikTok: <TikTokIcon className="h-8 w-auto" />,
   Facebook: <FacebookIcon className="h-8 w-auto" />,
+  LinkedIn: <LinkedInIcon className="h-8 w-auto" />,
+  X: <TwitterIcon className="h-8 w-auto" />,
+  Twitter: <TwitterIcon className="h-8 w-auto" />,
 };
-const DEFAULT_NAMES = ['YouTube', 'Twitter', 'Instagram', 'TikTok', 'Facebook'];
+
+const DEFAULT_STRIP = COMPANY_SOCIAL_STRIP;
 
 const Partners: React.FC<{ content?: PartnersContent }> = ({ content: c }) => {
-  const names = c?.platformNames && c.platformNames.length > 0 ? c.platformNames : DEFAULT_NAMES;
-  const partners = names.map((name) => ({ name, icon: PARTNER_ICONS[name] ?? null, href: '#' }));
+  const fromCms =
+    c?.platformNames && c.platformNames.length > 0
+      ? c.platformNames
+          .map((name) => ({
+            name,
+            href: COMPANY_SOCIAL_HREF_BY_NAME[name] || '',
+            icon: PARTNER_ICONS[name] ?? null,
+          }))
+          .filter((p) => p.icon && p.href)
+      : null;
+  const partners =
+    fromCms && fromCms.length > 0
+      ? fromCms
+      : DEFAULT_STRIP.map((p) => ({ name: p.name, href: p.href, icon: PARTNER_ICONS[p.name] ?? null }));
   const eyebrow = c?.eyebrow ?? 'Supporting Businesses Across East Africa';
   return (
     <div className="w-full">
@@ -34,7 +48,7 @@ const Partners: React.FC<{ content?: PartnersContent }> = ({ content: c }) => {
                 <span className="h-px w-8 bg-brand-primary sm:w-10" aria-hidden="true" />
               </div>
             </div>
-            <div className="mx-auto grid max-w-5xl grid-cols-2 items-center gap-y-10 gap-x-6 md:grid-cols-5 md:gap-x-4">
+            <div className="mx-auto grid max-w-5xl grid-cols-2 items-center gap-y-10 gap-x-6 sm:grid-cols-4 md:gap-x-4">
               {partners
                 .filter((p) => p.icon)
                 .map((partner) => (
@@ -44,7 +58,7 @@ const Partners: React.FC<{ content?: PartnersContent }> = ({ content: c }) => {
                     className="group flex min-h-[4.5rem] items-center justify-center rounded-2xl border border-transparent px-3 py-4 transition-all duration-300 hover:border-border-card hover:bg-[color:var(--surface-muted)]/60 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg-primary)]"
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={`Visit our partner ${partner.name}`}
+                    aria-label={`Jinubify on ${partner.name}`}
                   >
                     <span className="text-text-muted grayscale transition duration-300 group-hover:scale-105 group-hover:grayscale-0 group-hover:text-text-primary">
                       {partner.icon}
