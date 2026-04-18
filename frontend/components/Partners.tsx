@@ -22,7 +22,7 @@ const Partners: React.FC<{ content?: PartnersContent }> = ({ content: c }) => {
           <div
             className="pointer-events-none absolute inset-0 opacity-[0.04] dark:opacity-[0.08]"
             style={{
-              backgroundImage: `radial-gradient(circle at 20% 0%, var(--accent-primary) 0%, transparent 45%), radial-gradient(circle at 100% 100%, var(--brand-primary) 0%, transparent 42%)`,
+              backgroundImage: `radial-gradient(circle at 20% 0%, var(--home-accent-from) 0%, transparent 45%), radial-gradient(circle at 100% 100%, var(--home-accent-to) 0%, transparent 42%)`,
             }}
             aria-hidden="true"
           />
