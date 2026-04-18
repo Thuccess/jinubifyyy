@@ -266,7 +266,8 @@ export default function IdentityProfileEditor() {
     setMessage(null);
     const accent = form.brandGuidelines.publicProfileAccentColor.trim();
     const textC = form.brandGuidelines.publicProfileTextColor.trim();
-    if (!isValidProfileHex(accent) || !isValidProfileHex(textC)) {
+    const bgC = form.brandGuidelines.publicProfileBackgroundColor.trim();
+    if (!isValidProfileHex(accent) || !isValidProfileHex(textC) || !isValidProfileHex(bgC)) {
       setMessage('Card colors must be empty or valid hex (#RGB or #RRGGBB).');
       setSaving(false);
       return;
