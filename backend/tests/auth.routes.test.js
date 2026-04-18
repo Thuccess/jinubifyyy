@@ -40,6 +40,7 @@ class MockUser {
       toneOfVoice: '',
       publicProfileAccentColor: '',
       publicProfileTextColor: '',
+      publicProfileBackgroundColor: '',
     };
     this.isActive = data.isActive === undefined ? true : Boolean(data.isActive);
   }

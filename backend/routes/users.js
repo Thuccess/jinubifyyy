@@ -61,6 +61,7 @@ function mergeBrandGuidelines(existing, incoming) {
     'secondaryColor',
     'publicProfileAccentColor',
     'publicProfileTextColor',
+    'publicProfileBackgroundColor',
   ];
   for (const key of colorKeys) {
     if (!Object.prototype.hasOwnProperty.call(incoming, key)) continue;
@@ -121,6 +122,7 @@ function profilePayload(user) {
         toneOfVoice: bg.toneOfVoice || '',
         publicProfileAccentColor: bg.publicProfileAccentColor || '',
         publicProfileTextColor: bg.publicProfileTextColor || '',
+        publicProfileBackgroundColor: bg.publicProfileBackgroundColor || '',
       };
     })(),
     createdAt: user.createdAt,

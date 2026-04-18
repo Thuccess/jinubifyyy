@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import type { SocialLink } from '@/types';
 import { glassCard } from '@/components/identity/identityStyles';
-import { rgbaFromHex } from '@/lib/publicProfileTheme';
+import { rgbaFromHex, textLuminance } from '@/lib/publicProfileTheme';
 
 export type ProfileDraft = {
   accountType?: 'personal' | 'business';
@@ -24,6 +24,7 @@ export type ProfileDraft = {
     toneOfVoice?: string;
     publicProfileAccentColor?: string;
     publicProfileTextColor?: string;
+    publicProfileBackgroundColor?: string;
   };
 };
 
@@ -47,20 +48,29 @@ export function LiveProfilePreview({
   const slugShow = slugPreview || 'your-handle';
   const accentColor = draft.brandGuidelines?.publicProfileAccentColor?.trim() ?? '';
   const textColor = draft.brandGuidelines?.publicProfileTextColor?.trim() ?? '';
-  const usePublicProfileColors = Boolean(accentColor || textColor);
+  const backgroundColor = draft.brandGuidelines?.publicProfileBackgroundColor?.trim() ?? '';
+  const usePublicProfileColors = Boolean(accentColor || textColor || backgroundColor);
 
   const overlayThemeStyle = useMemo((): React.CSSProperties | undefined => {
     if (!usePublicProfileColors) return undefined;
+    const textL = textColor ? textLuminance(textColor) : null;
+    const bgL = backgroundColor ? textLuminance(backgroundColor) : null;
+    const previewDark =
+      textL != null ? textL > 0.45 : bgL != null ? bgL < 0.42 : true;
     return {
       '--pp-text': textColor
         ? textColor
-        : 'rgba(255,255,255,0.92)',
+        : previewDark
+          ? 'rgba(255,255,255,0.92)'
+          : 'rgb(15 23 42)',
       '--pp-muted': textColor
         ? rgbaFromHex(textColor, 0.72) || 'rgba(255,255,255,0.65)'
-        : 'rgba(255,255,255,0.65)',
-      '--pp-accent': accentColor || '#93c5fd',
+        : previewDark
+          ? 'rgba(255,255,255,0.65)'
+          : 'rgba(51,65,85,0.78)',
+      '--pp-accent': accentColor || (previewDark ? '#93c5fd' : '#4f46e5'),
     } as React.CSSProperties;
-  }, [accentColor, textColor, usePublicProfileColors]);
+  }, [accentColor, textColor, backgroundColor, usePublicProfileColors]);
 
   const titleClass = usePublicProfileColors
     ? 'mt-1 text-xl font-bold tracking-tight text-[color:var(--pp-text)]'
@@ -105,7 +115,10 @@ export function LiveProfilePreview({
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
         <div
           className="absolute inset-x-0 bottom-0 px-5 pb-6 pt-12 backdrop-blur-[12px]"
-          style={overlayThemeStyle}
+          style={{
+            ...(backgroundColor ? { backgroundColor: rgbaFromHex(backgroundColor, 0.88) || backgroundColor } : {}),
+            ...overlayThemeStyle,
+          }}
         >
           <p
             className={

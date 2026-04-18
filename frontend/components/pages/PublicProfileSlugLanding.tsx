@@ -95,8 +95,14 @@ const PublicProfileSlugLanding: React.FC = () => {
   const buildVcard = useCallback((): string => {
     if (!profile) return '';
     const org = profile.accountType === 'business' && profile.company ? profile.company : '';
-    const title = profile.tagline || '';
-    const note = profile.about || '';
+    const title = profile.professionalTitle?.trim() || profile.tagline || '';
+    const baseNote = profile.about || '';
+    const loc = profile.location?.trim() || '';
+    const services = (profile.servicesOffered || []).filter(Boolean);
+    const noteParts = [baseNote];
+    if (loc) noteParts.push(`Location: ${loc}`);
+    if (services.length) noteParts.push(`Services: ${services.join(', ')}`);
+    const note = noteParts.filter(Boolean).join('\n\n');
     const lines = ['BEGIN:VCARD', 'VERSION:3.0', `FN:${vcardEscape(profile.displayName)}`];
     if (org) lines.push(`ORG:${vcardEscape(org)}`);
     if (title) lines.push(`TITLE:${vcardEscape(title)}`);
@@ -205,6 +211,30 @@ const PublicProfileSlugLanding: React.FC = () => {
                 <p className="mt-3 text-sm sm:text-base text-text-secondary leading-relaxed max-w-sm mx-auto px-2">
                   {profile.tagline}
                 </p>
+              ) : null}
+              {profile.professionalTitle?.trim() ? (
+                <p className="mt-2 text-sm text-text-muted max-w-sm mx-auto px-2">{profile.professionalTitle.trim()}</p>
+              ) : null}
+              {profile.location?.trim() ? (
+                <p className="mt-2 text-xs text-text-muted max-w-sm mx-auto px-2">{profile.location.trim()}</p>
+              ) : null}
+              {(profile.servicesOffered || []).filter(Boolean).length > 0 ? (
+                <div className="mt-4 max-w-sm mx-auto px-2 text-left">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-2">Services</p>
+                  <ul className="flex flex-wrap gap-2">
+                    {(profile.servicesOffered || [])
+                      .map((s) => String(s || '').trim())
+                      .filter(Boolean)
+                      .map((label, i) => (
+                        <li
+                          key={`${label}-${i}`}
+                          className="rounded-full border border-border-card bg-[color:var(--surface-card)] px-2.5 py-1 text-xs text-text-primary"
+                        >
+                          {label}
+                        </li>
+                      ))}
+                  </ul>
+                </div>
               ) : null}
             </>
           )}

@@ -41,6 +41,7 @@ export interface User {
     toneOfVoice?: string;
     publicProfileAccentColor?: string;
     publicProfileTextColor?: string;
+    publicProfileBackgroundColor?: string;
   };
   lastLoginAt?: Date | string;
 }

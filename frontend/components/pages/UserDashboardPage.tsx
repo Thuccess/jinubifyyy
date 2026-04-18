@@ -87,6 +87,7 @@ const ProfileCard: React.FC = () => {
                       toneOfVoice: '',
                       publicProfileAccentColor: '',
                       publicProfileTextColor: '',
+                      publicProfileBackgroundColor: '',
                     },
                     createdAt: userData.createdAt,
                     updatedAt: userData.updatedAt,
@@ -129,7 +130,8 @@ const ProfileCard: React.FC = () => {
               | 'logoUrl'
               | 'toneOfVoice'
               | 'publicProfileAccentColor'
-              | 'publicProfileTextColor';
+              | 'publicProfileTextColor'
+              | 'publicProfileBackgroundColor';
             setFormData(prev => ({
                 ...prev!,
                 brandGuidelines: {
@@ -194,6 +196,7 @@ const ProfileCard: React.FC = () => {
                   toneOfVoice: '',
                   publicProfileAccentColor: '',
                   publicProfileTextColor: '',
+                  publicProfileBackgroundColor: '',
                 },
                 createdAt: response.user.createdAt,
                 updatedAt: response.user.updatedAt,
@@ -239,6 +242,7 @@ const ProfileCard: React.FC = () => {
                       toneOfVoice: '',
                       publicProfileAccentColor: '',
                       publicProfileTextColor: '',
+                      publicProfileBackgroundColor: '',
                     },
                     createdAt: response.user.createdAt,
                     updatedAt: response.user.updatedAt,
@@ -382,6 +386,14 @@ const ProfileCard: React.FC = () => {
                                   name="brandGuidelines.publicProfileTextColor"
                                   placeholder="Text on public profile (#RRGGBB)"
                                   value={formData.brandGuidelines?.publicProfileTextColor || ''}
+                                  onChange={handleInputChange}
+                                  className="block w-full px-3 py-2 bg-bg-secondary border border-border-card rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-xs"
+                                />
+                                <input
+                                  type="text"
+                                  name="brandGuidelines.publicProfileBackgroundColor"
+                                  placeholder="Public profile background (#RRGGBB)"
+                                  value={formData.brandGuidelines?.publicProfileBackgroundColor || ''}
                                   onChange={handleInputChange}
                                   className="block w-full px-3 py-2 bg-bg-secondary border border-border-card rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)] text-xs"
                                 />

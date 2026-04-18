@@ -45,6 +45,7 @@ export default function IdentityProfileEditor() {
       toneOfVoice: '',
       publicProfileAccentColor: '',
       publicProfileTextColor: '',
+      publicProfileBackgroundColor: '',
     },
   });
 
@@ -79,6 +80,7 @@ export default function IdentityProfileEditor() {
         toneOfVoice: profile.brandGuidelines?.toneOfVoice || '',
         publicProfileAccentColor: profile.brandGuidelines?.publicProfileAccentColor || '',
         publicProfileTextColor: profile.brandGuidelines?.publicProfileTextColor || '',
+        publicProfileBackgroundColor: profile.brandGuidelines?.publicProfileBackgroundColor || '',
       },
     });
   }, [profile]);
@@ -299,6 +301,7 @@ export default function IdentityProfileEditor() {
           ...form.brandGuidelines,
           publicProfileAccentColor: accent,
           publicProfileTextColor: textC,
+          publicProfileBackgroundColor: bgC,
         },
       });
       await refresh();
@@ -557,8 +560,8 @@ export default function IdentityProfileEditor() {
               <div>
                 <p className="text-xs font-semibold text-text-primary">Public card &amp; QR page colors</p>
                 <p className="mt-1 text-[11px] text-text-muted leading-relaxed">
-                  Optional accent and text colors for your public profile when someone opens your link or scans your QR.
-                  Leave empty to match the site theme.
+                  Optional colors for your public profile when someone opens your link or scans your QR. Leave empty to
+                  match the site theme (default dark card background).
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">

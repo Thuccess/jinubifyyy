@@ -45,7 +45,7 @@ router.get('/profile/:slug', async (req, res) => {
       isActive: { $ne: false },
     })
       .select(
-        'name company accountType socialLinks status profileSlug phone website email photoURL galleryImages industry qrCodeUrl publicTagline publicBio professionalTitle skillsExpertise workExperience educationCertifications achievementsProjects personalInterests brandGuidelines preferredChannels',
+        'name company accountType socialLinks status profileSlug phone website email photoURL galleryImages industry qrCodeUrl publicTagline publicBio professionalTitle skillsExpertise workExperience educationCertifications achievementsProjects personalInterests brandGuidelines preferredChannels servicesOffered location',
       )
       .lean();
 
@@ -87,10 +87,16 @@ router.get('/profile/:slug', async (req, res) => {
         (bg.publicProfileAccentColor && String(bg.publicProfileAccentColor).trim()) || '',
       publicProfileTextColor:
         (bg.publicProfileTextColor && String(bg.publicProfileTextColor).trim()) || '',
+      publicProfileBackgroundColor:
+        (bg.publicProfileBackgroundColor && String(bg.publicProfileBackgroundColor).trim()) || '',
     };
     const preferredChannels = Array.isArray(user.preferredChannels)
       ? user.preferredChannels.map((c) => String(c || '').trim()).filter(Boolean)
       : [];
+    const servicesOffered = Array.isArray(user.servicesOffered)
+      ? user.servicesOffered.map((s) => String(s || '').trim()).filter(Boolean).slice(0, 24)
+      : [];
+    const location = (user.location && String(user.location).trim()) || '';
 
     res.json({
       profile: {
@@ -121,6 +127,8 @@ router.get('/profile/:slug', async (req, res) => {
         personalInterests: Array.isArray(user.personalInterests)
           ? user.personalInterests.map((entry) => String(entry || '').trim()).filter(Boolean)
           : [],
+        servicesOffered,
+        location,
         heroImageUrl,
         galleryImages: Array.isArray(user.galleryImages)
           ? user.galleryImages.map((entry) => String(entry || '').trim()).filter(Boolean).slice(0, 4)

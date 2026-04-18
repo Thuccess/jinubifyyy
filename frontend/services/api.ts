@@ -237,6 +237,9 @@ export type PublicProfilePayload = {
   educationCertifications?: string[];
   achievementsProjects?: string[];
   personalInterests?: string[];
+  /** Short service labels (especially business accounts) */
+  servicesOffered?: string[];
+  location?: string;
   heroImageUrl: string;
   photoURL?: string;
   galleryImages?: string[];
@@ -251,6 +254,7 @@ export type PublicProfilePayload = {
     secondaryColor: string;
     publicProfileAccentColor: string;
     publicProfileTextColor: string;
+    publicProfileBackgroundColor: string;
   };
   qrCodeUrl: string;
   verified: boolean;

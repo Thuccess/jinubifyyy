@@ -210,6 +210,8 @@ const userSchema = new mongoose.Schema({
     toneOfVoice: { type: String, trim: true, default: '' },
     publicProfileAccentColor: { type: String, trim: true, default: '' },
     publicProfileTextColor: { type: String, trim: true, default: '' },
+    /** Solid background behind public /u/:slug card (below cover) */
+    publicProfileBackgroundColor: { type: String, trim: true, default: '' },
   },
   approvedAt: {
     type: Date,

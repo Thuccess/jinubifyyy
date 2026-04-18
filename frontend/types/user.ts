@@ -34,6 +34,7 @@ export interface UserProfile {
     toneOfVoice?: string;
     publicProfileAccentColor?: string;
     publicProfileTextColor?: string;
+    publicProfileBackgroundColor?: string;
   };
   createdAt: string;
   updatedAt: string;
@@ -67,6 +68,7 @@ export interface UpdateProfileData {
     toneOfVoice?: string;
     publicProfileAccentColor?: string;
     publicProfileTextColor?: string;
+    publicProfileBackgroundColor?: string;
   };
 }
 

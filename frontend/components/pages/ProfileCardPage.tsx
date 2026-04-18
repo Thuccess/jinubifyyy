@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { FaEnvelope, FaGlobe, FaImages, FaPhone } from 'react-icons/fa';
+import { FaEnvelope, FaGlobe, FaImages, FaMapMarkerAlt, FaPhone } from 'react-icons/fa';
 import { LinkIcon } from '@/components/icons/Icons';
 import {
   normalizeSocialPlatformId,
@@ -211,22 +211,42 @@ const ProfileCardPage: React.FC = () => {
   const educationCertifications = (profile?.educationCertifications || []).filter(Boolean);
   const achievementsProjects = (profile?.achievementsProjects || []).filter(Boolean);
   const personalInterests = (profile?.personalInterests || []).filter(Boolean);
+  const servicesOffered = (profile?.servicesOffered || []).filter(Boolean);
+  const locationText = profile?.location?.trim() || '';
   const galleryImages = (profile?.galleryImages || []).filter(Boolean).slice(0, 4);
   const accentColor = profile?.brandGuidelines?.publicProfileAccentColor?.trim() ?? '';
   const textColor = profile?.brandGuidelines?.publicProfileTextColor?.trim() ?? '';
-  const usePublicProfileColors = Boolean(accentColor || textColor);
+  const backgroundColor = profile?.brandGuidelines?.publicProfileBackgroundColor?.trim() ?? '';
   const textLum = textColor ? textLuminance(textColor) : null;
-  const badgeIsDark = textLum != null ? textLum > 0.45 : isDark;
+  const bgLum = backgroundColor ? textLuminance(backgroundColor) : null;
+  /** Dark-style chrome and foreground when profile uses a dark surface or light text */
+  const profileUiDark =
+    textColor && textLum != null
+      ? textLum > 0.45
+      : backgroundColor && bgLum != null
+        ? bgLum < 0.42
+        : isDark;
+  const useArticleTheme = Boolean(accentColor || textColor || backgroundColor);
+  const badgeIsDark =
+    textLum != null
+      ? textLum > 0.45
+      : backgroundColor && bgLum != null
+        ? bgLum < 0.42
+        : isDark;
 
   const pageTextClass = isDark ? 'text-white/85' : 'text-slate-800/85';
   const pageMutedTextClass = isDark ? 'text-white/65' : 'text-slate-700/65';
-  const cardBottomOverlayClass = isDark
-    ? 'bg-gradient-to-t from-black/92 via-black/65 to-transparent border-white/10'
-    : 'bg-gradient-to-t from-white/94 via-white/72 to-transparent border-black/10';
+  const cardBottomOverlayClass = backgroundColor
+    ? profileUiDark
+      ? 'bg-gradient-to-t from-black/55 via-black/20 to-transparent border-white/10'
+      : 'bg-gradient-to-t from-white/80 via-white/35 to-transparent border-black/10'
+    : profileUiDark
+      ? 'bg-gradient-to-t from-black/92 via-black/65 to-transparent border-white/10'
+      : 'bg-gradient-to-t from-white/94 via-white/72 to-transparent border-black/10';
   const chipClass =
     accentColor || textColor
       ? 'border text-[color:var(--pp-text)] backdrop-blur-xl hover:opacity-95'
-      : isDark
+      : profileUiDark
         ? 'border-white/20 bg-black/45 text-white hover:bg-black/55'
         : 'border-black/15 bg-white/70 text-slate-800 hover:bg-white/85';
   const chipSurfaceStyle: React.CSSProperties = {};
@@ -244,7 +264,7 @@ const ProfileCardPage: React.FC = () => {
   const glassPanelClass =
     accentColor || textColor
       ? 'border backdrop-blur-md'
-      : isDark
+      : profileUiDark
         ? 'border-white/10 bg-white/5'
         : 'border-black/10 bg-white/55';
   const glassPanelStyle: React.CSSProperties =
@@ -259,48 +279,54 @@ const ProfileCardPage: React.FC = () => {
             backgroundColor: rgbaFromHex(textColor, 0.06),
           }
         : {};
-  const headingTextClass = textColor
+  const headingTextClass = useArticleTheme
     ? 'text-[color:var(--pp-text)]'
-    : isDark
+    : profileUiDark
       ? 'text-white'
       : 'text-slate-900';
-  const subheadingMutedClass = textColor
+  const subheadingMutedClass = useArticleTheme
     ? 'text-[color:var(--pp-muted)]'
-    : isDark
+    : profileUiDark
       ? 'text-white/75'
       : 'text-slate-700/80';
-  const bodyLeadClass = textColor
+  const bodyLeadClass = useArticleTheme
     ? 'text-[color:var(--pp-text)]'
-    : isDark
+    : profileUiDark
       ? 'text-white/85'
       : 'text-slate-800/82';
-  const statsLabelClass = textColor ? 'text-[color:var(--pp-muted)]' : pageMutedTextClass;
+  const statsLabelClass = useArticleTheme ? 'text-[color:var(--pp-muted)]' : pageMutedTextClass;
   const statsValueClass = headingTextClass;
   const linkLikeClass = accentColor
     ? 'text-[color:var(--pp-accent)] hover:opacity-90'
     : textColor
       ? 'text-[color:var(--pp-text)] hover:opacity-90'
-      : isDark
-        ? 'text-white/85 hover:text-white'
-        : 'text-slate-800 hover:text-slate-950';
+      : useArticleTheme
+        ? 'text-[color:var(--pp-text)] hover:opacity-90'
+        : profileUiDark
+          ? 'text-white/85 hover:text-white'
+          : 'text-slate-800 hover:text-slate-950';
   const contactLinkClass = accentColor
     ? 'text-[color:var(--pp-accent)] hover:opacity-90 underline-offset-2 hover:underline'
     : textColor
       ? 'text-[color:var(--pp-text)] hover:opacity-90 underline-offset-2 hover:underline'
-      : isDark
-        ? 'text-white/90 hover:text-white'
-        : 'text-slate-800 hover:text-slate-950';
+      : useArticleTheme
+        ? 'text-[color:var(--pp-text)] hover:opacity-90 underline-offset-2 hover:underline'
+        : profileUiDark
+          ? 'text-white/90 hover:text-white'
+          : 'text-slate-800 hover:text-slate-950';
   const websiteLinkClass = accentColor
     ? 'text-[color:var(--pp-accent)] hover:opacity-90 underline-offset-2 hover:underline'
     : textColor
       ? 'text-[color:var(--pp-text)] hover:opacity-90 underline-offset-2 hover:underline'
-      : isDark
-        ? 'text-cyan-300 hover:text-cyan-200'
-        : 'text-blue-700 hover:text-blue-800';
+      : useArticleTheme
+        ? 'text-[color:var(--pp-accent)] hover:opacity-90 underline-offset-2 hover:underline'
+        : profileUiDark
+          ? 'text-cyan-300 hover:text-cyan-200'
+          : 'text-blue-700 hover:text-blue-800';
   const socialPillClass =
     accentColor || textColor
       ? 'border text-[color:var(--pp-text)] backdrop-blur-md transition hover:opacity-95'
-      : isDark
+      : profileUiDark
         ? 'border-white/15 bg-white/[0.08] text-white hover:bg-white/[0.16]'
         : 'border-black/10 bg-white/75 text-slate-800 hover:bg-white/95';
   const socialPillStyle: React.CSSProperties = {};
@@ -311,33 +337,35 @@ const ProfileCardPage: React.FC = () => {
     socialPillStyle.borderColor = rgbaFromHex(textColor, 0.32);
     socialPillStyle.backgroundColor = rgbaFromHex(textColor, 0.08);
   }
-  const socialPillChevronClass = textColor
+  const socialPillChevronClass = useArticleTheme
     ? 'text-[color:var(--pp-muted)]'
-    : isDark
+    : profileUiDark
       ? 'text-white/80'
       : 'text-slate-700/75';
-  const poweredByClass = textColor ? 'text-[color:var(--pp-muted)]' : pageMutedTextClass;
+  const poweredByClass = useArticleTheme ? 'text-[color:var(--pp-muted)]' : pageMutedTextClass;
   const poweredByLinkClass = accentColor
     ? 'font-semibold text-[color:var(--pp-accent)] hover:opacity-90'
     : textColor
       ? 'font-semibold text-[color:var(--pp-text)] hover:opacity-90'
-      : isDark
-        ? 'font-semibold text-white/85 hover:text-white'
-        : 'font-semibold text-slate-800 hover:text-slate-950';
+      : useArticleTheme
+        ? 'font-semibold text-[color:var(--pp-accent)] hover:opacity-90'
+        : profileUiDark
+          ? 'font-semibold text-white/85 hover:text-white'
+          : 'font-semibold text-slate-800 hover:text-slate-950';
 
-  const articleProfileColorStyle: React.CSSProperties | undefined = usePublicProfileColors
+  const articleProfileColorStyle: React.CSSProperties | undefined = useArticleTheme
     ? ({
         '--pp-text': textColor
           ? textColor
-          : isDark
+          : profileUiDark
             ? 'rgba(255,255,255,0.92)'
             : 'rgb(15 23 42)',
         '--pp-muted': textColor
           ? rgbaFromHex(textColor, 0.72) || 'rgba(148,163,184,0.85)'
-          : isDark
+          : profileUiDark
             ? 'rgba(255,255,255,0.65)'
             : 'rgba(51,65,85,0.78)',
-        '--pp-accent': accentColor || (isDark ? '#93c5fd' : '#4f46e5'),
+        '--pp-accent': accentColor || (profileUiDark ? '#93c5fd' : '#4f46e5'),
       } as React.CSSProperties)
     : undefined;
 
@@ -469,56 +497,62 @@ const ProfileCardPage: React.FC = () => {
                 style={articleProfileColorStyle}
                 aria-label={`Profile of ${profile.displayName}`}
               >
-                <section className="relative w-full min-h-[140px] h-36 overflow-hidden bg-white sm:min-h-[168px] sm:h-44 md:min-h-[196px] md:h-52 lg:min-h-[224px] lg:h-60">
-                  {coverImage && !imgError ? (
-                    // eslint-disable-next-line @next/next/no-img-element -- remote user media
-                    <img
-                      src={coverImage}
-                      alt=""
-                      width={760}
-                      height={430}
-                      className={`h-full w-full object-cover transition-opacity duration-700 ease-out ${
-                        imgLoaded ? 'opacity-100' : 'opacity-0'
-                      }`}
-                      loading="lazy"
-                      decoding="async"
-                      onLoad={() => setImgLoaded(true)}
-                      onError={() => setImgError(true)}
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-white text-3xl font-bold text-zinc-400 sm:text-4xl md:text-5xl" aria-hidden>
-                      {profile.displayName.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                  <div
-                    className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/20 to-transparent sm:h-16 md:h-20"
-                    aria-hidden
-                  />
-                </section>
-
-                <div className="border-t border-black bg-black">
-                  <div className="mx-auto flex w-full max-w-4xl justify-start px-4 pt-3 pb-2 sm:px-6 sm:pt-4 sm:pb-3 md:px-10 md:pt-5 md:pb-4 lg:px-14">
-                    <div className="ring-[3px] ring-white sm:ring-4 md:ring-[5px] rounded-full shadow-[0_12px_28px_-8px_rgba(0,0,0,0.55)]">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                <div className="relative w-full">
+                  <section className="relative w-full min-h-[140px] h-36 overflow-hidden bg-white sm:min-h-[168px] sm:h-44 md:min-h-[196px] md:h-52 lg:min-h-[224px] lg:h-60">
+                    {coverImage && !imgError ? (
+                      // eslint-disable-next-line @next/next/no-img-element -- remote user media
                       <img
-                        src={
-                          avatarImage ||
-                          `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.displayName)}&background=random`
-                        }
-                        alt={`${profile.displayName} avatar`}
-                        width={112}
-                        height={112}
+                        src={coverImage}
+                        alt=""
+                        width={760}
+                        height={430}
+                        className={`h-full w-full object-cover transition-opacity duration-700 ease-out ${
+                          imgLoaded ? 'opacity-100' : 'opacity-0'
+                        }`}
                         loading="lazy"
                         decoding="async"
-                        className="h-16 w-16 rounded-full border border-black/10 object-cover sm:h-[4.5rem] sm:w-[4.5rem] md:h-24 md:w-24 lg:h-28 lg:w-28"
+                        onLoad={() => setImgLoaded(true)}
+                        onError={() => setImgError(true)}
                       />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-white text-3xl font-bold text-zinc-400 sm:text-4xl md:text-5xl" aria-hidden>
+                        {profile.displayName.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div
+                      className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-14 bg-gradient-to-t from-black/25 to-transparent sm:h-16 md:h-20"
+                      aria-hidden
+                    />
+                  </section>
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex justify-start">
+                    <div className="mx-auto flex w-full max-w-4xl justify-start px-4 sm:px-6 md:px-10 lg:px-14">
+                      <div className="pointer-events-auto translate-y-1/2">
+                        <div className="ring-[3px] ring-white sm:ring-4 md:ring-[5px] rounded-full shadow-[0_12px_28px_-8px_rgba(0,0,0,0.55)]">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={
+                              avatarImage ||
+                              `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.displayName)}&background=random`
+                            }
+                            alt={`${profile.displayName} avatar`}
+                            width={112}
+                            height={112}
+                            loading="lazy"
+                            decoding="async"
+                            className="h-16 w-16 rounded-full border border-black/10 object-cover sm:h-[4.5rem] sm:w-[4.5rem] md:h-24 md:w-24 lg:h-28 lg:w-28"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <section className="border-t border-black bg-black">
+                <section
+                  className={backgroundColor ? '' : 'bg-black'}
+                  style={backgroundColor ? { backgroundColor } : undefined}
+                >
                   <div
-                    className={`mx-auto w-full max-w-4xl px-4 pb-5 pt-2 sm:px-6 sm:pb-6 sm:pt-3 md:px-10 md:pb-8 md:pt-4 lg:px-14 backdrop-blur-[22px] ${cardBottomOverlayClass}`}
+                    className={`mx-auto w-full max-w-4xl px-4 pb-5 pt-10 sm:px-6 sm:pb-6 sm:pt-12 md:px-10 md:pb-8 md:pt-14 lg:px-14 lg:pt-16 backdrop-blur-[22px] ${cardBottomOverlayClass}`}
                   >
                     <div>
                       <div className="flex flex-col items-stretch">
@@ -527,7 +561,7 @@ const ProfileCardPage: React.FC = () => {
                             className={`sticky top-0 z-20 -mx-1 mb-2 rounded-xl border px-3 py-2.5 backdrop-blur-xl sm:-mx-2 sm:px-4 ${
                               accentColor || textColor
                                 ? glassPanelClass
-                                : isDark
+                                : profileUiDark
                                   ? 'border-white/20 bg-black/62'
                                   : 'border-black/15 bg-white/78'
                             }`}
@@ -555,7 +589,7 @@ const ProfileCardPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className={`mt-4 border-t pt-3.5 sm:pt-4 ${isDark ? 'border-white/12' : 'border-black/12'}`}>
+                    <div className={`mt-4 border-t pt-3.5 sm:pt-4 ${profileUiDark ? 'border-white/12' : 'border-black/12'}`}>
                     <div
                       className={`mt-3.5 grid grid-cols-2 gap-2 rounded-2xl border px-3 py-2 ${glassPanelClass}`}
                       style={accentColor || textColor ? glassPanelStyle : undefined}
@@ -649,12 +683,34 @@ const ProfileCardPage: React.FC = () => {
                       </div>
                     ) : null}
 
+                    {servicesOffered.length > 0 ? (
+                      <div
+                        className={`mt-4 rounded-2xl border p-3.5 md:p-4 ${glassPanelClass}`}
+                        style={accentColor || textColor ? glassPanelStyle : undefined}
+                      >
+                        <p className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${statsLabelClass}`}>
+                          Services
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {servicesOffered.map((label, index) => (
+                            <span
+                              key={`${label}-${index}`}
+                              style={accentColor || textColor ? socialPillStyle : undefined}
+                              className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] ${socialPillClass}`}
+                            >
+                              {label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+
                     {featuredSocialLinks.length > 0 ? (
                       <div
                         className={`mt-4 rounded-2xl border p-3.5 md:p-4 ${
                           accentColor || textColor
                             ? glassPanelClass
-                            : isDark
+                            : profileUiDark
                               ? `${glassPanelClass} md:bg-gradient-to-br md:from-white/[0.11] md:via-white/[0.06] md:to-white/[0.04]`
                               : `${glassPanelClass} md:bg-gradient-to-br md:from-white/95 md:via-white/78 md:to-white/70`
                         }`}
@@ -743,7 +799,7 @@ const ProfileCardPage: React.FC = () => {
                       <InfoListBlock
                         title="Work experience"
                         items={workExperience}
-                        isDark={isDark}
+                        isDark={profileUiDark}
                         className={glassPanelClass}
                         style={accentColor || textColor ? glassPanelStyle : undefined}
                         labelClass={statsLabelClass}
@@ -755,7 +811,7 @@ const ProfileCardPage: React.FC = () => {
                       <InfoListBlock
                         title="Education & certifications"
                         items={educationCertifications}
-                        isDark={isDark}
+                        isDark={profileUiDark}
                         className={glassPanelClass}
                         style={accentColor || textColor ? glassPanelStyle : undefined}
                         labelClass={statsLabelClass}
@@ -767,7 +823,7 @@ const ProfileCardPage: React.FC = () => {
                       <InfoListBlock
                         title="Achievements & notable projects"
                         items={achievementsProjects}
-                        isDark={isDark}
+                        isDark={profileUiDark}
                         className={glassPanelClass}
                         style={accentColor || textColor ? glassPanelStyle : undefined}
                         labelClass={statsLabelClass}
@@ -842,8 +898,14 @@ const ProfileCardPage: React.FC = () => {
                             </a>
                           </li>
                         ) : null}
+                        {locationText ? (
+                          <li className={`flex items-start gap-2 text-xs ${profile.email || profile.phone ? 'pt-1.5' : ''}`}>
+                            <FaMapMarkerAlt className={`mt-0.5 h-3 w-3 shrink-0 ${statsLabelClass}`} aria-hidden />
+                            <span className={`leading-snug ${bodyLeadClass}`}>{locationText}</span>
+                          </li>
+                        ) : null}
                         {profile.website ? (
-                          <li className={`flex items-center gap-2 text-xs pt-1.5 ${isDark ? 'border-t border-white/10' : 'border-t border-black/10'}`}>
+                          <li className={`flex items-center gap-2 text-xs pt-1.5 ${profileUiDark ? 'border-t border-white/10' : 'border-t border-black/10'}`}>
                             <FaGlobe className={`h-3 w-3 shrink-0 ${statsLabelClass}`} aria-hidden />
                             <a
                               href={profile.website}

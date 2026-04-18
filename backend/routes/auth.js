@@ -51,6 +51,7 @@ function toSessionUser(u) {
       toneOfVoice: '',
       publicProfileAccentColor: '',
       publicProfileTextColor: '',
+      publicProfileBackgroundColor: '',
     },
     lastLoginAt: o.lastLoginAt,
     isActive: o.isActive !== false,
@@ -416,6 +417,7 @@ router.get('/me', authenticate, verifyApproved, async (req, res) => {
             toneOfVoice: '',
             publicProfileAccentColor: '',
             publicProfileTextColor: '',
+            publicProfileBackgroundColor: '',
           },
           lastLoginAt: req.user.lastLoginAt,
         };
