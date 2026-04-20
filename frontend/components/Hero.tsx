@@ -33,9 +33,6 @@ const DEFAULT_HERO: HeroContent = {
 const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
     const heroRef = useRef<HTMLDivElement>(null);
     const c = cmsContent && Object.keys(cmsContent).length > 0 ? { ...DEFAULT_HERO, ...cmsContent } : DEFAULT_HERO;
-    const rawHeading = (c.heading || DEFAULT_HERO.heading).trim();
-    const headingParts = rawHeading.split(/ for /i);
-    const headingHasFor = headingParts.length >= 2;
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -169,22 +166,10 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
           <div className="relative hero-gap-heading">
             <div className="pointer-events-none absolute -inset-x-10 -top-6 h-32 bg-[radial-gradient(circle_at_top,var(--accent-soft)_0,transparent_60%)] opacity-70 blur-0"></div>
             <h1
-              className={`relative hero-heading font-extrabold tracking-tight pb-2 animate-fade-in-up ${
-                headingHasFor ? '' : 'text-text-primary'
-              }`}
+              className="relative hero-heading font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[color:var(--text-primary)] to-[color:var(--text-secondary)] pb-2 animate-fade-in-up"
               style={{ animationDelay: '200ms' }}
             >
-              {headingHasFor ? (
-                <>
-                  <span className="home-text-gradient">{headingParts[0]}</span>
-                  <span className="text-text-primary">
-                    {' '}
-                    for {headingParts.slice(1).join(' for ')}
-                  </span>
-                </>
-              ) : (
-                <span className="text-text-primary">{rawHeading}</span>
-              )}{' '}
+              {c.heading || DEFAULT_HERO.heading}{' '}
               <span className="inline-flex align-middle">
                 <Icon icon={WandIcon} size="lg" tone="brand" />
               </span>
@@ -199,7 +184,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
           <div className="animate-fade-in-up hero-gap-after-cta" style={{ animationDelay: '400ms' }}>
             <Link
               href={c.ctaHref || '/request-quote'}
-              className="home-cta-gradient relative overflow-hidden btn-shine group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 ring-2 ring-white/25 focus-visible:ring-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-[color:var(--bg-primary)]"
+              className="relative overflow-hidden btn-shine group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 ring-2 ring-black/15 dark:ring-white/25 focus-visible:ring-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-[color:var(--bg-primary)] !bg-black !text-white hover:!bg-neutral-800 dark:!bg-white dark:!text-black dark:hover:!bg-neutral-200"
             >
               {c.ctaText}{' '}
               <span className="ml-2 inline-flex">
@@ -207,7 +192,7 @@ const Hero: React.FC<{ content?: HeroContent }> = ({ content: cmsContent }) => {
                   icon={PaperAirplaneIcon}
                   size="sm"
                   tone="inverted"
-                  className="!text-white transition-transform duration-300 group-hover:translate-x-1"
+                  className="!text-white dark:!text-black transition-transform duration-300 group-hover:translate-x-1"
                 />
               </span>
             </Link>

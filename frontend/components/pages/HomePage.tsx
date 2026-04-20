@@ -48,14 +48,10 @@ const HomePage: React.FC = () => {
   const hasSections = Array.isArray(homePage?.sections) && homePage.sections.length > 0;
 
   if (!hasSections) {
-    return <div className="home-accent-scope">{FALLBACK_SECTIONS}</div>;
+    return <>{FALLBACK_SECTIONS}</>;
   }
 
-  return (
-    <div className="home-accent-scope">
-      <CmsPageSectionRenderer slug="home" fallback={FALLBACK_SECTIONS} />
-    </div>
-  );
+  return <CmsPageSectionRenderer slug="home" fallback={FALLBACK_SECTIONS} />;
 };
 
 export default HomePage;

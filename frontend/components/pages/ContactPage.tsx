@@ -2,11 +2,10 @@
 
 import React, { useState } from 'react';
 import AnimatedSection from '../AnimatedSection';
-import { TwitterIcon, FacebookIcon, LinkedInIcon, TikTokIcon } from '../icons/Socials';
+import { TwitterIcon, InstagramIcon, FacebookIcon, YouTubeIcon, LinkedInIcon, TikTokIcon } from '../icons/Socials';
 import { MapPinIcon, EnvelopeIcon, PhoneIcon } from '../icons/Icons';
 import { contactAPI } from '../../services/api';
 import { useSocialLinks } from '../../hooks/useSocialLinks';
-import { mergeCompanySocials } from '@/config/companySocialLinks';
 
 // --- Subcomponents ---
 
@@ -120,13 +119,14 @@ const InfoItem: React.FC<{ icon: React.ReactNode; title: string; children: React
 
 const ContactPage: React.FC = () => {
   const { socials } = useSocialLinks();
-  const merged = mergeCompanySocials(socials);
 
   const socialLinks = [
-    { name: 'TikTok', href: merged.tiktok, icon: <TikTokIcon className="w-5 h-5" /> },
-    { name: 'Facebook', href: merged.facebook, icon: <FacebookIcon className="w-5 h-5" /> },
-    { name: 'LinkedIn', href: merged.linkedin, icon: <LinkedInIcon className="w-5 h-5" /> },
-    { name: 'X', href: merged.twitter, icon: <TwitterIcon className="w-5 h-5" /> },
+    { name: 'X', href: socials?.twitter ?? '', icon: <TwitterIcon className="w-5 h-5" /> },
+    { name: 'Instagram', href: socials?.instagram ?? '', icon: <InstagramIcon className="w-5 h-5" /> },
+    { name: 'Facebook', href: socials?.facebook ?? '', icon: <FacebookIcon className="w-5 h-5" /> },
+    { name: 'YouTube', href: socials?.youtube ?? '', icon: <YouTubeIcon className="w-5 h-5" /> },
+    { name: 'LinkedIn', href: socials?.linkedin ?? '', icon: <LinkedInIcon className="w-5 h-5" /> },
+    { name: 'TikTok', href: socials?.tiktok ?? '', icon: <TikTokIcon className="w-5 h-5" /> },
   ].filter((l) => Boolean(l.href));
 
   return (
