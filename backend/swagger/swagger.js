@@ -9,7 +9,7 @@ const options = {
       description: 'API documentation for Jinubify - Freelance Tech Services Platform',
       contact: {
         name: 'Jinubify Support',
-        email: 'jinubify1@gmail.com',
+        email: 'ruotmaliah654@gmail.com',
       },
     },
     servers: [

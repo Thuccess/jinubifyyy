@@ -25,7 +25,7 @@ To enable email notifications from the contact form, configure Gmail SMTP:
 ```env
 SMTP_USER=your-email@gmail.com
 SMTP_PASS=your-16-character-app-password
-CONTACT_EMAIL=jinubify1@gmail.com
+CONTACT_EMAIL=ruotmaliah654@gmail.com
 ```
 
 **Note:** If you don't configure SMTP, the contact form will still save submissions to the database, but no email will be sent.

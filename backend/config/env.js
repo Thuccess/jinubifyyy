@@ -12,7 +12,7 @@ const optionalEnvVars = {
   JWT_EXPIRES_IN: '7d',
   SMTP_HOST: 'smtp.gmail.com',
   SMTP_PORT: 587,
-  CONTACT_EMAIL: 'jinubify1@gmail.com',
+  CONTACT_EMAIL: 'ruotmaliah654@gmail.com',
 };
 
 export const validateEnv = () => {

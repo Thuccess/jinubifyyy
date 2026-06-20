@@ -24,7 +24,7 @@ const config = {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
-  contactEmail: process.env.CONTACT_EMAIL || 'jinubify1@gmail.com',
+  contactEmail: process.env.CONTACT_EMAIL || 'ruotmaliah654@gmail.com',
 };
 
 export default config;

@@ -150,10 +150,10 @@ const ContactPage: React.FC = () => {
                                 <p className="text-sm text-text-secondary">Kampala, Uganda</p>
                             </InfoItem>
                             <InfoItem icon={<EnvelopeIcon className="w-5 h-5 text-text-primary" />} title="Email Us">
-                                <a href="mailto:jinubify1@gmail.com" className="text-sm text-text-secondary hover:text-brand-primary">jinubify1@gmail.com</a>
+                                <a href="mailto:ruotmaliah654@gmail.com" className="text-sm text-text-secondary hover:text-brand-primary">ruotmaliah654@gmail.com</a>
                             </InfoItem>
                             <InfoItem icon={<PhoneIcon className="w-5 h-5 text-text-primary" />} title="Call or WhatsApp">
-                                <a href="tel:+256766211792" className="text-sm text-text-secondary hover:text-brand-primary">+256 766 211792</a>
+                                <a href="tel:+256790077109" className="text-sm text-text-secondary hover:text-brand-primary">+256 790 077109</a>
                             </InfoItem>
                             <div className="pt-6 border-t border-border-subtle">
                                 <h3 className="text-sm font-semibold text-text-primary">Follow Us</h3>

@@ -67,7 +67,7 @@ router.post(
         try {
           await transporter.sendMail({
             from: process.env.SMTP_USER,
-            to: process.env.CONTACT_EMAIL || 'jinubify1@gmail.com',
+            to: process.env.CONTACT_EMAIL || 'ruotmaliah654@gmail.com',
             subject: `Contact Form Submission: ${subject}`,
             html: `
               <h2>New Contact Form Submission</h2>
